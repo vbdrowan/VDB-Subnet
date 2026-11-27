@@ -413,24 +413,18 @@
           </div>
         </button>
 
-        <!-- TAB: NET -->
-        <button data-tab="NET" data-locked="true" disabled aria-disabled="true" class="nav-module locked text-left" type="button">
+        <!-- TAB: ROSTER -->
+        <button data-tab="ROSTER" class="nav-module text-left" type="button">
           <div class="icon-bracket">
             <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
-            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
-              <circle cx="12" cy="12" r="8.5" />
-              <ellipse cx="12" cy="12" rx="4" ry="8.5" />
-              <line x1="3.5" y1="12" x2="20.5" y2="12" />
-              <path d="M5 7.5 Q12 9.5 19 7.5" />
-              <path d="M5 16.5 Q12 14.5 19 16.5" />
+            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <circle cx="12" cy="8.5" r="3.5" fill="rgba(72,209,232,0.16)" />
+              <path d="M5 19.5c0-3.5 3.1-6 7-6s7 2.5 7 6" />
             </svg>
           </div>
           <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#58b9cc] leading-none">NET</div>
-              <span class="font-mono-tech text-[9px] tracking-wider uppercase px-1.5 py-0.5 border border-[#7a2028] bg-[#3a0d12]/60 text-[#e05a65] leading-none">Under Development</span>
-            </div>
-            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">NETWATCH // RELAYS</div>
+            <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#7df9ff] leading-none">ROSTER</div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">NETWATCH // OPERATIVES</div>
           </div>
         </button>
 
@@ -532,13 +526,20 @@
             </div>
 
             <div class="flex items-center gap-2">
-              <span id="record-count" class="font-mono-tech text-[11px] text-[#397c8a] hidden sm:inline mr-2">10 RECORDS</span>
+              <span id="record-count" class="font-mono-tech text-[11px] text-[#397c8a] hidden sm:inline mr-2">0 RECORDS</span>
               <button
                 id="new-entry-btn"
                 type="button"
                 class="font-mono-tech text-xs px-3 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider"
               >
                 + ARCHIVE_ENTRY
+              </button>
+              <button
+                id="new-member-btn"
+                type="button"
+                class="hidden font-mono-tech text-xs px-3 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider"
+              >
+                + ADD NEW MEMBER
               </button>
             </div>
           </div>
@@ -622,9 +623,14 @@
 
       <!-- Modal Footer Actions -->
       <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
-        <button id="modal-delete-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors">
-          PURGE_SHARD
-        </button>
+        <div class="flex items-center gap-2">
+          <button id="modal-delete-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors">
+            PURGE_SHARD
+          </button>
+          <button id="modal-edit-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors">
+            EDIT_SHARD
+          </button>
+        </div>
         <div class="flex items-center gap-2">
           <span id="copy-feedback" class="font-mono-tech text-[11px] text-[#7df9ff] opacity-0 transition-opacity">COPIED TO BUFFER</span>
           <button id="modal-copy-btn" type="button" class="cp-btn text-xs py-1.5 px-4">
@@ -636,14 +642,14 @@
   </div>
 
   <!-- =========================================================
-       4. NEW ARCHIVE ENTRY MODAL
+       4. CREATE / EDIT ARCHIVE ENTRY MODAL
        ========================================================= -->
   <div id="create-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
     <form id="create-form" class="w-full max-w-lg border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
       <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
         <div>
-          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">WRITE_PROTOCOL // NEW_RECORD</div>
-          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">ARCHIVE NEW SHARD</h2>
+          <div id="create-modal-meta" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">WRITE_PROTOCOL // NEW_RECORD</div>
+          <h2 id="create-modal-title" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">ARCHIVE NEW SHARD</h2>
         </div>
         <button id="close-create-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
           [X]
@@ -737,8 +743,68 @@
         <button id="cancel-create-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
           CANCEL
         </button>
-        <button type="submit" class="cp-btn text-xs py-1.5 px-5">
+        <button id="create-submit-btn" type="submit" class="cp-btn text-xs py-1.5 px-5">
           COMMIT TO ARCHIVE
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================================================
+       4B. ADD / EDIT ROSTER MEMBER MODAL (ADMIN ONLY)
+       ========================================================= -->
+  <div id="member-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="member-form" class="w-full max-w-md border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div id="member-modal-meta" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">ROSTER_PROTOCOL // NEW_OPERATIVE</div>
+          <h2 id="member-modal-title" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">ADD NEW MEMBER</h2>
+        </div>
+        <button id="close-member-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-3.5">
+        <div>
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">MEMBER NAME / HANDLE</label>
+          <input
+            id="member-name-input"
+            type="text"
+            required
+            placeholder="E.G. MAMON_BRIGITTE"
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
+          />
+        </div>
+        <div>
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ROLE / DESIGNATION (OPTIONAL)</label>
+          <input
+            id="member-role-input"
+            type="text"
+            placeholder="E.G. NETRUNNER // SUBNET_OPS"
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
+          />
+        </div>
+        <div id="member-leadership-wrap" class="pt-1">
+          <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              id="member-leadership-input"
+              type="checkbox"
+              class="w-4 h-4 accent-[#48d1e8] bg-[#040c10] border border-[#236978] cursor-pointer"
+            />
+            <span class="font-mono-tech text-[11px] text-[#7df9ff] tracking-widest uppercase">
+              DESIGNATE AS LEADERSHIP
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button id="cancel-member-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+          CANCEL
+        </button>
+        <button id="member-submit-btn" type="submit" class="cp-btn text-xs py-1.5 px-5">
+          ADD MEMBER
         </button>
       </div>
     </form>
@@ -780,10 +846,12 @@
 
     let db = null;
     let shardsCollection = null;
+    let rosterCollection = null;
     try {
       const firebaseApp = initializeApp(firebaseConfig);
       db = getFirestore(firebaseApp);
       shardsCollection = collection(db, "archive_shards");
+      rosterCollection = collection(db, "roster_members");
     } catch (initErr) {
       console.error("Firebase initialization warning:", initErr);
     }
@@ -852,8 +920,11 @@
     ]);
 
     let records = [];
+    let rosterMembers = [];
     let activeTab = 'FILES';
     let selectedId = null;
+    let editingShardId = null;
+    let editingMemberId = null;
     let currentUser = 'ADMIN';
     let pendingImageDataUrl = null;
 
@@ -880,6 +951,19 @@
     const itemsGrid = document.getElementById('items-grid');
     const emptyState = document.getElementById('empty-state');
     const newEntryBtn = document.getElementById('new-entry-btn');
+    const newMemberBtn = document.getElementById('new-member-btn');
+
+    const memberModal = document.getElementById('member-modal');
+    const memberForm = document.getElementById('member-form');
+    const memberModalMeta = document.getElementById('member-modal-meta');
+    const memberModalTitle = document.getElementById('member-modal-title');
+    const memberSubmitBtn = document.getElementById('member-submit-btn');
+    const memberNameInput = document.getElementById('member-name-input');
+    const memberRoleInput = document.getElementById('member-role-input');
+    const memberLeadershipWrap = document.getElementById('member-leadership-wrap');
+    const memberLeadershipInput = document.getElementById('member-leadership-input');
+    const closeMemberBtn = document.getElementById('close-member-btn');
+    const cancelMemberBtn = document.getElementById('cancel-member-btn');
 
     const readerModal = document.getElementById('reader-modal');
     const readerModalBox = document.getElementById('reader-modal-box');
@@ -893,11 +977,15 @@
     const modalImageThumb = document.getElementById('modal-image-thumb');
     const closeReaderBtn = document.getElementById('close-reader-btn');
     const modalDeleteBtn = document.getElementById('modal-delete-btn');
+    const modalEditBtn = document.getElementById('modal-edit-btn');
     const modalCopyBtn = document.getElementById('modal-copy-btn');
     const copyFeedback = document.getElementById('copy-feedback');
 
     const createModal = document.getElementById('create-modal');
     const createForm = document.getElementById('create-form');
+    const createModalMeta = document.getElementById('create-modal-meta');
+    const createModalTitle = document.getElementById('create-modal-title');
+    const createSubmitBtn = document.getElementById('create-submit-btn');
     const createClassificationWrap = document.getElementById('create-classification-wrap');
     const closeCreateBtn = document.getElementById('close-create-btn');
     const cancelCreateBtn = document.getElementById('cancel-create-btn');
@@ -941,6 +1029,30 @@
       }
     }
 
+    async function saveMemberToCloud(member) {
+      if (!db) return;
+      try {
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SAVING...';
+        await setDoc(doc(db, "roster_members", member.id), member);
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
+      } catch (err) {
+        console.error("Firestore member write error:", err);
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_WRITE';
+      }
+    }
+
+    async function deleteMemberFromCloud(id) {
+      if (!db) return;
+      try {
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // PURGING...';
+        await deleteDoc(doc(db, "roster_members", id));
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
+      } catch (err) {
+        console.error("Firestore member delete error:", err);
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_DEL';
+      }
+    }
+
     if (shardsCollection) {
       onSnapshot(
         shardsCollection,
@@ -963,6 +1075,26 @@
         (error) => {
           console.error("Firestore sync error:", error);
           if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // OFFLINE';
+        }
+      );
+    }
+
+    if (rosterCollection) {
+      onSnapshot(
+        rosterCollection,
+        (snapshot) => {
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push(docSnap.data());
+          });
+          list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+          rosterMembers = list;
+          if (activeTab === 'ROSTER') {
+            renderWorkspace();
+          }
+        },
+        (error) => {
+          console.error("Roster sync error:", error);
         }
       );
     }
@@ -1060,11 +1192,30 @@
     }
 
     function renderWorkspace() {
+      const isAdmin = currentUser === 'ADMIN';
+
+      if (activeTab === 'ROSTER') {
+        newEntryBtn.classList.add('hidden');
+        if (isAdmin) {
+          newMemberBtn.classList.remove('hidden');
+        } else {
+          newMemberBtn.classList.add('hidden');
+        }
+        searchInput.placeholder = 'FILTER ROSTER MEMBERS...';
+        renderRoster();
+        return;
+      }
+
+      newEntryBtn.classList.remove('hidden');
+      newMemberBtn.classList.add('hidden');
+      searchInput.placeholder = 'FILTER ARCHIVE RECORDS...';
+
       const list = getFilteredRecords();
       recordCount.textContent = `${list.length} RECORD${list.length === 1 ? '' : 'S'}`;
 
       if (list.length === 0) {
         itemsGrid.innerHTML = '';
+        emptyState.textContent = 'NO MATCHING DATA SHARDS FOUND IN CURRENT SECTOR.';
         emptyState.classList.remove('hidden');
         return;
       }
@@ -1113,7 +1264,6 @@
         })
         .join('');
 
-      // Card single-click -> open reader modal immediately
       itemsGrid.querySelectorAll('.archive-card').forEach((cardEl) => {
         cardEl.addEventListener('click', (e) => {
           const enlargeBtn = e.target.closest('[data-enlarge-id]');
@@ -1132,6 +1282,132 @@
           openReaderModal(id);
         });
       });
+    }
+
+    function renderRoster() {
+      const q = searchInput.value.trim().toLowerCase();
+      const isAdmin = currentUser === 'ADMIN';
+      const filteredMembers = rosterMembers.filter((m) => {
+        if (!q) return true;
+        return (
+          (m.name && m.name.toLowerCase().includes(q)) ||
+          (m.role && m.role.toLowerCase().includes(q))
+        );
+      });
+
+      const compareAlphabetical = (a, b) =>
+        String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' });
+
+      const leadershipList = filteredMembers.filter((m) => Boolean(m.isLeadership)).sort(compareAlphabetical);
+      const standardMembersList = filteredMembers.filter((m) => !Boolean(m.isLeadership)).sort(compareAlphabetical);
+
+      recordCount.textContent = `${filteredMembers.length} MEMBER${filteredMembers.length === 1 ? '' : 'S'}`;
+
+      if (filteredMembers.length === 0) {
+        itemsGrid.innerHTML = '';
+        emptyState.textContent = 'NO REGISTERED MEMBERS IN ROSTER.';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      const buildMemberCardHtml = (member) => {
+        const isSelected = member.id === selectedId;
+        const isLeader = Boolean(member.isLeadership);
+        const removeBtnHtml = isAdmin
+          ? `<button
+               type="button"
+               data-remove-member-id="${escapeHtml(member.id)}"
+               title="Remove Member"
+               aria-label="Remove Member"
+               class="shrink-0 w-7 h-7 flex items-center justify-center border border-[#2b7b8c] bg-[#09212a]/85 text-[#48d1e8] hover:border-[#7df9ff] hover:bg-[#134252] hover:text-white transition-colors"
+             >
+               <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
+                 <line x1="3.5" y1="3.5" x2="12.5" y2="12.5" />
+                 <line x1="12.5" y1="3.5" x2="3.5" y2="12.5" />
+               </svg>
+             </button>`
+          : '';
+
+        return `
+          <div data-member-id="${escapeHtml(member.id)}" class="archive-card chamfer-card ${isSelected ? 'selected' : ''} ${isAdmin ? 'cursor-pointer' : 'cursor-default'}">
+            <div class="shrink-0 text-[#48d1e8]">
+              <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <circle cx="12" cy="8.5" r="3.5" fill="rgba(72,209,232,0.16)" />
+                <path d="M5 19.5c0-3.5 3.1-6 7-6s7 2.5 7 6" />
+              </svg>
+            </div>
+            <div class="min-w-0 flex-1 flex items-center justify-between gap-2">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="card-title font-hud font-bold text-base sm:text-lg tracking-[0.08em] text-[#6cd9ed] truncate">
+                    ${escapeHtml(member.name)}
+                  </div>
+                  ${isLeader ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff]">LEADERSHIP</span>' : ''}
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                  ${escapeHtml(member.role || 'ACTIVE_OPERATIVE')}
+                </div>
+              </div>
+              ${removeBtnHtml}
+            </div>
+          </div>
+        `;
+      };
+
+      const sectionsHtml = [];
+
+      if (leadershipList.length > 0) {
+        sectionsHtml.push(`
+          <div class="col-span-1 md:col-span-2 flex flex-col gap-2">
+            <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#7df9ff] border-b border-[#1c5461] pb-1 uppercase">
+              LEADERSHIP // COMMAND_TIER (${leadershipList.length})
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
+              ${leadershipList.map(buildMemberCardHtml).join('')}
+            </div>
+          </div>
+        `);
+      }
+
+      if (standardMembersList.length > 0) {
+        sectionsHtml.push(`
+          <div class="col-span-1 md:col-span-2 flex flex-col gap-2 ${leadershipList.length > 0 ? 'mt-2' : ''}">
+            <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#397c8a] border-b border-[#143d47] pb-1 uppercase">
+              MEMBERS // OPERATIVE_POOL (${standardMembersList.length})
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
+              ${standardMembersList.map(buildMemberCardHtml).join('')}
+            </div>
+          </div>
+        `);
+      }
+
+      itemsGrid.innerHTML = sectionsHtml.join('');
+
+      if (isAdmin) {
+        itemsGrid.querySelectorAll('[data-member-id]').forEach((cardEl) => {
+          cardEl.addEventListener('click', () => {
+            const member = rosterMembers.find((m) => m.id === cardEl.dataset.memberId);
+            if (member) {
+              selectedId = member.id;
+              openEditMemberModal(member);
+            }
+          });
+        });
+
+        itemsGrid.querySelectorAll('[data-remove-member-id]').forEach((btn) => {
+          btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const memberId = btn.dataset.removeMemberId;
+            rosterMembers = rosterMembers.filter((m) => m.id !== memberId);
+            if (selectedId === memberId) selectedId = null;
+            renderWorkspace();
+            await deleteMemberFromCloud(memberId);
+          });
+        });
+      }
     }
 
     /**
@@ -1163,7 +1439,6 @@
       const isSecret = Boolean(shard.secret);
       selectedId = shard.id;
 
-      // Apply Crimson or Cyan HUD theme to reader modal
       if (isSecret) {
         readerModalBox.className = 'w-full max-w-2xl border border-[#ff4d5a] bg-[#120507] shadow-[0_0_40px_rgba(255,77,90,0.32)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
         readerModalHeader.className = 'flex items-center justify-between px-5 py-3 border-b border-[#5e171d] bg-[#24090d]';
@@ -1242,8 +1517,17 @@
       await deleteShardFromCloud(targetId);
     });
 
+    modalEditBtn.addEventListener('click', () => {
+      if (!selectedId) return;
+      const shardToEdit = records.find((r) => r.id === selectedId);
+      if (!shardToEdit) return;
+      if (shardToEdit.secret && currentUser !== 'ADMIN') return;
+      closeReaderModal();
+      openEditModal(shardToEdit);
+    });
+
     /**
-     * 10. IMAGE UPLOAD COMPRESSION & CREATE SHARD MODAL
+     * 10. IMAGE UPLOAD COMPRESSION & CREATE / EDIT SHARD MODAL
      */
     function resetCreateImage() {
       pendingImageDataUrl = null;
@@ -1254,10 +1538,16 @@
     }
 
     function openCreateModal() {
+      editingShardId = null;
+      createModalMeta.textContent = 'WRITE_PROTOCOL // NEW_RECORD';
+      createModalTitle.textContent = 'ARCHIVE NEW SHARD';
+      createSubmitBtn.textContent = 'COMMIT TO ARCHIVE';
       createForm.reset();
       resetCreateImage();
       if (currentUser === 'ADMIN') {
         createClassificationWrap.classList.remove('hidden');
+        const stdRadio = document.querySelector('input[name="shard-classification"][value="STANDARD"]');
+        if (stdRadio) stdRadio.checked = true;
       } else {
         createClassificationWrap.classList.add('hidden');
       }
@@ -1265,7 +1555,42 @@
       document.getElementById('create-title').focus();
     }
 
+    function openEditModal(shard) {
+      editingShardId = shard.id;
+      createModalMeta.textContent = `WRITE_PROTOCOL // EDIT_${shard.id.slice(-6).toUpperCase()}`;
+      createModalTitle.textContent = 'EDIT ARCHIVE SHARD';
+      createSubmitBtn.textContent = 'SAVE CHANGES';
+      createForm.reset();
+
+      document.getElementById('create-title').value = shard.title || '';
+      document.getElementById('create-content').value = shard.content || '';
+
+      if (currentUser === 'ADMIN') {
+        createClassificationWrap.classList.remove('hidden');
+        const targetVal = shard.secret ? 'SECRET' : 'STANDARD';
+        const radio = document.querySelector(`input[name="shard-classification"][value="${targetVal}"]`);
+        if (radio) radio.checked = true;
+      } else {
+        createClassificationWrap.classList.add('hidden');
+      }
+
+      if (shard.image) {
+        pendingImageDataUrl = shard.image;
+        createImageInput.value = '';
+        createImagePreview.src = shard.image;
+        createImageName.textContent = 'EXISTING_OPTIC_CAPTURE.JPG';
+        uploadImageStatus.textContent = 'OPTIC CAPTURE ATTACHED';
+        createImagePreviewWrap.classList.remove('hidden');
+      } else {
+        resetCreateImage();
+      }
+
+      createModal.classList.remove('hidden');
+      document.getElementById('create-title').focus();
+    }
+
     function closeCreateModal() {
+      editingShardId = null;
       createModal.classList.add('hidden');
       resetCreateImage();
     }
@@ -1292,7 +1617,6 @@
       reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
-          // Resize and compress so Firestore 1MB document limit is safely respected
           const maxDim = 960;
           let w = img.width;
           let h = img.height;
@@ -1332,10 +1656,37 @@
       const isSecret = currentUser === 'ADMIN' && selectedClassification === 'SECRET';
 
       const formattedTitle = rawTitle.toUpperCase().replace(/\s+/g, '_');
-      const now = new Date();
-      const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
       const byteSize = new Blob([rawContent]).size + (pendingImageDataUrl ? Math.round(pendingImageDataUrl.length * 0.75) : 0);
       const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
+
+      if (editingShardId) {
+        const existing = records.find((r) => r.id === editingShardId);
+        if (!existing) return;
+
+        const effectiveSecret = existing.secret && currentUser !== 'ADMIN' ? true : isSecret;
+        const updatedShard = {
+          ...existing,
+          secret: effectiveSecret,
+          title: formattedTitle,
+          subtitle: effectiveSecret
+            ? `CLASSIFIED_SHARD // ${existing.author || currentUser.toUpperCase()}`
+            : `USR_UPLOAD // ${existing.author || currentUser.toUpperCase()}`,
+          size: sizeStr,
+          content: rawContent,
+          image: pendingImageDataUrl || null,
+          updatedAt: Date.now()
+        };
+
+        records = records.map((r) => (r.id === editingShardId ? updatedShard : r));
+        selectedId = updatedShard.id;
+        closeCreateModal();
+        renderWorkspace();
+        await saveShardToCloud(updatedShard);
+        return;
+      }
+
+      const now = new Date();
+      const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
       const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
 
       const newShard = {
@@ -1358,6 +1709,88 @@
       closeCreateModal();
       renderWorkspace();
       await saveShardToCloud(newShard);
+    });
+
+    /**
+     * 10B. ADD / EDIT MEMBER MODAL (ADMIN ONLY)
+     */
+    function openMemberModal() {
+      if (currentUser !== 'ADMIN') return;
+      editingMemberId = null;
+      memberModalMeta.textContent = 'ROSTER_PROTOCOL // NEW_OPERATIVE';
+      memberModalTitle.textContent = 'ADD NEW MEMBER';
+      memberSubmitBtn.textContent = 'ADD MEMBER';
+      memberForm.reset();
+      memberLeadershipWrap.classList.remove('hidden');
+      memberLeadershipInput.checked = false;
+      memberModal.classList.remove('hidden');
+      memberNameInput.focus();
+    }
+
+    function openEditMemberModal(member) {
+      if (currentUser !== 'ADMIN' || !member) return;
+      editingMemberId = member.id;
+      memberModalMeta.textContent = `ROSTER_PROTOCOL // EDIT_${member.id.slice(-6).toUpperCase()}`;
+      memberModalTitle.textContent = 'EDIT MEMBER';
+      memberSubmitBtn.textContent = 'SAVE CHANGES';
+      memberForm.reset();
+      memberNameInput.value = member.name || '';
+      memberRoleInput.value = member.role || '';
+      memberLeadershipWrap.classList.remove('hidden');
+      memberLeadershipInput.checked = Boolean(member.isLeadership);
+      memberModal.classList.remove('hidden');
+      memberNameInput.focus();
+    }
+
+    function closeMemberModal() {
+      editingMemberId = null;
+      memberModal.classList.add('hidden');
+    }
+
+    newMemberBtn.addEventListener('click', openMemberModal);
+    closeMemberBtn.addEventListener('click', closeMemberModal);
+    cancelMemberBtn.addEventListener('click', closeMemberModal);
+    memberModal.addEventListener('click', (e) => {
+      if (e.target === memberModal) closeMemberModal();
+    });
+
+    memberForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (currentUser !== 'ADMIN') return;
+      const rawName = memberNameInput.value.trim();
+      const rawRole = memberRoleInput.value.trim();
+      const isLeader = Boolean(memberLeadershipInput.checked);
+      if (!rawName) return;
+
+      if (editingMemberId) {
+        const existing = rosterMembers.find((m) => m.id === editingMemberId);
+        if (!existing) return;
+        const updatedMember = {
+          ...existing,
+          name: rawName.toUpperCase(),
+          role: rawRole ? rawRole.toUpperCase() : 'ACTIVE_OPERATIVE',
+          isLeadership: isLeader,
+          updatedAt: Date.now()
+        };
+        rosterMembers = rosterMembers.map((m) => (m.id === editingMemberId ? updatedMember : m));
+        closeMemberModal();
+        renderWorkspace();
+        await saveMemberToCloud(updatedMember);
+        return;
+      }
+
+      const newMember = {
+        id: `mbr-${Date.now()}`,
+        name: rawName.toUpperCase(),
+        role: rawRole ? rawRole.toUpperCase() : 'ACTIVE_OPERATIVE',
+        isLeadership: isLeader,
+        createdAt: Date.now()
+      };
+
+      rosterMembers.push(newMember);
+      closeMemberModal();
+      renderWorkspace();
+      await saveMemberToCloud(newMember);
     });
 
     /**
@@ -1386,6 +1819,8 @@
       if (e.key === 'Escape') {
         if (!lightboxModal.classList.contains('hidden')) {
           closeLightbox();
+        } else if (!memberModal.classList.contains('hidden')) {
+          closeMemberModal();
         } else if (!createModal.classList.contains('hidden')) {
           closeCreateModal();
         } else if (!readerModal.classList.contains('hidden')) {
