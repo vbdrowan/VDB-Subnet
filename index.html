@@ -1742,44 +1742,41 @@
     const deleteUserRequestFromCloud = (reqId) => deleteDocFromCloud('user_requests', reqId);
     const saveUserNotificationToCloud = (notifObj) => saveDocToCloud('user_notifications', notifObj);
     const deleteUserNotificationFromCloud = (notifId) => deleteDocFromCloud('user_notifications', notifId);
-
-    async function saveSiteSettingsToCloud(settingsObj) {
-      if (!db || !siteSettingsDocRef) return false;
-      try {
-        await setDoc(siteSettingsDocRef, settingsObj, { merge: true });
-        return true;
-      } catch (err) {
-        console.error('saveSiteSettingsToCloud failed:', err);
-        return false;
-      }
-    }
+    const saveSiteSettingsToCloud = (settingsObj) => saveDocToCloud('site_settings', { id: 'global', ...settingsObj });
 
     function normalizeHexColor(hex) {
-      const cleaned = String(hex || '').trim();
-      if (/^#[0-9a-fA-F]{6}$/.test(cleaned)) return cleaned.toLowerCase();
-      if (/^#[0-9a-fA-F]{3}$/.test(cleaned)) {
-        const r = cleaned[1];
-        const g = cleaned[2];
-        const b = cleaned[3];
-        return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+      const cleaned = String(hex || '').trim().replace(/^#/, '');
+      if (/^[0-9a-fA-F]{3}$/.test(cleaned)) {
+        return '#' + cleaned.split('').map((c) => c + c).join('').toLowerCase();
+      }
+      if (/^[0-9a-fA-F]{6}$/.test(cleaned)) {
+        return '#' + cleaned.toLowerCase();
       }
       return '#48d1e8';
     }
 
-    function mixHex(hexA, hexB, weightB) {
+    function mixHex(hexA, hexB, weight = 0.5) {
       const a = normalizeHexColor(hexA);
       const b = normalizeHexColor(hexB);
-      const w = Math.max(0, Math.min(1, weightB));
-      const ar = parseInt(a.slice(1, 3), 16);
-      const ag = parseInt(a.slice(3, 5), 16);
-      const ab = parseInt(a.slice(5, 7), 16);
-      const br = parseInt(b.slice(1, 3), 16);
-      const bg = parseInt(b.slice(3, 5), 16);
-      const bb = parseInt(b.slice(5, 7), 16);
-      const rr = Math.round(ar * (1 - w) + br * w).toString(16).padStart(2, '0');
-      const rg = Math.round(ag * (1 - w) + bg * w).toString(16).padStart(2, '0');
-      const rb = Math.round(ab * (1 - w) + bb * w).toString(16).padStart(2, '0');
-      return `#${rr}${rg}${rb}`;
+      const w = Math.max(0, Math.min(1, Number(weight)));
+      const rA = parseInt(a.slice(1, 3), 16);
+      const gA = parseInt(a.slice(3, 5), 16);
+      const bA = parseInt(a.slice(5, 7), 16);
+      const rB = parseInt(b.slice(1, 3), 16);
+      const gB = parseInt(b.slice(3, 5), 16);
+      const bB = parseInt(b.slice(5, 7), 16);
+      const r = Math.round(rA * (1 - w) + rB * w);
+      const g = Math.round(gA * (1 - w) + gB * w);
+      const bl = Math.round(bA * (1 - w) + bB * w);
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${bl.toString(16).padStart(2, '0')}`;
+    }
+
+    function hexToRgba(hex, alpha) {
+      const h = normalizeHexColor(hex);
+      const r = parseInt(h.slice(1, 3), 16);
+      const g = parseInt(h.slice(3, 5), 16);
+      const b = parseInt(h.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
     function applyGlobalSiteSettings(settings) {
@@ -1790,8 +1787,15 @@
       const dimBorderHex = mixHex('#040d12', accentHex, 0.34);
       const mutedTextHex = mixHex('#0b2933', accentHex, 0.52);
       const softTextHex = mixHex(accentHex, '#ffffff', 0.58);
-      const darkPanelHex = mixHex('#040d12', accentHex, 0.16);
-      const activeCardHex = mixHex('#06171e', accentHex, 0.24);
+      const panelRgba = hexToRgba(mixHex('#04090c', accentHex, 0.08), 0.72);
+      const darkSurfaceRgba = hexToRgba(mixHex('#04090c', accentHex, 0.1), 0.76);
+      const cardRgba = hexToRgba(mixHex('#050d12', accentHex, 0.14), 0.68);
+      const activeCardRgba = hexToRgba(mixHex('#081c24', accentHex, 0.24), 0.72);
+      const activeTabTopRgba = hexToRgba(mixHex('#0a2832', accentHex, 0.34), 0.52);
+      const activeTabBotRgba = hexToRgba(mixHex('#050f14', accentHex, 0.14), 0.82);
+      const glowRingRgba = hexToRgba(accentHex, 0.22);
+      const glowInsetRgba = hexToRgba(accentHex, 0.12);
+      const hoverTintRgba = hexToRgba(accentHex, 0.22);
       const uiScopes = '#desktop-screen, #login-screen, #reader-modal:not(.secret-reader), #create-modal, #manage-member-modal, #requests-modal, #make-request-modal, #request-reader-modal, #send-pm-modal, #pm-reader-modal, #notifications-modal, #lightbox-modal';
 
       const rootStyle = document.documentElement.style;
@@ -1799,6 +1803,9 @@
       rootStyle.setProperty('--cyan-glow', glowHex);
       rootStyle.setProperty('--border-mid', midBorderHex);
       rootStyle.setProperty('--border-dim', dimBorderHex);
+      rootStyle.setProperty('--bg-panel', panelRgba);
+      rootStyle.setProperty('--bg-card', cardRgba);
+      rootStyle.setProperty('--bg-card-active', activeCardRgba);
       rootStyle.setProperty('--text-primary', mixHex(accentHex, '#ffffff', 0.25));
       rootStyle.setProperty('--text-muted', mutedTextHex);
 
@@ -1824,16 +1831,44 @@
         #lightbox-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]) {
           border-color: var(--border-mid);
         }
+        .nav-module {
+          background: ${panelRgba} !important;
+        }
+        .nav-module:hover {
+          background: ${activeCardRgba} !important;
+        }
+        .nav-module.active {
+          border-color: ${accentHex} !important;
+          background: linear-gradient(180deg, ${activeTabTopRgba} 0%, ${activeTabBotRgba} 100%) !important;
+          box-shadow: 0 0 18px ${glowRingRgba}, inset 0 0 14px ${glowInsetRgba} !important;
+        }
+        .archive-card:not(.secret-card) {
+          background: ${cardRgba} !important;
+        }
+        .archive-card:not(.secret-card):hover,
+        .archive-card:not(.secret-card).selected {
+          background: ${activeCardRgba} !important;
+          box-shadow: 0 0 16px ${glowRingRgba}, inset 0 0 18px ${glowInsetRgba} !important;
+        }
+        .cp-btn {
+          background: ${activeCardRgba} !important;
+          border-color: ${accentHex} !important;
+          color: ${glowHex} !important;
+          box-shadow: 0 0 12px ${glowInsetRgba} !important;
+        }
+        .cp-btn:hover:not(:disabled) {
+          background: ${hoverTintRgba} !important;
+          box-shadow: 0 0 22px ${glowRingRgba}, inset 0 0 12px ${glowInsetRgba} !important;
+        }
+        #login-screen .cp-input-wrap {
+          background: ${darkSurfaceRgba} !important;
+        }
         #login-screen .cp-input-wrap,
         #login-screen .cp-input-wrap::before,
         #login-screen .cp-input-wrap::after {
           border-color: ${accentHex} !important;
         }
         #login-screen .cp-input {
-          color: ${glowHex} !important;
-        }
-        #login-screen .cp-btn {
-          border-color: ${accentHex} !important;
           color: ${glowHex} !important;
         }
         :is(${uiScopes}) .border-\\[\\#48d1e8\\],
@@ -1874,13 +1909,14 @@
         :is(${uiScopes}) .bg-\\[\\#0c2933\\]\\/80,
         :is(${uiScopes}) .bg-\\[\\#123844\\]\\/80,
         :is(${uiScopes}) .hover\\:bg-\\[\\#164959\\]:hover {
-          background-color: ${activeCardHex} !important;
+          background-color: ${activeCardRgba} !important;
         }
+        :is(${uiScopes}) .bg-\\[\\#050e13\\]\\/80,
         :is(${uiScopes}) .bg-\\[\\#07151c\\]\\/80,
         :is(${uiScopes}) .bg-\\[\\#061218\\]\\/90,
         :is(${uiScopes}) .bg-\\[\\#061319\\]\\/90,
         :is(${uiScopes}) .bg-\\[\\#040c10\\] {
-          background-color: ${darkPanelHex} !important;
+          background-color: ${darkSurfaceRgba} !important;
         }
       `;
 
@@ -2928,45 +2964,83 @@
         }
 
         emptyState.classList.add('hidden');
-        itemsGrid.innerHTML = rosterMembers
-          .map((member) => {
-            const isMod = Boolean(member.isModerator || member.isLeadership);
-            const isSelected = selectedId === member.id;
-            return `
-              <div
-                data-member-id="${escapeHtml(member.id)}"
-                class="archive-card chamfer-card ${isSelected ? 'selected' : ''}"
-              >
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center gap-2">
-                    <span class="card-title font-hud font-bold text-base tracking-wider truncate">
-                      ${escapeHtml(member.name || member.username || 'OPERATIVE')}
-                    </span>
-                    ${
-                      isMod
-                        ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0e2e38]/90 text-[#7df9ff] uppercase">MODERATOR</span>'
-                        : ''
-                    }
-                  </div>
-                  <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
-                    ROLE // ${escapeHtml(member.role || 'ACTIVE_OPERATIVE')}
-                  </div>
+
+        const approvedModUsernames = new Set(
+          approvedAccounts
+            .filter((a) => Boolean(a && (a.isModerator || a.isLeadership)))
+            .map((a) => String(a.username || '').trim().toUpperCase())
+        );
+
+        const isMemberLeadership = (member) => {
+          if (!member) return false;
+          if (member.isModerator || member.isLeadership) return true;
+          const uname = String(member.username || member.name || '').trim().toUpperCase();
+          return approvedModUsernames.has(uname);
+        };
+
+        const renderMemberCard = (member) => {
+          const isMod = isMemberLeadership(member);
+          const isSelected = selectedId === member.id;
+          return `
+            <div
+              data-member-id="${escapeHtml(member.id)}"
+              class="archive-card chamfer-card ${isSelected ? 'selected' : ''}"
+            >
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="card-title font-hud font-bold text-base tracking-wider truncate">
+                    ${escapeHtml(member.name || member.username || 'OPERATIVE')}
+                  </span>
+                  ${
+                    isMod
+                      ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0e2e38]/90 text-[#7df9ff] uppercase">LEADERSHIP // MOD</span>'
+                      : ''
+                  }
                 </div>
-                ${
-                  canManage
-                    ? `<button
-                         type="button"
-                         data-manage-member="${escapeHtml(member.id)}"
-                         class="shrink-0 font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase"
-                       >
-                         MANAGE
-                       </button>`
-                    : ''
-                }
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                  ROLE // ${escapeHtml(member.role || 'ACTIVE_OPERATIVE')}
+                </div>
               </div>
-            `;
-          })
-          .join('');
+              ${
+                canManage
+                  ? `<button
+                       type="button"
+                       data-manage-member="${escapeHtml(member.id)}"
+                       class="shrink-0 font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase"
+                     >
+                       MANAGE
+                     </button>`
+                  : ''
+              }
+            </div>
+          `;
+        };
+
+        const leadershipMembers = rosterMembers.filter((m) => isMemberLeadership(m));
+        const standardMembers = rosterMembers.filter((m) => !isMemberLeadership(m));
+
+        let rosterHtml = '';
+        if (leadershipMembers.length > 0) {
+          rosterHtml += `
+            <div class="col-span-full flex items-center justify-between border-b border-[#1c5461] pb-1.5 mb-0.5">
+              <span class="font-mono-tech text-[11px] tracking-[0.22em] text-[#7df9ff] uppercase">LEADERSHIP</span>
+              <span class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8]">${leadershipMembers.length}</span>
+            </div>
+            ${leadershipMembers.map(renderMemberCard).join('')}
+          `;
+        }
+
+        if (standardMembers.length > 0) {
+          rosterHtml += `
+            <div class="col-span-full flex items-center justify-between border-b border-[#1c5461] pb-1.5 ${leadershipMembers.length > 0 ? 'mt-3' : ''} mb-0.5">
+              <span class="font-mono-tech text-[11px] tracking-[0.22em] text-[#48d1e8] uppercase">OPERATIVES</span>
+              <span class="font-mono-tech text-[10px] tracking-widest text-[#397c8a]">${standardMembers.length}</span>
+            </div>
+            ${standardMembers.map(renderMemberCard).join('')}
+          `;
+        }
+
+        itemsGrid.innerHTML = rosterHtml;
         return;
       }
 
