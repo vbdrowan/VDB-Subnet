@@ -833,26 +833,28 @@
 
         <!-- Upload Image Control & Live Preview -->
         <div>
-          <input id="create-image-input" type="file" accept=".jpg,.jpeg,image/jpeg" multiple class="hidden" />
-          <div class="flex items-center justify-between gap-3">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <input
+              id="create-image-url-input"
+              type="url"
+              placeholder="HTTPS://EXAMPLE.COM/IMAGE.JPG"
+              class="flex-1 bg-[#040c10] border border-[#236978] px-3 py-1.5 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+            />
             <button
-              id="upload-image-btn"
+              id="add-image-url-btn"
               type="button"
-              class="font-mono-tech text-xs px-3.5 py-1.5 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider flex items-center gap-2"
+              class="font-mono-tech text-xs px-3.5 py-1.5 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider shrink-0"
             >
-              <svg class="w-3.5 h-3.5 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <rect x="3" y="4" width="18" height="16" rx="1" />
-                <circle cx="8.5" cy="9.5" r="1.5" />
-                <polyline points="21,16 15,10 5,20" />
-              </svg>
-              UPLOAD IMAGES
+              + ADD URL
             </button>
-            <span id="upload-image-status" class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] truncate">
-              0 / 4 OPTIC FILES ATTACHED
-            </span>
           </div>
-          <div class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] mt-1">
-            MAX 4 IMAGES // .JPG ONLY // EACH FILE MUST BE UNDER 200KB
+          <div class="flex items-center justify-between gap-2 mt-1">
+            <span class="font-mono-tech text-[10px] tracking-wider text-[#397c8a]">
+              MAX 4 IMAGE URLS // HTTP OR HTTPS LINK
+            </span>
+            <span id="upload-image-status" class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] truncate">
+              0 / 4 OPTIC LINKS ATTACHED
+            </span>
           </div>
 
           <!-- Thumbnails Preview List -->
@@ -1173,14 +1175,35 @@
       height = canvas.height = window.innerHeight;
     });
 
-    const wisps = Array.from({ length: 5 }, (_, i) => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      r: 200 + Math.random() * 240,
-      vx: (Math.random() - 0.5) * 0.22,
-      vy: (Math.random() - 0.5) * 0.18,
-      alpha: 0.09 + (i % 3) * 0.035
-    }));
+    function createWispSprite(radius, r, g, b, alpha) {
+      const sprite = document.createElement('canvas');
+      const size = Math.ceil(radius * 2);
+      sprite.width = size;
+      sprite.height = size;
+      const sctx = sprite.getContext('2d');
+      const grad = sctx.createRadialGradient(radius, radius, 10, radius, radius, radius);
+      grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha})`);
+      grad.addColorStop(0.55, `rgba(${Math.round(r * 0.55)}, ${Math.round(g * 0.5)}, ${Math.round(b * 0.53)}, ${(alpha * 0.45).toFixed(4)})`);
+      grad.addColorStop(1, 'rgba(4, 7, 9, 0)');
+      sctx.fillStyle = grad;
+      sctx.beginPath();
+      sctx.arc(radius, radius, radius, 0, Math.PI * 2);
+      sctx.fill();
+      return sprite;
+    }
+
+    const wisps = Array.from({ length: 5 }, (_, i) => {
+      const r = Math.round(200 + Math.random() * 240);
+      const alpha = Number((0.09 + (i % 3) * 0.035).toFixed(4));
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r,
+        vx: (Math.random() - 0.5) * 0.22,
+        vy: (Math.random() - 0.5) * 0.18,
+        sprite: createWispSprite(r, 148, 24, 34, alpha)
+      };
+    });
 
     let backdropRafId = null;
     let isPageVisible = !document.hidden;
@@ -1202,14 +1225,7 @@
         if (w.y < -w.r) w.y = height + w.r;
         if (w.y > height + w.r) w.y = -w.r;
 
-        const grad = ctx.createRadialGradient(w.x, w.y, 10, w.x, w.y, w.r);
-        grad.addColorStop(0, `rgba(148, 24, 34, ${w.alpha})`);
-        grad.addColorStop(0.55, `rgba(82, 12, 18, ${w.alpha * 0.45})`);
-        grad.addColorStop(1, 'rgba(4, 7, 9, 0)');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.drawImage(w.sprite, w.x - w.r, w.y - w.r);
       }
       backdropRafId = requestAnimationFrame(renderBackdrop);
     }
@@ -1257,6 +1273,7 @@
     let dismissedNotificationKeys = new Set();
     let pendingImages = [];
     let isSubmittingRequest = false;
+    let firestoreUnsubscribers = [];
 
     const MAX_IMAGES = 4;
     const MAX_IMAGE_BYTES = 200 * 1024;
@@ -1362,8 +1379,8 @@
     const closeCreateBtn = document.getElementById('close-create-btn');
     const cancelCreateBtn = document.getElementById('cancel-create-btn');
     const createSubmitBtn = document.getElementById('create-submit-btn');
-    const uploadImageBtn = document.getElementById('upload-image-btn');
-    const createImageInput = document.getElementById('create-image-input');
+    const createImageUrlInput = document.getElementById('create-image-url-input');
+    const addImageUrlBtn = document.getElementById('add-image-url-btn');
     const uploadImageStatus = document.getElementById('upload-image-status');
     const createImagePreviewWrap = document.getElementById('create-image-preview-wrap');
 
@@ -1385,126 +1402,39 @@
     const closeLightboxBtn = document.getElementById('close-lightbox-btn');
 
     // Firestore Persistence Helpers
-    async function saveShardToCloud(shard) {
-      if (!db || !shard?.id) return false;
+    async function saveDocToCloud(colName, docObj) {
+      if (!db || !colName || !docObj?.id) return false;
       try {
-        await setDoc(doc(db, 'archive_shards', String(shard.id)), shard);
+        await setDoc(doc(db, colName, String(docObj.id)), docObj);
         return true;
       } catch (err) {
-        console.error('saveShardToCloud failed:', err);
+        console.error(`saveDocToCloud (${colName}) failed:`, err);
         return false;
       }
     }
 
-    async function deleteShardFromCloud(shardId) {
-      if (!db || !shardId) return false;
+    async function deleteDocFromCloud(colName, docId) {
+      if (!db || !colName || !docId) return false;
       try {
-        await deleteDoc(doc(db, 'archive_shards', String(shardId)));
+        await deleteDoc(doc(db, colName, String(docId)));
         return true;
       } catch (err) {
-        console.error('deleteShardFromCloud failed:', err);
+        console.error(`deleteDocFromCloud (${colName}) failed:`, err);
         return false;
       }
     }
 
-    async function saveMemberToCloud(member) {
-      if (!db || !member?.id) return false;
-      try {
-        await setDoc(doc(db, 'roster_members', String(member.id)), member);
-        return true;
-      } catch (err) {
-        console.error('saveMemberToCloud failed:', err);
-        return false;
-      }
-    }
-
-    async function deleteMemberFromCloud(memberId) {
-      if (!db || !memberId) return false;
-      try {
-        await deleteDoc(doc(db, 'roster_members', String(memberId)));
-        return true;
-      } catch (err) {
-        console.error('deleteMemberFromCloud failed:', err);
-        return false;
-      }
-    }
-
-    async function saveAccountRequestToCloud(reqObj) {
-      if (!db || !reqObj?.id) return false;
-      try {
-        await setDoc(doc(db, 'account_requests', String(reqObj.id)), reqObj);
-        return true;
-      } catch (err) {
-        console.error('saveAccountRequestToCloud failed:', err);
-        return false;
-      }
-    }
-
-    async function deleteAccountRequestFromCloud(reqId) {
-      if (!db || !reqId) return false;
-      try {
-        await deleteDoc(doc(db, 'account_requests', String(reqId)));
-        return true;
-      } catch (err) {
-        console.error('deleteAccountRequestFromCloud failed:', err);
-        return false;
-      }
-    }
-
-    async function saveApprovedAccountToCloud(accObj) {
-      if (!db || !accObj?.id) return false;
-      try {
-        await setDoc(doc(db, 'approved_accounts', String(accObj.id)), accObj);
-        return true;
-      } catch (err) {
-        console.error('saveApprovedAccountToCloud failed:', err);
-        return false;
-      }
-    }
-
-    async function deleteApprovedAccountFromCloud(accId) {
-      if (!db || !accId) return false;
-      try {
-        await deleteDoc(doc(db, 'approved_accounts', String(accId)));
-        return true;
-      } catch (err) {
-        console.error('deleteApprovedAccountFromCloud failed:', err);
-        return false;
-      }
-    }
-
-    async function savePrivateMessageToCloud(pmObj) {
-      if (!db || !pmObj?.id) return false;
-      try {
-        await setDoc(doc(db, 'private_messages', String(pmObj.id)), pmObj);
-        return true;
-      } catch (err) {
-        console.error('savePrivateMessageToCloud failed:', err);
-        return false;
-      }
-    }
-
-    async function savePublicChatToCloud(msgObj) {
-      if (!db || !msgObj?.id) return false;
-      try {
-        await setDoc(doc(db, 'public_chat_messages', String(msgObj.id)), msgObj);
-        return true;
-      } catch (err) {
-        console.error('savePublicChatToCloud failed:', err);
-        return false;
-      }
-    }
-
-    async function deletePublicChatFromCloud(msgId) {
-      if (!db || !msgId) return false;
-      try {
-        await deleteDoc(doc(db, 'public_chat_messages', String(msgId)));
-        return true;
-      } catch (err) {
-        console.error('deletePublicChatFromCloud failed:', err);
-        return false;
-      }
-    }
+    const saveShardToCloud = (shard) => saveDocToCloud('archive_shards', shard);
+    const deleteShardFromCloud = (shardId) => deleteDocFromCloud('archive_shards', shardId);
+    const saveMemberToCloud = (member) => saveDocToCloud('roster_members', member);
+    const deleteMemberFromCloud = (memberId) => deleteDocFromCloud('roster_members', memberId);
+    const saveAccountRequestToCloud = (reqObj) => saveDocToCloud('account_requests', reqObj);
+    const deleteAccountRequestFromCloud = (reqId) => deleteDocFromCloud('account_requests', reqId);
+    const saveApprovedAccountToCloud = (accObj) => saveDocToCloud('approved_accounts', accObj);
+    const deleteApprovedAccountFromCloud = (accId) => deleteDocFromCloud('approved_accounts', accId);
+    const savePrivateMessageToCloud = (pmObj) => saveDocToCloud('private_messages', pmObj);
+    const savePublicChatToCloud = (msgObj) => saveDocToCloud('public_chat_messages', msgObj);
+    const deletePublicChatFromCloud = (msgId) => deleteDocFromCloud('public_chat_messages', msgId);
 
     // Messaging View Helpers
     function populatePmRecipientSelect() {
@@ -1600,26 +1530,31 @@
           `;
         })
         .join('');
+    }
 
-      privateMessagesList.querySelectorAll('[data-open-pm-id]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const pm = privateMessages.find((item) => item.id === btn.dataset.openPmId);
-          if (pm) openPmReaderModal(pm);
-        });
-      });
+    privateMessagesList.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-open-pm-id]');
+      if (!btn) return;
+      const pm = privateMessages.find((item) => item.id === btn.dataset.openPmId);
+      if (pm) openPmReaderModal(pm);
+    });
+
+    function setMessageSubTabStyles() {
+      const isPublic = messageSubTab === 'PUBLIC';
+      const activeCls = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
+      const inactiveCls = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
+      msgModePublicBtn.className = isPublic ? activeCls : inactiveCls;
+      msgModePrivateBtn.className = isPublic ? inactiveCls : activeCls;
     }
 
     function renderMessagesBoard() {
+      setMessageSubTabStyles();
       if (messageSubTab === 'PUBLIC') {
-        msgModePublicBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
-        msgModePrivateBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
         privateMessagesView.classList.add('hidden');
         publicChatView.classList.remove('hidden');
         renderPublicChat();
       } else {
         messageSubTab = 'PRIVATE';
-        msgModePrivateBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
-        msgModePublicBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
         publicChatView.classList.add('hidden');
         privateMessagesView.classList.remove('hidden');
         populatePmRecipientSelect();
@@ -1794,50 +1729,144 @@
       }
     }
 
-    if (shardsCollection) {
-      onSnapshot(
-        shardsCollection,
-        (snapshot) => {
-          const cloudList = [];
-          for (const docSnap of snapshot.docs) {
-            const data = docSnap.data();
-            if (SAMPLE_IDS.has(docSnap.id) || SAMPLE_IDS.has(data.id)) {
-              deleteDoc(doc(db, "archive_shards", docSnap.id)).catch(() => {});
-              continue;
+    function stopFirestoreListeners() {
+      for (const unsub of firestoreUnsubscribers) {
+        try {
+          unsub();
+        } catch (_) {}
+      }
+      firestoreUnsubscribers = [];
+    }
+
+    function startFirestoreListeners() {
+      stopFirestoreListeners();
+      if (!db) return;
+
+      if (shardsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            shardsCollection,
+            (snapshot) => {
+              const cloudList = [];
+              for (const docSnap of snapshot.docs) {
+                const data = docSnap.data();
+                if (SAMPLE_IDS.has(docSnap.id) || SAMPLE_IDS.has(data.id)) {
+                  deleteDoc(doc(db, 'archive_shards', docSnap.id)).catch(() => {});
+                  continue;
+                }
+                cloudList.push(data);
+              }
+              cloudList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              records = cloudList;
+              if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ONLINE';
+              if (!desktopScreen.classList.contains('hidden') && activeTab === 'FILES') {
+                renderWorkspace();
+              }
+            },
+            (error) => {
+              console.error('Shards sync error:', error);
+              if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // OFFLINE';
             }
-            cloudList.push(data);
-          }
-          cloudList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-          records = cloudList;
-          if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ONLINE';
-          if (!desktopScreen.classList.contains('hidden') && activeTab === 'FILES') {
-            renderWorkspace();
-          }
-        },
-        (error) => {
-          console.error("Shards sync error:", error);
-          if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // OFFLINE';
-        }
-      );
+          )
+        );
+      }
+
+      if (rosterCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            rosterCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+              rosterMembers = list;
+              if (!desktopScreen.classList.contains('hidden')) {
+                if (activeTab === 'ROSTER') renderWorkspace();
+                if (activeTab === 'MESSAGES') populatePmRecipientSelect();
+              }
+            },
+            (error) => console.error('Roster sync error:', error)
+          )
+        );
+      }
+
+      if (accountRequestsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            accountRequestsCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              accountRequests = list;
+              updateRequestsBadge();
+              updateNotificationsBadge();
+              if (!requestsModal.classList.contains('hidden')) {
+                renderRequestsModal();
+              }
+            },
+            (error) => console.error('Account requests sync error:', error)
+          )
+        );
+      }
+
+      if (approvedAccountsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            approvedAccountsCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              approvedAccounts = list;
+              syncApprovedAccountsToRoster(list).catch(() => {});
+              if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES') {
+                populatePmRecipientSelect();
+              }
+            },
+            (error) => console.error('Approved accounts sync error:', error)
+          )
+        );
+      }
+
+      if (privateMessagesCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            privateMessagesCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              privateMessages = list;
+              updateNotificationsBadge();
+              if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PRIVATE') {
+                renderPrivateMessages();
+              }
+            },
+            (error) => console.error('Private messages sync error:', error)
+          )
+        );
+      }
+
+      if (publicChatCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            publicChatCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+              publicChatMessages = list;
+              if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PUBLIC') {
+                renderPublicChat();
+              }
+            },
+            (error) => console.error('Public chat sync error:', error)
+          )
+        );
+      }
     }
 
-    if (rosterCollection) {
-      onSnapshot(
-        rosterCollection,
-        (snapshot) => {
-          const list = [];
-          snapshot.forEach((docSnap) => list.push(docSnap.data()));
-          list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-          rosterMembers = list;
-          if (!desktopScreen.classList.contains('hidden')) {
-            if (activeTab === 'ROSTER') renderWorkspace();
-            if (activeTab === 'MESSAGES') populatePmRecipientSelect();
-          }
-        },
-        (error) => console.error("Roster sync error:", error)
-      );
-    }
-
+    // Light background sync for login verification & admin request badge
     if (accountRequestsCollection) {
       onSnapshot(
         accountRequestsCollection,
@@ -1852,7 +1881,7 @@
             renderRequestsModal();
           }
         },
-        (error) => console.error("Account requests sync error:", error)
+        (error) => console.error('Account requests sync error:', error)
       );
     }
 
@@ -1863,45 +1892,12 @@
           const list = [];
           snapshot.forEach((docSnap) => list.push(docSnap.data()));
           approvedAccounts = list;
-          syncApprovedAccountsToRoster(list).catch(() => {});
-          if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES') {
-            populatePmRecipientSelect();
+          if (!desktopScreen.classList.contains('hidden')) {
+            syncApprovedAccountsToRoster(list).catch(() => {});
+            if (activeTab === 'MESSAGES') populatePmRecipientSelect();
           }
         },
-        (error) => console.error("Approved accounts sync error:", error)
-      );
-    }
-
-    if (privateMessagesCollection) {
-      onSnapshot(
-        privateMessagesCollection,
-        (snapshot) => {
-          const list = [];
-          snapshot.forEach((docSnap) => list.push(docSnap.data()));
-          list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-          privateMessages = list;
-          updateNotificationsBadge();
-          if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PRIVATE') {
-            renderPrivateMessages();
-          }
-        },
-        (error) => console.error("Private messages sync error:", error)
-      );
-    }
-
-    if (publicChatCollection) {
-      onSnapshot(
-        publicChatCollection,
-        (snapshot) => {
-          const list = [];
-          snapshot.forEach((docSnap) => list.push(docSnap.data()));
-          list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-          publicChatMessages = list;
-          if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PUBLIC') {
-            renderPublicChat();
-          }
-        },
-        (error) => console.error("Public chat sync error:", error)
+        (error) => console.error('Approved accounts sync error:', error)
       );
     }
 
@@ -2051,6 +2047,7 @@
 
         setTimeout(() => {
           hudUser.textContent = `USR // ${currentUser}`;
+          startFirestoreListeners();
           updateRequestsBadge();
           updateNotificationsBadge();
           loginScreen.classList.add('hidden');
@@ -2059,12 +2056,13 @@
           loginSubmit.disabled = false;
           loginStatus.classList.add('opacity-0');
           renderWorkspace();
-        }, 320);
+        }, 180);
       });
     }
 
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => {
+        stopFirestoreListeners();
         desktopScreen.classList.add('hidden');
         loginScreen.classList.remove('hidden');
         registerForm.classList.add('hidden');
@@ -2403,6 +2401,23 @@
 
       publicChatList.scrollTop = publicChatList.scrollHeight;
     }
+
+    publicChatList.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-delete-pub-id]');
+      if (!btn || !isAdminAccount()) return;
+      e.stopPropagation();
+      const msgId = btn.dataset.deletePubId;
+      if (!msgId) return;
+      btn.disabled = true;
+      const prevMessages = [...publicChatMessages];
+      publicChatMessages = publicChatMessages.filter((m) => String(m.id) !== String(msgId));
+      renderPublicChat();
+      const ok = await deletePublicChatFromCloud(msgId);
+      if (!ok) {
+        publicChatMessages = prevMessages;
+        renderPublicChat();
+      }
+    });
 
     msgModePrivateBtn.addEventListener('click', () => {
       messageSubTab = 'PRIVATE';
@@ -2814,10 +2829,19 @@
     });
 
     /**
-     * 10. IMAGE UPLOAD VALIDATION & CREATE / EDIT SHARD MODAL
+     * 10. IMAGE URL ATTACHMENT & CREATE / EDIT SHARD MODAL
      */
+    function isValidImageUrl(rawUrl) {
+      try {
+        const parsed = new URL(rawUrl);
+        return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+      } catch (_) {
+        return false;
+      }
+    }
+
     function renderPendingImages() {
-      uploadImageStatus.textContent = `${pendingImages.length} / ${MAX_IMAGES} OPTIC FILES ATTACHED`;
+      uploadImageStatus.textContent = `${pendingImages.length} / ${MAX_IMAGES} OPTIC LINKS ATTACHED`;
 
       if (pendingImages.length === 0) {
         createImagePreviewWrap.innerHTML = '';
@@ -2831,10 +2855,10 @@
           (imgItem, idx) => `
             <div class="p-2 border border-[#1d5663] bg-[#040c10] flex items-center justify-between gap-3">
               <div class="flex items-center gap-3 min-w-0">
-                <img src="${imgItem.dataUrl}" alt="Preview" class="w-11 h-11 object-cover border border-[#48d1e8] shrink-0" />
+                <img src="${escapeHtml(imgItem.url)}" alt="Preview" class="w-11 h-11 object-cover border border-[#48d1e8] shrink-0" />
                 <div class="min-w-0">
-                  <div class="font-mono-tech text-[11px] text-[#7df9ff] truncate">${escapeHtml(imgItem.name)}</div>
-                  <div class="font-mono-tech text-[9px] text-[#397c8a] tracking-widest">${(imgItem.size / 1024).toFixed(1)} KB // READY</div>
+                  <div class="font-mono-tech text-[11px] text-[#7df9ff] truncate">${escapeHtml(imgItem.url)}</div>
+                  <div class="font-mono-tech text-[9px] text-[#397c8a] tracking-widest">REMOTE_URL // READY</div>
                 </div>
               </div>
               <button
@@ -2860,7 +2884,7 @@
 
     function resetCreateImage() {
       pendingImages = [];
-      createImageInput.value = '';
+      if (createImageUrlInput) createImageUrlInput.value = '';
       renderPendingImages();
     }
 
@@ -2902,12 +2926,10 @@
       }
 
       const existingImages = getShardImages(shard);
-      pendingImages = existingImages.slice(0, MAX_IMAGES).map((dataUrl, idx) => ({
-        name: `EXISTING_OPTIC_${idx + 1}.JPG`,
-        size: Math.round(dataUrl.length * 0.75),
-        dataUrl
+      pendingImages = existingImages.slice(0, MAX_IMAGES).map((url) => ({
+        url
       }));
-      createImageInput.value = '';
+      if (createImageUrlInput) createImageUrlInput.value = '';
       renderPendingImages();
 
       createModal.classList.remove('hidden');
@@ -2927,67 +2949,36 @@
       if (e.target === createModal) closeCreateModal();
     });
 
-    uploadImageBtn.addEventListener('click', () => {
-      createImageInput.click();
-    });
+    function handleAddImageUrl() {
+      const candidate = (createImageUrlInput.value || '').trim();
+      if (!candidate) return;
 
-    createImageInput.addEventListener('change', (e) => {
-      const files = Array.from(e.target.files || []);
-      createImageInput.value = '';
-      if (files.length === 0) return;
-
-      const availableSlots = MAX_IMAGES - pendingImages.length;
-      if (availableSlots <= 0) {
-        uploadImageStatus.textContent = `MAX ${MAX_IMAGES} IMAGES REACHED`;
+      if (pendingImages.length >= MAX_IMAGES) {
+        uploadImageStatus.textContent = `MAX ${MAX_IMAGES} URLS REACHED`;
         return;
       }
 
-      const filesToProcess = files.slice(0, availableSlots);
-      let skippedNonJpg = 0;
-      let skippedOversize = 0;
-      let skippedLimit = Math.max(0, files.length - availableSlots);
+      if (!isValidImageUrl(candidate)) {
+        uploadImageStatus.textContent = 'INVALID URL // USE HTTP OR HTTPS';
+        return;
+      }
 
-      const readFileAsDataUrl = (file) =>
-        new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = (ev) => resolve(ev.target.result);
-          reader.onerror = () => resolve(null);
-          reader.readAsDataURL(file);
-        });
+      if (pendingImages.some((item) => item.url === candidate)) {
+        uploadImageStatus.textContent = 'DUPLICATE URL SKIPPED';
+        return;
+      }
 
-      (async () => {
-        uploadImageStatus.textContent = 'VALIDATING .JPG CAPTURES...';
-        for (const file of filesToProcess) {
-          const lowerName = (file.name || '').toLowerCase();
-          const isJpg = file.type === 'image/jpeg' || lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg');
-          if (!isJpg) {
-            skippedNonJpg += 1;
-            continue;
-          }
-          if (file.size >= MAX_IMAGE_BYTES) {
-            skippedOversize += 1;
-            continue;
-          }
-          const dataUrl = await readFileAsDataUrl(file);
-          if (dataUrl) {
-            pendingImages.push({
-              name: file.name.toUpperCase(),
-              size: file.size,
-              dataUrl
-            });
-          }
-        }
+      pendingImages.push({ url: candidate });
+      createImageUrlInput.value = '';
+      renderPendingImages();
+    }
 
-        renderPendingImages();
-
-        const warnings = [];
-        if (skippedNonJpg > 0) warnings.push(`${skippedNonJpg} NON-.JPG SKIPPED`);
-        if (skippedOversize > 0) warnings.push(`${skippedOversize} >=200KB SKIPPED`);
-        if (skippedLimit > 0) warnings.push(`${skippedLimit} OVER MAX 4 SKIPPED`);
-        if (warnings.length > 0) {
-          uploadImageStatus.textContent = warnings.join(' // ');
-        }
-      })();
+    addImageUrlBtn.addEventListener('click', handleAddImageUrl);
+    createImageUrlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddImageUrl();
+      }
     });
 
     createForm.addEventListener('submit', async (e) => {
@@ -2996,13 +2987,20 @@
       const rawContent = document.getElementById('create-content').value.trim();
       if (!rawTitle || !rawContent) return;
 
+      const pendingTypedUrl = (createImageUrlInput.value || '').trim();
+      if (pendingTypedUrl && pendingImages.length < MAX_IMAGES && isValidImageUrl(pendingTypedUrl)) {
+        if (!pendingImages.some((item) => item.url === pendingTypedUrl)) {
+          pendingImages.push({ url: pendingTypedUrl });
+          createImageUrlInput.value = '';
+        }
+      }
+
       const selectedClassification = document.querySelector('input[name="shard-classification"]:checked')?.value || 'STANDARD';
       const isSecret = hasStaffPrivileges() && selectedClassification === 'SECRET';
 
       const formattedTitle = rawTitle.toUpperCase().replace(/\s+/g, '_');
-      const finalImages = pendingImages.slice(0, MAX_IMAGES).map((img) => img.dataUrl);
-      const imagesByteSize = pendingImages.slice(0, MAX_IMAGES).reduce((acc, img) => acc + (img.size || 0), 0);
-      const byteSize = new Blob([rawContent]).size + imagesByteSize;
+      const finalImages = pendingImages.slice(0, MAX_IMAGES).map((img) => img.url);
+      const byteSize = new Blob([rawContent]).size;
       const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
 
       if (editingShardId) {
