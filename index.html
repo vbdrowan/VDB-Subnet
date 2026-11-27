@@ -382,8 +382,79 @@
         LOGIN
       </button>
 
+      <!-- Create Account Link Directly Below Login -->
+      <button
+        id="open-register-link"
+        type="button"
+        class="font-mono-tech text-xs tracking-[0.2em] text-[#48d1e8] hover:text-[#7df9ff] underline underline-offset-4 uppercase text-center transition-colors"
+      >
+        Create account
+      </button>
+
       <!-- Subtle Inline Terminal Feedback -->
       <div id="login-status" class="font-mono-tech text-[11px] tracking-widest text-center h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
+    </form>
+
+    <!-- Create Account Form (Hidden by default) -->
+    <form id="register-form" class="hidden w-full max-w-xs flex flex-col gap-3.5 hud-enter" autocomplete="off" novalidate>
+      <div class="text-center border-b border-[#1c5461] pb-2">
+        <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8]">NET_ACCESS // REGISTRATION</div>
+        <div class="font-hud font-bold text-lg tracking-[0.16em] text-[#7df9ff]">CREATE ACCOUNT</div>
+      </div>
+
+      <!-- Username + In-Game Name Warning -->
+      <div>
+        <div class="cp-input-wrap">
+          <input
+            id="register-username"
+            type="text"
+            placeholder="USERNAME"
+            aria-label="Username"
+            class="cp-input px-4 py-3 text-sm"
+            spellcheck="false"
+          />
+        </div>
+        <div class="font-mono-tech text-[10px] tracking-wider text-[#e05a65] mt-1">
+          * USE YOUR IN-GAME NAME
+        </div>
+      </div>
+
+      <!-- Role -->
+      <div class="cp-input-wrap">
+        <input
+          id="register-role"
+          type="text"
+          placeholder="ROLE"
+          aria-label="Role"
+          class="cp-input px-4 py-3 text-sm"
+          spellcheck="false"
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="cp-input-wrap">
+        <input
+          id="register-password"
+          type="password"
+          placeholder="PASSWORD"
+          aria-label="Password"
+          class="cp-input px-4 py-3 text-sm"
+        />
+      </div>
+
+      <button id="register-submit" type="submit" class="cp-btn py-2.5 px-6 text-base">
+        REQUEST ACCESS
+      </button>
+
+      <button
+        id="back-to-login-link"
+        type="button"
+        class="font-mono-tech text-xs tracking-[0.2em] text-[#48d1e8] hover:text-[#7df9ff] underline underline-offset-4 uppercase text-center transition-colors"
+      >
+        Back to Login
+      </button>
+
+      <div id="register-status" class="font-mono-tech text-[11px] tracking-widest text-center min-h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
     </form>
   </main>
 
@@ -429,7 +500,7 @@
         </button>
 
         <!-- TAB: MESSAGES -->
-        <button data-tab="MESSAGES" data-locked="true" disabled aria-disabled="true" class="nav-module locked text-left" type="button">
+        <button data-tab="MESSAGES" class="nav-module text-left" type="button">
           <div class="icon-bracket">
             <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
             <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
@@ -438,10 +509,7 @@
             </svg>
           </div>
           <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#58b9cc] leading-none">MESSAGES</div>
-              <span class="font-mono-tech text-[9px] tracking-wider uppercase px-1.5 py-0.5 border border-[#7a2028] bg-[#3a0d12]/60 text-[#e05a65] leading-none">Under Development</span>
-            </div>
+            <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#7df9ff] leading-none">MESSAGES</div>
             <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">ENC.COMMS // LOGS</div>
           </div>
         </button>
@@ -495,6 +563,24 @@
             <div id="cloud-sync-badge" class="text-[#397c8a]">CLOUD // SYNCING</div>
           </div>
           <button
+            id="requests-btn"
+            type="button"
+            title="Pending Account Requests"
+            class="hidden font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase flex items-center gap-1.5"
+          >
+            <span>REQUESTS</span>
+            <span id="requests-badge" class="hidden px-1 py-0.2 bg-[#6e171e] border border-[#ff4d5a] text-[#ff9aa2] text-[9px] leading-tight">0</span>
+          </button>
+          <button
+            id="notifications-btn"
+            type="button"
+            title="Notifications"
+            class="font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase flex items-center gap-1.5"
+          >
+            <span>NOTIFICATIONS</span>
+            <span id="notifications-badge" class="hidden px-1 py-0.2 bg-[#6e171e] border border-[#ff4d5a] text-[#ff9aa2] text-[9px] leading-tight">0</span>
+          </button>
+          <button
             id="logout-btn"
             type="button"
             title="Disconnect Terminal"
@@ -514,8 +600,8 @@
         <div class="flex-1 flex flex-col min-w-0">
 
           <!-- Subtle Terminal Action & Search Toolbar -->
-          <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-b border-[#143d47] bg-[#07151c]/80">
-            <div class="flex items-center gap-2 flex-1 min-w-[200px] max-w-md">
+          <div id="workspace-toolbar" class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-b border-[#143d47] bg-[#07151c]/80">
+            <div id="search-box-wrap" class="flex items-center gap-2 flex-1 min-w-[200px] max-w-md">
               <span class="font-mono-tech text-xs text-[#397c8a]">QUERY&gt;</span>
               <input
                 id="search-input"
@@ -534,19 +620,75 @@
               >
                 + ARCHIVE_ENTRY
               </button>
+            </div>
+          </div>
+
+          <!-- Messages Sub-Board View (Hidden unless MESSAGES tab active) -->
+          <div id="messages-board" class="hidden flex-1 flex flex-col overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-2 border-b border-[#143d47] bg-[#061218]/90">
               <button
-                id="new-member-btn"
+                id="msg-mode-private-btn"
                 type="button"
-                class="hidden font-mono-tech text-xs px-3 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider"
+                class="font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all"
               >
-                + ADD NEW MEMBER
+                PRIVATE MESSAGES
               </button>
+              <button
+                id="msg-mode-public-btn"
+                type="button"
+                class="font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all"
+              >
+                PUBLIC CHAT
+              </button>
+            </div>
+
+            <!-- Private Messages View -->
+            <div id="private-messages-view" class="flex-1 overflow-y-auto cp-scroll p-3 sm:p-4 flex flex-col gap-3">
+              <div class="flex items-center justify-between gap-2 border-b border-[#143d47] pb-2">
+                <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">
+                  ENCRYPTED_INBOX_AND_SENT
+                </div>
+                <div class="flex items-center gap-2">
+                  <span id="pm-status" class="font-mono-tech text-[10px] tracking-wider text-[#7df9ff]"></span>
+                  <button id="open-send-pm-btn" type="button" class="cp-btn text-xs py-1 px-3.5">
+                    Send Message
+                  </button>
+                </div>
+              </div>
+
+              <div id="private-messages-list" class="flex flex-col gap-2">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Public Chat View -->
+            <div id="public-chat-view" class="hidden flex-1 flex flex-col overflow-hidden p-3 sm:p-4 gap-3">
+              <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8] border-b border-[#143d47] pb-1.5">
+                SUBNET_BROADCAST // ALL_MEMBERS_CHANNEL
+              </div>
+
+              <div id="public-chat-list" class="flex-1 overflow-y-auto cp-scroll flex flex-col gap-2 pr-1">
+                <!-- Populated dynamically -->
+              </div>
+
+              <form id="public-chat-form" class="flex items-center gap-2 pt-2 border-t border-[#143d47]">
+                <input
+                  id="public-chat-input"
+                  type="text"
+                  required
+                  placeholder="BROADCAST MESSAGE TO ALL MEMBERS..."
+                  class="flex-1 bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+                />
+                <button type="submit" class="cp-btn text-xs py-2 px-4 shrink-0">
+                  SEND
+                </button>
+              </form>
             </div>
           </div>
 
           <!-- Content Area: 2-Column Grid -->
-          <div class="flex-1 flex overflow-hidden">
-            <div id="grid-container" class="flex-1 overflow-y-auto cp-scroll p-3 sm:p-4">
+          <div id="grid-container" class="flex-1 flex overflow-hidden">
+            <div class="flex-1 overflow-y-auto cp-scroll p-3 sm:p-4">
               <div id="items-grid" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
                 <!-- Cards injected dynamically -->
               </div>
@@ -665,7 +807,7 @@
           />
         </div>
 
-        <!-- Admin-Only Classification Selector (Standard vs Secret) -->
+        <!-- Admin / Moderator Classification Selector (Standard vs Secret) -->
         <div id="create-classification-wrap" class="hidden">
           <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">CLEARANCE LEVEL</label>
           <div class="grid grid-cols-2 gap-2.5">
@@ -738,63 +880,236 @@
   </div>
 
   <!-- =========================================================
-       4B. ADD / EDIT ROSTER MEMBER MODAL (ADMIN ONLY)
+       4B-2. MANAGE MEMBER OVERLAY MODAL (ADMIN & MODERATOR)
        ========================================================= -->
-  <div id="member-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
-    <form id="member-form" class="w-full max-w-md border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+  <div id="manage-member-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="manage-member-form" class="w-full max-w-md border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
       <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
         <div>
-          <div id="member-modal-meta" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">ROSTER_PROTOCOL // NEW_OPERATIVE</div>
-          <h2 id="member-modal-title" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">ADD NEW MEMBER</h2>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">ROSTER_MGMT // OPERATIVE_CONTROL</div>
+          <h2 id="manage-member-title" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">MANAGE MEMBER</h2>
         </div>
-        <button id="close-member-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+        <button id="close-manage-member-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-3.5">
+        <div class="p-2.5 border border-[#17454f] bg-[#040c10] font-mono-tech text-xs text-[#7df9ff] flex items-center justify-between">
+          <span id="manage-member-name" class="font-bold tracking-wider">OPERATIVE</span>
+          <span id="manage-member-tier" class="text-[10px] tracking-widest text-[#397c8a]">STANDARD</span>
+        </div>
+
+        <div>
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ROLE / DESIGNATION</label>
+          <input
+            id="manage-member-role-input"
+            type="text"
+            placeholder="E.G. NETRUNNER // SUBNET_OPS"
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
+          />
+        </div>
+
+        <!-- Moderator Checkbox: Admin Only -->
+        <div id="manage-moderator-wrap" class="hidden pt-1">
+          <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              id="manage-moderator-input"
+              type="checkbox"
+              class="w-4 h-4 accent-[#48d1e8] bg-[#040c10] border border-[#236978] cursor-pointer"
+            />
+            <span class="font-mono-tech text-[11px] text-[#7df9ff] tracking-widest uppercase">
+              MODERATOR (LEADERSHIP)
+            </span>
+          </label>
+        </div>
+
+        <div id="manage-member-status" class="font-mono-tech text-[10px] tracking-widest text-[#ff6b76] min-h-4"></div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button
+          id="manage-delete-user-btn"
+          type="button"
+          class="font-mono-tech text-xs px-3 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors"
+        >
+          DELETE ACCOUNT
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="cancel-manage-member-btn" type="button" class="font-mono-tech text-xs px-3.5 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+            CANCEL
+          </button>
+          <button type="submit" class="cp-btn text-xs py-1.5 px-4">
+            SAVE ROLE
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================================================
+       4C. ACCOUNT ACCESS REQUESTS OVERLAY MODAL (ADMIN & MODERATOR)
+       ========================================================= -->
+  <div id="requests-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="w-full max-w-xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[85vh] hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">SECURITY_CLEARANCE // PENDING_QUEUE</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">ACCOUNT REQUESTS</h2>
+        </div>
+        <button id="close-requests-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X] CLOSE
+        </button>
+      </div>
+
+      <div id="requests-list" class="p-5 overflow-y-auto cp-scroll flex-1 flex flex-col gap-3">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       4D. SEND PRIVATE MESSAGE OVERLAY MODAL
+       ========================================================= -->
+  <div id="send-pm-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="private-message-form" class="w-full max-w-md border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DIRECT_LINK // TRANSMIT_PM</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">SEND MESSAGE</h2>
+        </div>
+        <button id="close-send-pm-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
           [X]
         </button>
       </div>
 
       <div class="p-5 flex flex-col gap-3.5">
         <div>
-          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">MEMBER NAME / HANDLE</label>
+          <label for="pm-to-select" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">TO:</label>
+          <select
+            id="pm-to-select"
+            required
+            class="w-full bg-[#040c10] border border-[#236978] px-2.5 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+          >
+            <option value="">SELECT MEMBER...</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="pm-subject-input" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">SUBJECT:</label>
           <input
-            id="member-name-input"
+            id="pm-subject-input"
             type="text"
             required
-            placeholder="E.G. MAMON_BRIGITTE"
-            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
+            placeholder="ENTER SUBJECT..."
+            class="w-full bg-[#040c10] border border-[#236978] px-2.5 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
           />
         </div>
+
         <div>
-          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ROLE / DESIGNATION (OPTIONAL)</label>
-          <input
-            id="member-role-input"
-            type="text"
-            placeholder="E.G. NETRUNNER // SUBNET_OPS"
-            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
-          />
-        </div>
-        <div id="member-leadership-wrap" class="pt-1">
-          <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
-            <input
-              id="member-leadership-input"
-              type="checkbox"
-              class="w-4 h-4 accent-[#48d1e8] bg-[#040c10] border border-[#236978] cursor-pointer"
-            />
-            <span class="font-mono-tech text-[11px] text-[#7df9ff] tracking-widest uppercase">
-              DESIGNATE AS LEADERSHIP
-            </span>
-          </label>
+          <label for="pm-body-input" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">MESSAGE:</label>
+          <textarea
+            id="pm-body-input"
+            rows="5"
+            required
+            placeholder="WRITE PRIVATE TRANSMISSION..."
+            class="w-full bg-[#040c10] border border-[#236978] p-2.5 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
+          ></textarea>
         </div>
       </div>
 
       <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
-        <button id="cancel-member-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+        <button id="cancel-send-pm-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
           CANCEL
         </button>
-        <button id="member-submit-btn" type="submit" class="cp-btn text-xs py-1.5 px-5">
-          ADD MEMBER
+        <button type="submit" class="cp-btn text-xs py-1.5 px-5">
+          SEND PM
         </button>
       </div>
     </form>
+  </div>
+
+  <!-- =========================================================
+       4D-2. PRIVATE MESSAGE READER & REPLY OVERLAY MODAL
+       ========================================================= -->
+  <div id="pm-reader-modal" class="hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="w-full max-w-xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_45px_rgba(72,209,232,0.32)] chamfer-md flex flex-col max-h-[86vh] hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">ENCRYPTED_THREAD // DIRECT_COMMS</div>
+          <h2 id="pm-reader-subject" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff] mt-0.5">SUBJECT</h2>
+        </div>
+        <button id="close-pm-reader-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X] CLOSE
+        </button>
+      </div>
+
+      <div class="px-5 py-2 border-b border-[#133b45] bg-[#050f14] font-mono-tech text-[11px] flex flex-wrap items-center justify-between gap-2">
+        <span>FROM: <strong id="pm-reader-from" class="text-[#7df9ff]"></strong></span>
+        <span>TO: <strong id="pm-reader-to" class="text-[#7df9ff]"></strong></span>
+      </div>
+
+      <div id="pm-reader-thread" class="p-5 overflow-y-auto cp-scroll flex-1 flex flex-col gap-3">
+        <!-- Replies and original message rendered dynamically (newest reply above last one) -->
+      </div>
+
+      <form id="pm-reply-form" class="hidden px-5 py-3 border-t border-[#17454f] bg-[#051016] flex flex-col gap-2">
+        <label for="pm-reply-input" class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8]">REPLY MESSAGE:</label>
+        <textarea
+          id="pm-reply-input"
+          rows="3"
+          required
+          placeholder="WRITE REPLY..."
+          class="w-full bg-[#040c10] border border-[#236978] p-2.5 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
+        ></textarea>
+        <div class="flex items-center justify-end gap-2">
+          <button id="cancel-pm-reply-btn" type="button" class="font-mono-tech text-xs px-3 py-1 border border-[#226675] text-[#48d1e8] hover:text-white">
+            CANCEL
+          </button>
+          <button type="submit" class="cp-btn text-xs py-1 px-4">
+            SEND REPLY
+          </button>
+        </div>
+      </form>
+
+      <div class="flex items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button
+          id="pm-reader-delete-btn"
+          type="button"
+          class="font-mono-tech text-xs px-3.5 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors uppercase tracking-wider"
+        >
+          Delete
+        </button>
+        <button
+          id="pm-reader-reply-btn"
+          type="button"
+          class="cp-btn text-xs py-1.5 px-4"
+        >
+          Reply
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       4E. NOTIFICATIONS OVERLAY MODAL (ALL USERS)
+       ========================================================= -->
+  <div id="notifications-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="w-full max-w-xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[85vh] hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">SYS_ALERTS // SIGNAL_FEED</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">NOTIFICATIONS</h2>
+        </div>
+        <button id="close-notifications-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X] CLOSE
+        </button>
+      </div>
+
+      <div id="notifications-list" class="p-5 overflow-y-auto cp-scroll flex-1 flex flex-col gap-2.5">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
   </div>
 
   <!-- =========================================================
@@ -834,11 +1149,19 @@
     let db = null;
     let shardsCollection = null;
     let rosterCollection = null;
+    let accountRequestsCollection = null;
+    let approvedAccountsCollection = null;
+    let privateMessagesCollection = null;
+    let publicChatCollection = null;
     try {
       const firebaseApp = initializeApp(firebaseConfig);
       db = getFirestore(firebaseApp);
       shardsCollection = collection(db, "archive_shards");
       rosterCollection = collection(db, "roster_members");
+      accountRequestsCollection = collection(db, "account_requests");
+      approvedAccountsCollection = collection(db, "approved_accounts");
+      privateMessagesCollection = collection(db, "private_messages");
+      publicChatCollection = collection(db, "public_chat_messages");
     } catch (initErr) {
       console.error("Firebase initialization warning:", initErr);
     }
@@ -908,15 +1231,37 @@
 
     let records = [];
     let rosterMembers = [];
+    let accountRequests = [];
+    let approvedAccounts = [];
+    let privateMessages = [];
+    let publicChatMessages = [];
     let activeTab = 'FILES';
+    let messageSubTab = 'PRIVATE';
     let selectedId = null;
+    let activePmId = null;
     let editingShardId = null;
-    let editingMemberId = null;
+    let managingMemberId = null;
     let currentUser = 'ADMIN';
+    let currentRoleType = 'ADMIN'; // 'ADMIN' | 'MODERATOR' | 'USER'
+    let dismissedNotificationKeys = new Set();
     let pendingImages = [];
+    let isSubmittingRequest = false;
 
     const MAX_IMAGES = 4;
     const MAX_IMAGE_BYTES = 200 * 1024;
+
+    function hasStaffPrivileges() {
+      return currentRoleType === 'ADMIN' || currentRoleType === 'MODERATOR';
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
     /**
      * 3. DOM ELEMENT REFERENCES
@@ -927,33 +1272,74 @@
     const loginPassword = document.getElementById('login-password');
     const loginSubmit = document.getElementById('login-submit');
     const loginStatus = document.getElementById('login-status');
+    const openRegisterLink = document.getElementById('open-register-link');
+
+    const registerForm = document.getElementById('register-form');
+    const registerUsername = document.getElementById('register-username');
+    const registerRole = document.getElementById('register-role');
+    const registerPassword = document.getElementById('register-password');
+    const registerSubmit = document.getElementById('register-submit');
+    const backToLoginLink = document.getElementById('back-to-login-link');
+    const registerStatus = document.getElementById('register-status');
 
     const desktopScreen = document.getElementById('desktop-screen');
     const hudUser = document.getElementById('hud-user');
     const hudClock = document.getElementById('hud-clock');
     const cloudSyncBadge = document.getElementById('cloud-sync-badge');
     const activeSectorLabel = document.getElementById('active-sector-label');
+    const requestsBtn = document.getElementById('requests-btn');
+    const requestsBadge = document.getElementById('requests-badge');
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationsBadge = document.getElementById('notifications-badge');
     const logoutBtn = document.getElementById('logout-btn');
 
+    const notificationsModal = document.getElementById('notifications-modal');
+    const closeNotificationsBtn = document.getElementById('close-notifications-btn');
+    const notificationsList = document.getElementById('notifications-list');
+
+    const requestsModal = document.getElementById('requests-modal');
+    const closeRequestsBtn = document.getElementById('close-requests-btn');
+    const requestsList = document.getElementById('requests-list');
+
     const navModules = document.querySelectorAll('.nav-module');
+    const workspaceToolbar = document.getElementById('workspace-toolbar');
+    const searchBoxWrap = document.getElementById('search-box-wrap');
     const searchInput = document.getElementById('search-input');
     const recordCount = document.getElementById('record-count');
     const itemsGrid = document.getElementById('items-grid');
+    const gridContainer = document.getElementById('grid-container');
     const emptyState = document.getElementById('empty-state');
     const newEntryBtn = document.getElementById('new-entry-btn');
-    const newMemberBtn = document.getElementById('new-member-btn');
 
-    const memberModal = document.getElementById('member-modal');
-    const memberForm = document.getElementById('member-form');
-    const memberModalMeta = document.getElementById('member-modal-meta');
-    const memberModalTitle = document.getElementById('member-modal-title');
-    const memberSubmitBtn = document.getElementById('member-submit-btn');
-    const memberNameInput = document.getElementById('member-name-input');
-    const memberRoleInput = document.getElementById('member-role-input');
-    const memberLeadershipWrap = document.getElementById('member-leadership-wrap');
-    const memberLeadershipInput = document.getElementById('member-leadership-input');
-    const closeMemberBtn = document.getElementById('close-member-btn');
-    const cancelMemberBtn = document.getElementById('cancel-member-btn');
+    const messagesBoard = document.getElementById('messages-board');
+    const msgModePrivateBtn = document.getElementById('msg-mode-private-btn');
+    const msgModePublicBtn = document.getElementById('msg-mode-public-btn');
+    const privateMessagesView = document.getElementById('private-messages-view');
+    const publicChatView = document.getElementById('public-chat-view');
+    const openSendPmBtn = document.getElementById('open-send-pm-btn');
+    const sendPmModal = document.getElementById('send-pm-modal');
+    const closeSendPmBtn = document.getElementById('close-send-pm-btn');
+    const cancelSendPmBtn = document.getElementById('cancel-send-pm-btn');
+    const privateMessageForm = document.getElementById('private-message-form');
+    const pmToSelect = document.getElementById('pm-to-select');
+    const pmSubjectInput = document.getElementById('pm-subject-input');
+    const pmBodyInput = document.getElementById('pm-body-input');
+    const pmStatus = document.getElementById('pm-status');
+    const privateMessagesList = document.getElementById('private-messages-list');
+    const pmReaderModal = document.getElementById('pm-reader-modal');
+    const closePmReaderBtn = document.getElementById('close-pm-reader-btn');
+    const pmReaderSubject = document.getElementById('pm-reader-subject');
+    const pmReaderFrom = document.getElementById('pm-reader-from');
+    const pmReaderTo = document.getElementById('pm-reader-to');
+    const pmReaderThread = document.getElementById('pm-reader-thread');
+    const pmReaderDeleteBtn = document.getElementById('pm-reader-delete-btn');
+    const pmReaderReplyBtn = document.getElementById('pm-reader-reply-btn');
+    const pmReplyForm = document.getElementById('pm-reply-form');
+    const pmReplyInput = document.getElementById('pm-reply-input');
+    const cancelPmReplyBtn = document.getElementById('cancel-pm-reply-btn');
+    const publicChatList = document.getElementById('public-chat-list');
+    const publicChatForm = document.getElementById('public-chat-form');
+    const publicChatInput = document.getElementById('public-chat-input');
 
     const readerModal = document.getElementById('reader-modal');
     const readerModalBox = document.getElementById('reader-modal-box');
@@ -982,6 +1368,18 @@
     const createImageInput = document.getElementById('create-image-input');
     const uploadImageStatus = document.getElementById('upload-image-status');
     const createImagePreviewWrap = document.getElementById('create-image-preview-wrap');
+
+    const manageMemberModal = document.getElementById('manage-member-modal');
+    const manageMemberForm = document.getElementById('manage-member-form');
+    const manageMemberName = document.getElementById('manage-member-name');
+    const manageMemberTier = document.getElementById('manage-member-tier');
+    const manageMemberRoleInput = document.getElementById('manage-member-role-input');
+    const manageModeratorWrap = document.getElementById('manage-moderator-wrap');
+    const manageModeratorInput = document.getElementById('manage-moderator-input');
+    const manageMemberStatus = document.getElementById('manage-member-status');
+    const manageDeleteUserBtn = document.getElementById('manage-delete-user-btn');
+    const closeManageMemberBtn = document.getElementById('close-manage-member-btn');
+    const cancelManageMemberBtn = document.getElementById('cancel-manage-member-btn');
 
     const lightboxModal = document.getElementById('lightbox-modal');
     const lightboxTitle = document.getElementById('lightbox-title');
@@ -1039,6 +1437,206 @@
       }
     }
 
+    async function saveAccountRequestToCloud(reqObj) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "account_requests", reqObj.id), reqObj);
+      } catch (err) {
+        console.error("Firestore account request write error:", err);
+      }
+    }
+
+    async function deleteAccountRequestFromCloud(id) {
+      if (!db) return;
+      try {
+        await deleteDoc(doc(db, "account_requests", id));
+      } catch (err) {
+        console.error("Firestore account request delete error:", err);
+      }
+    }
+
+    async function saveApprovedAccountToCloud(accObj) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "approved_accounts", accObj.id), accObj);
+      } catch (err) {
+        console.error("Firestore approved account write error:", err);
+      }
+    }
+
+    async function deleteApprovedAccountFromCloud(id) {
+      if (!db) return;
+      try {
+        await deleteDoc(doc(db, "approved_accounts", id));
+      } catch (err) {
+        console.error("Firestore approved account delete error:", err);
+      }
+    }
+
+    async function savePrivateMessageToCloud(pmObj) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "private_messages", pmObj.id), pmObj);
+      } catch (err) {
+        console.error("Firestore private message write error:", err);
+      }
+    }
+
+    async function savePublicChatToCloud(msgObj) {
+      if (!db) return;
+      try {
+        await setDoc(doc(db, "public_chat_messages", msgObj.id), msgObj);
+      } catch (err) {
+        console.error("Firestore public chat write error:", err);
+      }
+    }
+
+    async function syncApprovedAccountsToRoster(accountsList) {
+      if (!db || !rosterCollection) return;
+      for (const acc of accountsList) {
+        const expectedMemberId = `mbr-${acc.id}`;
+        const existingMember = rosterMembers.find((m) => m.id === expectedMemberId);
+        const isLeader = Boolean(acc.isModerator || acc.isLeadership);
+        if (!existingMember) {
+          await saveMemberToCloud({
+            id: expectedMemberId,
+            username: acc.username,
+            name: acc.username,
+            role: acc.role || 'ACTIVE_OPERATIVE',
+            isModerator: isLeader,
+            isLeadership: isLeader,
+            createdAt: acc.approvedAt || acc.createdAt || Date.now()
+          });
+        }
+      }
+    }
+
+    function updateRequestsBadge() {
+      if (!requestsBtn || !requestsBadge) return;
+      if (!hasStaffPrivileges()) {
+        requestsBtn.classList.add('hidden');
+        requestsBadge.classList.add('hidden');
+        return;
+      }
+      requestsBtn.classList.remove('hidden');
+      const count = accountRequests.length;
+      if (count > 0) {
+        requestsBadge.textContent = String(count);
+        requestsBadge.classList.remove('hidden');
+      } else {
+        requestsBadge.classList.add('hidden');
+      }
+    }
+
+    function getActiveNotifications() {
+      const items = [];
+      const me = currentUser.toUpperCase();
+
+      for (const pm of privateMessages) {
+        if ((pm.to || '').toUpperCase() === me) {
+          const key = `pm:${pm.id}`;
+          if (!dismissedNotificationKeys.has(key)) {
+            items.push({
+              key,
+              type: 'PM',
+              pmId: pm.id,
+              title: `PM FROM ${pm.from || 'UNKNOWN'}`,
+              subtitle: pm.subject || 'ENCRYPTED MESSAGE',
+              createdAt: pm.createdAt || 0
+            });
+          }
+        }
+      }
+
+      if (hasStaffPrivileges()) {
+        for (const req of accountRequests) {
+          const key = `req:${req.id}`;
+          if (!dismissedNotificationKeys.has(key)) {
+            items.push({
+              key,
+              type: 'REQUEST',
+              title: `ACCOUNT REQUEST // ${req.username || 'UNKNOWN'}`,
+              subtitle: `ROLE: ${req.role || 'OPERATIVE'}`,
+              createdAt: req.createdAt || 0
+            });
+          }
+        }
+      }
+
+      items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      return items;
+    }
+
+    function updateNotificationsBadge() {
+      if (!notificationsBadge) return;
+      const items = getActiveNotifications();
+      if (items.length > 0) {
+        notificationsBadge.textContent = String(items.length);
+        notificationsBadge.classList.remove('hidden');
+      } else {
+        notificationsBadge.classList.add('hidden');
+      }
+    }
+
+    function renderNotificationsModal() {
+      const items = getActiveNotifications();
+      if (items.length === 0) {
+        notificationsList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            NO NEW NOTIFICATIONS.
+          </div>
+        `;
+        return;
+      }
+
+      notificationsList.innerHTML = items
+        .map(
+          (n) => `
+            <div data-notif-key="${escapeHtml(n.key)}" data-notif-type="${escapeHtml(n.type)}" data-notif-pm-id="${escapeHtml(n.pmId || '')}" class="p-3 border border-[#1d5663] bg-[#040c10] hover:border-[#48d1e8] flex items-center justify-between gap-3 cursor-pointer transition-colors">
+              <div class="min-w-0 flex-1">
+                <div class="font-hud font-bold text-sm tracking-wider text-[#7df9ff] truncate">${escapeHtml(n.title)}</div>
+                <div class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] truncate mt-0.5">${escapeHtml(n.subtitle)}</div>
+              </div>
+              <button type="button" data-dismiss-notif="${escapeHtml(n.key)}" class="font-mono-tech text-[10px] px-2 py-1 border border-[#2a7585] text-[#48d1e8] hover:border-[#ff4d5a] hover:text-[#ff6b76] shrink-0">
+                DISMISS
+              </button>
+            </div>
+          `
+        )
+        .join('');
+
+      notificationsList.querySelectorAll('[data-notif-key]').forEach((row) => {
+        row.addEventListener('click', (e) => {
+          const dismissBtn = e.target.closest('[data-dismiss-notif]');
+          if (dismissBtn) {
+            e.stopPropagation();
+            dismissedNotificationKeys.add(dismissBtn.dataset.dismissNotif);
+            updateNotificationsBadge();
+            renderNotificationsModal();
+            return;
+          }
+
+          const key = row.dataset.notifKey;
+          const type = row.dataset.notifType;
+          const pmId = row.dataset.notifPmId;
+          dismissedNotificationKeys.add(key);
+          updateNotificationsBadge();
+          notificationsModal.classList.add('hidden');
+
+          if (type === 'PM') {
+            activeTab = 'MESSAGES';
+            messageSubTab = 'PRIVATE';
+            activePmId = pmId || null;
+            navModules.forEach((b) => b.classList.toggle('active', b.dataset.tab === 'MESSAGES'));
+            activeSectorLabel.textContent = 'SECTOR_01 // MESSAGES';
+            renderWorkspace();
+          } else if (type === 'REQUEST' && hasStaffPrivileges()) {
+            openRequestsModal();
+          }
+        });
+      });
+    }
+
     if (shardsCollection) {
       onSnapshot(
         shardsCollection,
@@ -1075,6 +1673,7 @@
           });
           list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
           rosterMembers = list;
+          populatePmRecipientSelect();
           if (activeTab === 'ROSTER') {
             renderWorkspace();
           }
@@ -1085,8 +1684,98 @@
       );
     }
 
+    if (accountRequestsCollection) {
+      onSnapshot(
+        accountRequestsCollection,
+        (snapshot) => {
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push(docSnap.data());
+          });
+          list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          accountRequests = list;
+          updateRequestsBadge();
+          updateNotificationsBadge();
+          if (!requestsModal.classList.contains('hidden')) {
+            renderRequestsModal();
+          }
+          if (!notificationsModal.classList.contains('hidden')) {
+            renderNotificationsModal();
+          }
+        },
+        (error) => {
+          console.error("Account requests sync error:", error);
+        }
+      );
+    }
+
+    if (approvedAccountsCollection) {
+      onSnapshot(
+        approvedAccountsCollection,
+        (snapshot) => {
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push(docSnap.data());
+          });
+          approvedAccounts = list;
+          populatePmRecipientSelect();
+          syncApprovedAccountsToRoster(list).catch(() => {});
+          if (activeTab === 'ROSTER') {
+            renderWorkspace();
+          }
+        },
+        (error) => {
+          console.error("Approved accounts sync error:", error);
+        }
+      );
+    }
+
+    if (privateMessagesCollection) {
+      onSnapshot(
+        privateMessagesCollection,
+        (snapshot) => {
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push(docSnap.data());
+          });
+          list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          privateMessages = list;
+          updateNotificationsBadge();
+          if (!notificationsModal.classList.contains('hidden')) {
+            renderNotificationsModal();
+          }
+          if (activeTab === 'MESSAGES' && messageSubTab === 'PRIVATE') {
+            renderPrivateMessages();
+          }
+        },
+        (error) => {
+          console.error("Private messages sync error:", error);
+        }
+      );
+    }
+
+    if (publicChatCollection) {
+      onSnapshot(
+        publicChatCollection,
+        (snapshot) => {
+          const list = [];
+          snapshot.forEach((docSnap) => {
+            list.push(docSnap.data());
+          });
+          list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+          publicChatMessages = list;
+          if (activeTab === 'MESSAGES' && messageSubTab === 'PUBLIC') {
+            renderPublicChat();
+          }
+        },
+        (error) => {
+          console.error("Public chat sync error:", error);
+        }
+      );
+    }
+
     /**
-     * 5. LOGIN GATE LOGIC
+     * 5. LOGIN & REGISTRATION GATE LOGIC
      */
     function showLoginMessage(msg, isSuccess = false) {
       loginStatus.textContent = msg;
@@ -1094,6 +1783,69 @@
       loginStatus.classList.remove('opacity-0');
       loginStatus.classList.add('opacity-100');
     }
+
+    function showRegisterMessage(msg, isSuccess = false) {
+      registerStatus.textContent = msg;
+      registerStatus.style.color = isSuccess ? '#7df9ff' : '#ff4d5a';
+      registerStatus.classList.remove('opacity-0');
+      registerStatus.classList.add('opacity-100');
+    }
+
+    openRegisterLink.addEventListener('click', () => {
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+      loginStatus.classList.add('opacity-0');
+      registerStatus.classList.add('opacity-0');
+      registerUsername.focus();
+    });
+
+    backToLoginLink.addEventListener('click', () => {
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      registerStatus.classList.add('opacity-0');
+      loginStatus.classList.add('opacity-0');
+      loginUsername.focus();
+    });
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isSubmittingRequest) return;
+
+      const rawUser = registerUsername.value.trim();
+      const rawRole = registerRole.value.trim();
+      const rawPass = registerPassword.value;
+
+      if (!rawUser || !rawRole || !rawPass) {
+        showRegisterMessage('ALL FIELDS REQUIRED');
+        return;
+      }
+
+      isSubmittingRequest = true;
+      registerSubmit.disabled = true;
+
+      const normalizedName = rawUser.toUpperCase();
+      const reqId = `req-${normalizedName.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+      const newReq = {
+        id: reqId,
+        username: normalizedName,
+        role: rawRole.toUpperCase(),
+        password: rawPass,
+        createdAt: Date.now()
+      };
+
+      accountRequests = [
+        newReq,
+        ...accountRequests.filter((r) => r.id !== reqId && (r.username || '').toUpperCase() !== normalizedName)
+      ];
+      await saveAccountRequestToCloud(newReq);
+      updateRequestsBadge();
+      updateNotificationsBadge();
+
+      registerForm.reset();
+      showRegisterMessage('REQUEST SENT // AWAITING ADMIN APPROVAL', true);
+      registerSubmit.disabled = false;
+      isSubmittingRequest = false;
+    });
 
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -1105,22 +1857,48 @@
         return;
       }
 
-      const validAccounts = {
-        Admin: 'VDBForever',
-        User: 'Blackwall'
-      };
+      const upperUser = user.toUpperCase();
+      let matchedRoleType = null;
+      let displayName = upperUser;
 
-      if (!Object.prototype.hasOwnProperty.call(validAccounts, user) || validAccounts[user] !== pass) {
+      if (user === 'Admin' && pass === 'VDBForever') {
+        matchedRoleType = 'ADMIN';
+        displayName = 'ADMIN';
+      } else if (user === 'User' && pass === 'Blackwall') {
+        matchedRoleType = 'USER';
+        displayName = 'USER';
+      } else {
+        const pendingMatch = accountRequests.find(
+          (r) => (r.username || '').toUpperCase() === upperUser
+        );
+        if (pendingMatch && pendingMatch.password === pass) {
+          showLoginMessage('ACCOUNT PENDING ADMIN CONFIRMATION');
+          return;
+        }
+
+        const approvedMatch = approvedAccounts.find(
+          (a) => (a.username || '').toUpperCase() === upperUser && a.password === pass
+        );
+        if (approvedMatch) {
+          matchedRoleType = approvedMatch.isModerator ? 'MODERATOR' : 'USER';
+          displayName = approvedMatch.username.toUpperCase();
+        }
+      }
+
+      if (!matchedRoleType) {
         showLoginMessage('ACCESS DENIED // INVALID CREDENTIALS');
         return;
       }
 
-      currentUser = user.toUpperCase();
+      currentUser = displayName;
+      currentRoleType = matchedRoleType;
       loginSubmit.disabled = true;
       showLoginMessage('HANDSHAKE VERIFIED // DECRYPTING...', true);
 
       setTimeout(() => {
-        hudUser.textContent = `USR // ${currentUser}`;
+        hudUser.textContent = `USR // ${currentUser} [${currentRoleType}]`;
+        updateRequestsBadge();
+        updateNotificationsBadge();
         loginScreen.classList.add('hidden');
         desktopScreen.classList.remove('hidden');
         desktopScreen.classList.add('hud-enter');
@@ -1133,6 +1911,8 @@
     logoutBtn.addEventListener('click', () => {
       desktopScreen.classList.add('hidden');
       loginScreen.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
       loginPassword.value = '';
       loginStatus.classList.add('opacity-0');
       loginUsername.focus();
@@ -1151,23 +1931,14 @@
     setInterval(updateClock, 15000);
 
     /**
-     * 7. RENDER WORKSPACE & CARDS
+     * 7. RENDER WORKSPACE, ROSTER & MESSAGES
      */
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
     function getFilteredRecords() {
       const q = searchInput.value.trim().toLowerCase();
-      const isAdmin = currentUser === 'ADMIN';
+      const canSeeSecret = hasStaffPrivileges();
       return records.filter((item) => {
         if (item.tab !== activeTab) return false;
-        if (item.secret && !isAdmin) return false;
+        if (item.secret && !canSeeSecret) return false;
         if (!q) return true;
         return (
           (item.title && item.title.toLowerCase().includes(q)) ||
@@ -1188,22 +1959,28 @@
     }
 
     function renderWorkspace() {
-      const isAdmin = currentUser === 'ADMIN';
+      const canManage = hasStaffPrivileges();
+
+      if (activeTab === 'MESSAGES') {
+        workspaceToolbar.classList.add('hidden');
+        gridContainer.classList.add('hidden');
+        messagesBoard.classList.remove('hidden');
+        renderMessagesBoard();
+        return;
+      }
+
+      workspaceToolbar.classList.remove('hidden');
+      gridContainer.classList.remove('hidden');
+      messagesBoard.classList.add('hidden');
 
       if (activeTab === 'ROSTER') {
         newEntryBtn.classList.add('hidden');
-        if (isAdmin) {
-          newMemberBtn.classList.remove('hidden');
-        } else {
-          newMemberBtn.classList.add('hidden');
-        }
         searchInput.placeholder = 'FILTER ROSTER MEMBERS...';
         renderRoster();
         return;
       }
 
       newEntryBtn.classList.remove('hidden');
-      newMemberBtn.classList.add('hidden');
       searchInput.placeholder = 'FILTER ARCHIVE RECORDS...';
 
       const list = getFilteredRecords();
@@ -1282,11 +2059,13 @@
           openReaderModal(id);
         });
       });
+
+      void canManage;
     }
 
     function renderRoster() {
       const q = searchInput.value.trim().toLowerCase();
-      const isAdmin = currentUser === 'ADMIN';
+      const canManage = hasStaffPrivileges();
       const filteredMembers = rosterMembers.filter((m) => {
         if (!q) return true;
         return (
@@ -1298,8 +2077,12 @@
       const compareAlphabetical = (a, b) =>
         String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' });
 
-      const leadershipList = filteredMembers.filter((m) => Boolean(m.isLeadership)).sort(compareAlphabetical);
-      const standardMembersList = filteredMembers.filter((m) => !Boolean(m.isLeadership)).sort(compareAlphabetical);
+      const leadershipList = filteredMembers
+        .filter((m) => Boolean(m.isModerator || m.isLeadership))
+        .sort(compareAlphabetical);
+      const standardMembersList = filteredMembers
+        .filter((m) => !Boolean(m.isModerator || m.isLeadership))
+        .sort(compareAlphabetical);
 
       recordCount.textContent = `${filteredMembers.length} MEMBER${filteredMembers.length === 1 ? '' : 'S'}`;
 
@@ -1314,24 +2097,19 @@
 
       const buildMemberCardHtml = (member) => {
         const isSelected = member.id === selectedId;
-        const isLeader = Boolean(member.isLeadership);
-        const removeBtnHtml = isAdmin
+        const isMod = Boolean(member.isModerator || member.isLeadership);
+        const manageBtnHtml = canManage
           ? `<button
                type="button"
-               data-remove-member-id="${escapeHtml(member.id)}"
-               title="Remove Member"
-               aria-label="Remove Member"
-               class="shrink-0 w-7 h-7 flex items-center justify-center border border-[#2b7b8c] bg-[#09212a]/85 text-[#48d1e8] hover:border-[#7df9ff] hover:bg-[#134252] hover:text-white transition-colors"
+               data-manage-member-id="${escapeHtml(member.id)}"
+               class="shrink-0 font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#09212a]/85 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#134252] tracking-wider uppercase transition-colors"
              >
-               <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8">
-                 <line x1="3.5" y1="3.5" x2="12.5" y2="12.5" />
-                 <line x1="12.5" y1="3.5" x2="3.5" y2="12.5" />
-               </svg>
+               Manage
              </button>`
           : '';
 
         return `
-          <div data-member-id="${escapeHtml(member.id)}" class="archive-card chamfer-card ${isSelected ? 'selected' : ''} ${isAdmin ? 'cursor-pointer' : 'cursor-default'}">
+          <div data-member-id="${escapeHtml(member.id)}" class="archive-card chamfer-card ${isSelected ? 'selected' : ''} cursor-default">
             <div class="shrink-0 text-[#48d1e8]">
               <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
                 <circle cx="12" cy="8.5" r="3.5" fill="rgba(72,209,232,0.16)" />
@@ -1344,13 +2122,13 @@
                   <div class="card-title font-hud font-bold text-base sm:text-lg tracking-[0.08em] text-[#6cd9ed] truncate">
                     ${escapeHtml(member.name)}
                   </div>
-                  ${isLeader ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff]">LEADERSHIP</span>' : ''}
+                  ${isMod ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff]">MODERATOR</span>' : ''}
                 </div>
                 <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
                   ${escapeHtml(member.role || 'ACTIVE_OPERATIVE')}
                 </div>
               </div>
-              ${removeBtnHtml}
+              ${manageBtnHtml}
             </div>
           </div>
         `;
@@ -1362,7 +2140,7 @@
         sectionsHtml.push(`
           <div class="col-span-1 md:col-span-2 flex flex-col gap-2">
             <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#7df9ff] border-b border-[#1c5461] pb-1 uppercase">
-              LEADERSHIP // COMMAND_TIER (${leadershipList.length})
+              LEADERSHIP // MODERATOR_TIER (${leadershipList.length})
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
               ${leadershipList.map(buildMemberCardHtml).join('')}
@@ -1386,32 +2164,366 @@
 
       itemsGrid.innerHTML = sectionsHtml.join('');
 
-      if (isAdmin) {
-        itemsGrid.querySelectorAll('[data-member-id]').forEach((cardEl) => {
-          cardEl.addEventListener('click', () => {
-            const member = rosterMembers.find((m) => m.id === cardEl.dataset.memberId);
+      if (canManage) {
+        itemsGrid.querySelectorAll('[data-manage-member-id]').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const member = rosterMembers.find((m) => m.id === btn.dataset.manageMemberId);
             if (member) {
               selectedId = member.id;
-              openEditMemberModal(member);
+              openManageMemberModal(member);
             }
-          });
-        });
-
-        itemsGrid.querySelectorAll('[data-remove-member-id]').forEach((btn) => {
-          btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const memberId = btn.dataset.removeMemberId;
-            rosterMembers = rosterMembers.filter((m) => m.id !== memberId);
-            if (selectedId === memberId) selectedId = null;
-            renderWorkspace();
-            await deleteMemberFromCloud(memberId);
           });
         });
       }
     }
 
     /**
-     * 8. NAVIGATION TABS & SEARCH
+     * 7B. MESSAGES BOARD (PRIVATE MESSAGES & PUBLIC CHAT)
+     */
+    function populatePmRecipientSelect() {
+      if (!pmToSelect) return;
+      const namesSet = new Set(['ADMIN', 'USER']);
+      for (const m of rosterMembers) {
+        if (m.name) namesSet.add(String(m.name).toUpperCase());
+      }
+      for (const acc of approvedAccounts) {
+        if (acc.username) namesSet.add(String(acc.username).toUpperCase());
+      }
+      namesSet.delete(currentUser.toUpperCase());
+
+      const sortedNames = Array.from(namesSet).sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: 'base' })
+      );
+
+      pmToSelect.innerHTML =
+        `<option value="">SELECT MEMBER...</option>` +
+        sortedNames.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+    }
+
+    function renderMessagesBoard() {
+      populatePmRecipientSelect();
+      if (messageSubTab === 'PUBLIC') {
+        msgModePublicBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
+        msgModePrivateBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
+        privateMessagesView.classList.add('hidden');
+        publicChatView.classList.remove('hidden');
+        renderPublicChat();
+      } else {
+        msgModePrivateBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
+        msgModePublicBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
+        publicChatView.classList.add('hidden');
+        privateMessagesView.classList.remove('hidden');
+        renderPrivateMessages();
+      }
+    }
+
+    function showPrivateMessageDetail(pm) {
+      if (!pm) {
+        privateMessageDetail.classList.add('hidden');
+        activePmId = null;
+        return;
+      }
+      activePmId = pm.id;
+      pmDetailFrom.textContent = pm.from || 'UNKNOWN';
+      pmDetailTo.textContent = pm.to || 'UNKNOWN';
+      pmDetailSubject.textContent = pm.subject || 'NO SUBJECT';
+      pmDetailBody.textContent = pm.body || '';
+      privateMessageDetail.classList.remove('hidden');
+    }
+
+    function renderPrivateMessages() {
+      const me = currentUser.toUpperCase();
+      const myPms = privateMessages.filter((pm) => {
+        const deletedBy = Array.isArray(pm.deletedBy) ? pm.deletedBy.map((u) => String(u).toUpperCase()) : [];
+        if (deletedBy.includes(me)) return false;
+        return (pm.to || '').toUpperCase() === me || (pm.from || '').toUpperCase() === me;
+      });
+
+      recordCount.textContent = `${myPms.length} PM${myPms.length === 1 ? '' : 'S'}`;
+
+      if (activePmId) {
+        const selectedPm = myPms.find((p) => p.id === activePmId);
+        if (selectedPm && !pmReaderModal.classList.contains('hidden')) {
+          renderPmReaderContent(selectedPm);
+        }
+      }
+
+      if (myPms.length === 0) {
+        privateMessagesList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            NO PRIVATE MESSAGES IN LOG.
+          </div>
+        `;
+        return;
+      }
+
+      privateMessagesList.innerHTML = myPms
+        .map((pm) => {
+          const isIncoming = (pm.to || '').toUpperCase() === me;
+          const personLabel = isIncoming
+            ? `FROM: ${escapeHtml(pm.from || 'UNKNOWN')}`
+            : `TO: ${escapeHtml(pm.to || 'UNKNOWN')} (SENT)`;
+
+          return `
+            <div data-pm-id="${escapeHtml(pm.id)}" class="p-3 border border-[#1d5663] bg-[#040c10] hover:border-[#48d1e8] flex items-center justify-between gap-3 cursor-pointer transition-colors">
+              <div class="min-w-0 flex-1">
+                <div class="font-mono-tech text-[11px] tracking-wider text-[#48d1e8] truncate">
+                  ${personLabel}
+                </div>
+                <div class="font-hud font-bold text-base tracking-wider text-[#7df9ff] truncate mt-0.5">
+                  ${escapeHtml(pm.subject || 'NO SUBJECT')}
+                </div>
+              </div>
+              <span class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] shrink-0">
+                [OPEN]
+              </span>
+            </div>
+          `;
+        })
+        .join('');
+
+      privateMessagesList.querySelectorAll('[data-pm-id]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const pm = myPms.find((item) => item.id === el.dataset.pmId);
+          if (pm) {
+            openPmReaderModal(pm);
+          }
+        });
+      });
+    }
+
+    function renderPmReaderContent(pm) {
+      if (!pm) return;
+      pmReaderSubject.textContent = pm.subject || 'NO SUBJECT';
+      pmReaderFrom.textContent = pm.from || 'UNKNOWN';
+      pmReaderTo.textContent = pm.to || 'UNKNOWN';
+
+      const replies = Array.isArray(pm.replies) ? [...pm.replies] : [];
+      replies.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+      const repliesHtml = replies
+        .map(
+          (rep) => `
+            <div class="p-3 border border-[#2b7b8c] bg-[#071c25] flex flex-col gap-1">
+              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+                <span class="text-[#7df9ff] font-bold tracking-wider">REPLY // ${escapeHtml(rep.sender || 'OPERATIVE')}</span>
+                <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(rep.createdAt))}</span>
+              </div>
+              <pre class="font-mono-tech text-xs text-[#b7f3fc] whitespace-pre-wrap leading-relaxed">${escapeHtml(rep.text || '')}</pre>
+            </div>
+          `
+        )
+        .join('');
+
+      const originalHtml = `
+        <div class="p-3 border border-[#17454f] bg-[#040c10] flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+            <span class="text-[#48d1e8] tracking-wider">ORIGINAL // ${escapeHtml(pm.from || 'UNKNOWN')}</span>
+            <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
+          </div>
+          <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(pm.body || '')}</pre>
+        </div>
+      `;
+
+      pmReaderThread.innerHTML = repliesHtml + originalHtml;
+    }
+
+    function openPmReaderModal(pm) {
+      if (!pm) return;
+      activePmId = pm.id;
+      dismissedNotificationKeys.add(`pm:${pm.id}`);
+      updateNotificationsBadge();
+      renderPmReaderContent(pm);
+      pmReplyForm.classList.add('hidden');
+      pmReplyInput.value = '';
+      pmReaderModal.classList.remove('hidden');
+    }
+
+    function closePmReaderModal() {
+      pmReplyForm.classList.add('hidden');
+      pmReplyInput.value = '';
+      pmReaderModal.classList.add('hidden');
+    }
+
+    function formatMsgTimestamp(ts) {
+      if (!ts) return '2077.04.14';
+      const d = new Date(ts);
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+
+    function renderPublicChat() {
+      recordCount.textContent = `${publicChatMessages.length} MSG${publicChatMessages.length === 1 ? '' : 'S'}`;
+
+      if (publicChatMessages.length === 0) {
+        publicChatList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            PUBLIC CHAT CHANNEL EMPTY. TRANSMIT FIRST MESSAGE BELOW.
+          </div>
+        `;
+        return;
+      }
+
+      publicChatList.innerHTML = publicChatMessages
+        .map(
+          (msg) => `
+            <div class="p-2.5 border border-[#17454f] bg-[#040c10] flex flex-col gap-1">
+              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+                <span class="text-[#7df9ff] font-bold tracking-wider">${escapeHtml(msg.sender || 'OPERATIVE')}</span>
+                <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(msg.createdAt))}</span>
+              </div>
+              <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.text || '')}</pre>
+            </div>
+          `
+        )
+        .join('');
+
+      publicChatList.scrollTop = publicChatList.scrollHeight;
+    }
+
+    msgModePrivateBtn.addEventListener('click', () => {
+      messageSubTab = 'PRIVATE';
+      renderMessagesBoard();
+    });
+
+    msgModePublicBtn.addEventListener('click', () => {
+      messageSubTab = 'PUBLIC';
+      renderMessagesBoard();
+    });
+
+    openSendPmBtn.addEventListener('click', () => {
+      populatePmRecipientSelect();
+      privateMessageForm.reset();
+      sendPmModal.classList.remove('hidden');
+      pmToSelect.focus();
+    });
+
+    function closeSendPmModal() {
+      sendPmModal.classList.add('hidden');
+    }
+
+    closeSendPmBtn.addEventListener('click', closeSendPmModal);
+    cancelSendPmBtn.addEventListener('click', closeSendPmModal);
+    sendPmModal.addEventListener('click', (e) => {
+      if (e.target === sendPmModal) closeSendPmModal();
+    });
+
+    closePmReaderBtn.addEventListener('click', closePmReaderModal);
+    pmReaderModal.addEventListener('click', (e) => {
+      if (e.target === pmReaderModal) closePmReaderModal();
+    });
+
+    pmReaderReplyBtn.addEventListener('click', () => {
+      pmReplyForm.classList.remove('hidden');
+      pmReplyInput.focus();
+    });
+
+    cancelPmReplyBtn.addEventListener('click', () => {
+      pmReplyForm.classList.add('hidden');
+      pmReplyInput.value = '';
+    });
+
+    pmReplyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!activePmId) return;
+      const replyText = pmReplyInput.value.trim();
+      if (!replyText) return;
+
+      const targetPm = privateMessages.find((p) => p.id === activePmId);
+      if (!targetPm) return;
+
+      const newReply = {
+        id: `rep-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        sender: currentUser.toUpperCase(),
+        text: replyText,
+        createdAt: Date.now()
+      };
+
+      const existingReplies = Array.isArray(targetPm.replies) ? targetPm.replies : [];
+      const updatedPm = {
+        ...targetPm,
+        replies: [...existingReplies, newReply]
+      };
+
+      privateMessages = privateMessages.map((p) => (p.id === targetPm.id ? updatedPm : p));
+      pmReplyInput.value = '';
+      pmReplyForm.classList.add('hidden');
+      renderPmReaderContent(updatedPm);
+      renderPrivateMessages();
+      await savePrivateMessageToCloud(updatedPm);
+    });
+
+    pmReaderDeleteBtn.addEventListener('click', async () => {
+      if (!activePmId) return;
+      const me = currentUser.toUpperCase();
+      const targetPm = privateMessages.find((p) => p.id === activePmId);
+      if (!targetPm) return;
+
+      const existingDeleted = Array.isArray(targetPm.deletedBy) ? targetPm.deletedBy : [];
+      const updatedDeleted = Array.from(new Set([...existingDeleted.map((u) => String(u).toUpperCase()), me]));
+      const updatedPm = {
+        ...targetPm,
+        deletedBy: updatedDeleted
+      };
+
+      privateMessages = privateMessages.map((p) => (p.id === targetPm.id ? updatedPm : p));
+      activePmId = null;
+      closePmReaderModal();
+      renderPrivateMessages();
+      await savePrivateMessageToCloud(updatedPm);
+    });
+
+    privateMessageForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const recipient = pmToSelect.value.trim().toUpperCase();
+      const subject = pmSubjectInput.value.trim();
+      const body = pmBodyInput.value.trim();
+
+      if (!recipient || !subject || !body) return;
+
+      const newPm = {
+        id: `pm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        from: currentUser.toUpperCase(),
+        to: recipient,
+        subject,
+        body,
+        createdAt: Date.now()
+      };
+
+      privateMessages = [newPm, ...privateMessages];
+      privateMessageForm.reset();
+      closeSendPmModal();
+      pmStatus.textContent = `PM SENT TO ${recipient}`;
+      setTimeout(() => {
+        if (pmStatus) pmStatus.textContent = '';
+      }, 2500);
+
+      renderPrivateMessages();
+      await savePrivateMessageToCloud(newPm);
+    });
+
+    publicChatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = publicChatInput.value.trim();
+      if (!text) return;
+
+      const newMsg = {
+        id: `pub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        sender: currentUser.toUpperCase(),
+        text,
+        createdAt: Date.now()
+      };
+
+      publicChatMessages = [...publicChatMessages, newMsg];
+      publicChatInput.value = '';
+      renderPublicChat();
+      await savePublicChatToCloud(newMsg);
+    });
+
+    /**
+     * 8. NAVIGATION TABS, REQUESTS & NOTIFICATIONS MODALS
      */
     navModules.forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -1428,13 +2540,151 @@
       renderWorkspace();
     });
 
+    notificationsBtn.addEventListener('click', () => {
+      renderNotificationsModal();
+      notificationsModal.classList.remove('hidden');
+    });
+
+    closeNotificationsBtn.addEventListener('click', () => {
+      notificationsModal.classList.add('hidden');
+    });
+
+    notificationsModal.addEventListener('click', (e) => {
+      if (e.target === notificationsModal) notificationsModal.classList.add('hidden');
+    });
+
+    function renderRequestsModal() {
+      if (!hasStaffPrivileges()) {
+        requestsList.innerHTML = '';
+        return;
+      }
+
+      if (accountRequests.length === 0) {
+        requestsList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            NO PENDING ACCOUNT REQUESTS.
+          </div>
+        `;
+        return;
+      }
+
+      requestsList.innerHTML = accountRequests
+        .map(
+          (req) => `
+            <div data-req-id="${escapeHtml(req.id)}" class="p-3.5 border border-[#1d5663] bg-[#040c10] flex flex-wrap items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="font-hud font-bold text-base tracking-wider text-[#7df9ff] truncate">
+                  ${escapeHtml(req.username)}
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                  ROLE: ${escapeHtml(req.role || 'OPERATIVE')}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  data-confirm-req="${escapeHtml(req.id)}"
+                  class="font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#0e2e38]/80 text-[#7df9ff] hover:bg-[#184c5c] transition-colors tracking-wider uppercase"
+                >
+                  CONFIRM
+                </button>
+                <button
+                  type="button"
+                  data-deny-req="${escapeHtml(req.id)}"
+                  class="font-mono-tech text-xs px-3 py-1 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors tracking-wider uppercase"
+                >
+                  DENY
+                </button>
+              </div>
+            </div>
+          `
+        )
+        .join('');
+
+      requestsList.querySelectorAll('[data-confirm-req]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const reqId = btn.dataset.confirmReq;
+          const reqObj = accountRequests.find((r) => r.id === reqId);
+          if (!reqObj) return;
+
+          const accId = `acc-${reqObj.username.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+          const approvedAcc = {
+            id: accId,
+            username: reqObj.username.toUpperCase(),
+            role: reqObj.role || 'ACTIVE_OPERATIVE',
+            password: reqObj.password,
+            isModerator: false,
+            isLeadership: false,
+            approvedAt: Date.now()
+          };
+
+          const memberId = `mbr-${accId}`;
+          const newMember = {
+            id: memberId,
+            username: approvedAcc.username,
+            name: approvedAcc.username,
+            role: approvedAcc.role,
+            isModerator: false,
+            isLeadership: false,
+            createdAt: approvedAcc.approvedAt
+          };
+
+          accountRequests = accountRequests.filter((r) => r.id !== reqId);
+          approvedAccounts = [
+            approvedAcc,
+            ...approvedAccounts.filter((a) => a.id !== accId)
+          ];
+          rosterMembers = [
+            ...rosterMembers.filter((m) => m.id !== memberId),
+            newMember
+          ];
+
+          updateRequestsBadge();
+          updateNotificationsBadge();
+          renderRequestsModal();
+          if (activeTab === 'ROSTER') renderWorkspace();
+
+          await saveApprovedAccountToCloud(approvedAcc);
+          await saveMemberToCloud(newMember);
+          await deleteAccountRequestFromCloud(reqId);
+        });
+      });
+
+      requestsList.querySelectorAll('[data-deny-req]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const reqId = btn.dataset.denyReq;
+          accountRequests = accountRequests.filter((r) => r.id !== reqId);
+          updateRequestsBadge();
+          updateNotificationsBadge();
+          renderRequestsModal();
+          await deleteAccountRequestFromCloud(reqId);
+        });
+      });
+    }
+
+    function openRequestsModal() {
+      if (!hasStaffPrivileges()) return;
+      renderRequestsModal();
+      requestsModal.classList.remove('hidden');
+    }
+
+    requestsBtn.addEventListener('click', openRequestsModal);
+
+    closeRequestsBtn.addEventListener('click', () => {
+      requestsModal.classList.add('hidden');
+    });
+
+    requestsModal.addEventListener('click', (e) => {
+      if (e.target === requestsModal) requestsModal.classList.add('hidden');
+    });
+
     /**
      * 9. SHARD READER MODAL
      */
     function openReaderModal(id) {
       const shard = records.find((r) => r.id === id);
       if (!shard) return;
-      if (shard.secret && currentUser !== 'ADMIN') return;
+      if (shard.secret && !hasStaffPrivileges()) return;
 
       const isSecret = Boolean(shard.secret);
       selectedId = shard.id;
@@ -1534,7 +2784,7 @@
       if (!selectedId) return;
       const shardToEdit = records.find((r) => r.id === selectedId);
       if (!shardToEdit) return;
-      if (shardToEdit.secret && currentUser !== 'ADMIN') return;
+      if (shardToEdit.secret && !hasStaffPrivileges()) return;
       closeReaderModal();
       openEditModal(shardToEdit);
     });
@@ -1597,7 +2847,7 @@
       createSubmitBtn.textContent = 'COMMIT TO ARCHIVE';
       createForm.reset();
       resetCreateImage();
-      if (currentUser === 'ADMIN') {
+      if (hasStaffPrivileges()) {
         createClassificationWrap.classList.remove('hidden');
         const stdRadio = document.querySelector('input[name="shard-classification"][value="STANDARD"]');
         if (stdRadio) stdRadio.checked = true;
@@ -1618,7 +2868,7 @@
       document.getElementById('create-title').value = shard.title || '';
       document.getElementById('create-content').value = shard.content || '';
 
-      if (currentUser === 'ADMIN') {
+      if (hasStaffPrivileges()) {
         createClassificationWrap.classList.remove('hidden');
         const targetVal = shard.secret ? 'SECRET' : 'STANDARD';
         const radio = document.querySelector(`input[name="shard-classification"][value="${targetVal}"]`);
@@ -1723,7 +2973,7 @@
       if (!rawTitle || !rawContent) return;
 
       const selectedClassification = document.querySelector('input[name="shard-classification"]:checked')?.value || 'STANDARD';
-      const isSecret = currentUser === 'ADMIN' && selectedClassification === 'SECRET';
+      const isSecret = hasStaffPrivileges() && selectedClassification === 'SECRET';
 
       const formattedTitle = rawTitle.toUpperCase().replace(/\s+/g, '_');
       const finalImages = pendingImages.slice(0, MAX_IMAGES).map((img) => img.dataUrl);
@@ -1735,7 +2985,7 @@
         const existing = records.find((r) => r.id === editingShardId);
         if (!existing) return;
 
-        const effectiveSecret = existing.secret && currentUser !== 'ADMIN' ? true : isSecret;
+        const effectiveSecret = existing.secret && !hasStaffPrivileges() ? true : isSecret;
         const updatedShard = {
           ...existing,
           secret: effectiveSecret,
@@ -1786,85 +3036,123 @@
     });
 
     /**
-     * 10B. ADD / EDIT MEMBER MODAL (ADMIN ONLY)
+     * 10C. MANAGE MEMBER MODAL (ADMIN & MODERATOR)
      */
-    function openMemberModal() {
-      if (currentUser !== 'ADMIN') return;
-      editingMemberId = null;
-      memberModalMeta.textContent = 'ROSTER_PROTOCOL // NEW_OPERATIVE';
-      memberModalTitle.textContent = 'ADD NEW MEMBER';
-      memberSubmitBtn.textContent = 'ADD MEMBER';
-      memberForm.reset();
-      memberLeadershipWrap.classList.remove('hidden');
-      memberLeadershipInput.checked = false;
-      memberModal.classList.remove('hidden');
-      memberNameInput.focus();
+    function openManageMemberModal(member) {
+      if (!hasStaffPrivileges() || !member) return;
+      managingMemberId = member.id;
+      const isTargetMod = Boolean(member.isModerator || member.isLeadership);
+
+      manageMemberName.textContent = member.name || 'OPERATIVE';
+      manageMemberTier.textContent = isTargetMod ? 'MODERATOR // LEADERSHIP' : 'MEMBER // STANDARD';
+      manageMemberRoleInput.value = member.role || '';
+      manageMemberStatus.textContent = '';
+
+      if (currentRoleType === 'ADMIN') {
+        manageModeratorWrap.classList.remove('hidden');
+        manageModeratorInput.checked = isTargetMod;
+      } else {
+        manageModeratorWrap.classList.add('hidden');
+        manageModeratorInput.checked = isTargetMod;
+      }
+
+      if (isTargetMod && currentRoleType !== 'ADMIN') {
+        manageDeleteUserBtn.classList.add('hidden');
+      } else {
+        manageDeleteUserBtn.classList.remove('hidden');
+      }
+
+      manageMemberModal.classList.remove('hidden');
+      manageMemberRoleInput.focus();
     }
 
-    function openEditMemberModal(member) {
-      if (currentUser !== 'ADMIN' || !member) return;
-      editingMemberId = member.id;
-      memberModalMeta.textContent = `ROSTER_PROTOCOL // EDIT_${member.id.slice(-6).toUpperCase()}`;
-      memberModalTitle.textContent = 'EDIT MEMBER';
-      memberSubmitBtn.textContent = 'SAVE CHANGES';
-      memberForm.reset();
-      memberNameInput.value = member.name || '';
-      memberRoleInput.value = member.role || '';
-      memberLeadershipWrap.classList.remove('hidden');
-      memberLeadershipInput.checked = Boolean(member.isLeadership);
-      memberModal.classList.remove('hidden');
-      memberNameInput.focus();
+    function closeManageMemberModal() {
+      managingMemberId = null;
+      manageMemberModal.classList.add('hidden');
+      manageMemberStatus.textContent = '';
     }
 
-    function closeMemberModal() {
-      editingMemberId = null;
-      memberModal.classList.add('hidden');
-    }
-
-    newMemberBtn.addEventListener('click', openMemberModal);
-    closeMemberBtn.addEventListener('click', closeMemberModal);
-    cancelMemberBtn.addEventListener('click', closeMemberModal);
-    memberModal.addEventListener('click', (e) => {
-      if (e.target === memberModal) closeMemberModal();
+    closeManageMemberBtn.addEventListener('click', closeManageMemberModal);
+    cancelManageMemberBtn.addEventListener('click', closeManageMemberModal);
+    manageMemberModal.addEventListener('click', (e) => {
+      if (e.target === manageMemberModal) closeManageMemberModal();
     });
 
-    memberForm.addEventListener('submit', async (e) => {
+    manageMemberForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (currentUser !== 'ADMIN') return;
-      const rawName = memberNameInput.value.trim();
-      const rawRole = memberRoleInput.value.trim();
-      const isLeader = Boolean(memberLeadershipInput.checked);
-      if (!rawName) return;
+      if (!hasStaffPrivileges() || !managingMemberId) return;
 
-      if (editingMemberId) {
-        const existing = rosterMembers.find((m) => m.id === editingMemberId);
-        if (!existing) return;
-        const updatedMember = {
-          ...existing,
-          name: rawName.toUpperCase(),
-          role: rawRole ? rawRole.toUpperCase() : 'ACTIVE_OPERATIVE',
-          isLeadership: isLeader,
+      const member = rosterMembers.find((m) => m.id === managingMemberId);
+      if (!member) return;
+
+      const nextRole = manageMemberRoleInput.value.trim().toUpperCase() || 'ACTIVE_OPERATIVE';
+      const nextMod =
+        currentRoleType === 'ADMIN'
+          ? Boolean(manageModeratorInput.checked)
+          : Boolean(member.isModerator || member.isLeadership);
+
+      const updatedMember = {
+        ...member,
+        role: nextRole,
+        isModerator: nextMod,
+        isLeadership: nextMod,
+        updatedAt: Date.now()
+      };
+
+      rosterMembers = rosterMembers.map((m) => (m.id === member.id ? updatedMember : m));
+
+      const linkedAccId = member.id.startsWith('mbr-') ? member.id.slice(4) : `acc-${(member.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+      const matchedAcc = approvedAccounts.find(
+        (a) => a.id === linkedAccId || (a.username || '').toUpperCase() === (member.name || '').toUpperCase()
+      );
+      if (matchedAcc) {
+        const updatedAcc = {
+          ...matchedAcc,
+          role: nextRole,
+          isModerator: nextMod,
+          isLeadership: nextMod,
           updatedAt: Date.now()
         };
-        rosterMembers = rosterMembers.map((m) => (m.id === editingMemberId ? updatedMember : m));
-        closeMemberModal();
-        renderWorkspace();
-        await saveMemberToCloud(updatedMember);
+        approvedAccounts = approvedAccounts.map((a) => (a.id === matchedAcc.id ? updatedAcc : a));
+        await saveApprovedAccountToCloud(updatedAcc);
+      }
+
+      closeManageMemberModal();
+      renderWorkspace();
+      await saveMemberToCloud(updatedMember);
+    });
+
+    manageDeleteUserBtn.addEventListener('click', async () => {
+      if (!hasStaffPrivileges() || !managingMemberId) return;
+      const member = rosterMembers.find((m) => m.id === managingMemberId);
+      if (!member) return;
+
+      const isTargetMod = Boolean(member.isModerator || member.isLeadership);
+      if (isTargetMod && currentRoleType !== 'ADMIN') {
+        manageMemberStatus.textContent = 'ONLY ADMIN CAN REMOVE MODERATOR ACCOUNTS';
         return;
       }
 
-      const newMember = {
-        id: `mbr-${Date.now()}`,
-        name: rawName.toUpperCase(),
-        role: rawRole ? rawRole.toUpperCase() : 'ACTIVE_OPERATIVE',
-        isLeadership: isLeader,
-        createdAt: Date.now()
-      };
+      const targetMemberId = member.id;
+      const targetNameUpper = (member.name || '').toUpperCase();
+      const linkedAccId = targetMemberId.startsWith('mbr-')
+        ? targetMemberId.slice(4)
+        : `acc-${targetNameUpper.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
 
-      rosterMembers.push(newMember);
-      closeMemberModal();
+      rosterMembers = rosterMembers.filter((m) => m.id !== targetMemberId);
+      if (selectedId === targetMemberId) selectedId = null;
+
+      const matchedAcc = approvedAccounts.find(
+        (a) => a.id === linkedAccId || (a.username || '').toUpperCase() === targetNameUpper
+      );
+      if (matchedAcc) {
+        approvedAccounts = approvedAccounts.filter((a) => a.id !== matchedAcc.id);
+        await deleteApprovedAccountFromCloud(matchedAcc.id);
+      }
+
+      closeManageMemberModal();
       renderWorkspace();
-      await saveMemberToCloud(newMember);
+      await deleteMemberFromCloud(targetMemberId);
     });
 
     /**
@@ -1893,8 +3181,16 @@
       if (e.key === 'Escape') {
         if (!lightboxModal.classList.contains('hidden')) {
           closeLightbox();
-        } else if (!memberModal.classList.contains('hidden')) {
-          closeMemberModal();
+        } else if (!pmReaderModal.classList.contains('hidden')) {
+          closePmReaderModal();
+        } else if (!sendPmModal.classList.contains('hidden')) {
+          closeSendPmModal();
+        } else if (!notificationsModal.classList.contains('hidden')) {
+          notificationsModal.classList.add('hidden');
+        } else if (!requestsModal.classList.contains('hidden')) {
+          requestsModal.classList.add('hidden');
+        } else if (!manageMemberModal.classList.contains('hidden')) {
+          closeManageMemberModal();
         } else if (!createModal.classList.contains('hidden')) {
           closeCreateModal();
         } else if (!readerModal.classList.contains('hidden')) {
