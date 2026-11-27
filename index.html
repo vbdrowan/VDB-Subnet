@@ -514,32 +514,26 @@
           </div>
         </button>
 
-        <!-- TAB: LOCAL NETWORK -->
-        <button data-tab="LOCAL NETWORK" data-locked="true" disabled aria-disabled="true" class="nav-module locked text-left" type="button">
+        <!-- TAB: VIRTUAL MAP -->
+        <a
+          href="https://vbdrowan.github.io/VDB-VirtualMap/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="nav-module text-left no-underline"
+        >
           <div class="icon-bracket">
             <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
             <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-              <rect x="9.5" y="3" width="5" height="3.5" />
-              <line x1="12" y1="6.5" x2="12" y2="10" />
-              <line x1="5" y1="10" x2="19" y2="10" />
-              <line x1="5" y1="10" x2="5" y2="13" />
-              <line x1="12" y1="10" x2="12" y2="13" />
-              <line x1="19" y1="10" x2="19" y2="13" />
-              <rect x="3" y="13" width="4" height="3" />
-              <rect x="10" y="13" width="4" height="3" />
-              <rect x="17" y="13" width="4" height="3" />
-              <circle cx="12" cy="19.5" r="1.5" />
-              <line x1="12" y1="16" x2="12" y2="18" />
+              <polygon points="3,6 9,3 15,6 21,3 21,18 15,21 9,18 3,21" fill="rgba(72,209,232,0.14)" />
+              <line x1="9" y1="3" x2="9" y2="18" />
+              <line x1="15" y1="6" x2="15" y2="21" />
             </svg>
           </div>
           <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <div class="font-hud font-bold text-sm sm:text-base xl:text-lg tracking-[0.12em] text-[#58b9cc] leading-none truncate">LOCAL NETWORK</div>
-              <span class="font-mono-tech text-[9px] tracking-wider uppercase px-1.5 py-0.5 border border-[#7a2028] bg-[#3a0d12]/60 text-[#e05a65] leading-none">Under Development</span>
-            </div>
-            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">SUBNET // NODES</div>
+            <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#7df9ff] leading-none truncate">VIRTUAL MAP</div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">GRID // VDB_MAP</div>
           </div>
-        </button>
+        </a>
       </div>
 
       <!-- Horizontal Tactical Divider Line with Outer Edge Metadata -->
@@ -1250,8 +1244,13 @@
     const MAX_IMAGES = 4;
     const MAX_IMAGE_BYTES = 200 * 1024;
 
+    function isAdminAccount() {
+      return String(currentRoleType || '').toUpperCase() === 'ADMIN' || String(currentUser || '').toUpperCase() === 'ADMIN';
+    }
+
     function hasStaffPrivileges() {
-      return currentRoleType === 'ADMIN' || currentRoleType === 'MODERATOR';
+      const r = String(currentRoleType || '').toUpperCase();
+      return isAdminAccount() || r === 'MODERATOR';
     }
 
     function escapeHtml(str) {
@@ -1492,14 +1491,16 @@
     }
 
     async function deletePublicChatFromCloud(id) {
-      if (!db) return;
+      if (!db) return false;
       try {
         if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // PURGING...';
-        await deleteDoc(doc(db, "public_chat_messages", id));
+        await deleteDoc(doc(db, "public_chat_messages", String(id)));
         if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
+        return true;
       } catch (err) {
         console.error("Firestore public chat delete error:", err);
         if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_DEL';
+        return false;
       }
     }
 
@@ -1772,7 +1773,8 @@
         (snapshot) => {
           const list = [];
           snapshot.forEach((docSnap) => {
-            list.push(docSnap.data());
+            const data = docSnap.data() || {};
+            list.push({ ...data, id: data.id || docSnap.id });
           });
           list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
           publicChatMessages = list;
@@ -1873,10 +1875,10 @@
       let matchedRoleType = null;
       let displayName = upperUser;
 
-      if (user === 'Admin' && pass === 'VDBForever') {
+      if (upperUser === 'ADMIN' && pass === 'VDBForever') {
         matchedRoleType = 'ADMIN';
         displayName = 'ADMIN';
-      } else if (user === 'User' && pass === 'Blackwall') {
+      } else if (upperUser === 'USER' && pass === 'Blackwall') {
         matchedRoleType = 'USER';
         displayName = 'USER';
       } else {
@@ -2230,20 +2232,6 @@
       }
     }
 
-    function showPrivateMessageDetail(pm) {
-      if (!pm) {
-        privateMessageDetail.classList.add('hidden');
-        activePmId = null;
-        return;
-      }
-      activePmId = pm.id;
-      pmDetailFrom.textContent = pm.from || 'UNKNOWN';
-      pmDetailTo.textContent = pm.to || 'UNKNOWN';
-      pmDetailSubject.textContent = pm.subject || 'NO SUBJECT';
-      pmDetailBody.textContent = pm.body || '';
-      privateMessageDetail.classList.remove('hidden');
-    }
-
     function renderPrivateMessages() {
       const me = currentUser.toUpperCase();
       const myPms = privateMessages.filter((pm) => {
@@ -2368,7 +2356,7 @@
 
     function renderPublicChat() {
       recordCount.textContent = `${publicChatMessages.length} MSG${publicChatMessages.length === 1 ? '' : 'S'}`;
-      const isAdmin = currentRoleType === 'ADMIN';
+      const isAdmin = isAdminAccount();
 
       if (publicChatMessages.length === 0) {
         publicChatList.innerHTML = `
@@ -2392,7 +2380,7 @@
                       ? `<button
                            type="button"
                            data-delete-pub-id="${escapeHtml(msg.id)}"
-                           class="text-[9px] px-1.5 py-0.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors uppercase tracking-wider"
+                           class="text-[9px] px-1.5 py-0.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors uppercase tracking-wider cursor-pointer"
                          >
                            DELETE
                          </button>`
@@ -2408,11 +2396,19 @@
 
       if (isAdmin) {
         publicChatList.querySelectorAll('[data-delete-pub-id]').forEach((btn) => {
-          btn.addEventListener('click', async () => {
+          btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
             const msgId = btn.dataset.deletePubId;
-            publicChatMessages = publicChatMessages.filter((m) => m.id !== msgId);
+            if (!msgId) return;
+            btn.disabled = true;
+            const prevMessages = [...publicChatMessages];
+            publicChatMessages = publicChatMessages.filter((m) => String(m.id) !== String(msgId));
             renderPublicChat();
-            await deletePublicChatFromCloud(msgId);
+            const ok = await deletePublicChatFromCloud(msgId);
+            if (!ok) {
+              publicChatMessages = prevMessages;
+              renderPublicChat();
+            }
           });
         });
       }
@@ -3085,7 +3081,7 @@
       manageMemberRoleInput.value = member.role || '';
       manageMemberStatus.textContent = '';
 
-      if (currentRoleType === 'ADMIN') {
+      if (isAdminAccount()) {
         manageModeratorWrap.classList.remove('hidden');
         manageModeratorInput.checked = isTargetMod;
       } else {
@@ -3093,7 +3089,7 @@
         manageModeratorInput.checked = isTargetMod;
       }
 
-      if (isTargetMod && currentRoleType !== 'ADMIN') {
+      if (isTargetMod && !isAdminAccount()) {
         manageDeleteUserBtn.classList.add('hidden');
       } else {
         manageDeleteUserBtn.classList.remove('hidden');
@@ -3124,7 +3120,7 @@
 
       const nextRole = manageMemberRoleInput.value.trim().toUpperCase() || 'ACTIVE_OPERATIVE';
       const nextMod =
-        currentRoleType === 'ADMIN'
+        isAdminAccount()
           ? Boolean(manageModeratorInput.checked)
           : Boolean(member.isModerator || member.isLeadership);
 
@@ -3165,7 +3161,7 @@
       if (!member) return;
 
       const isTargetMod = Boolean(member.isModerator || member.isLeadership);
-      if (isTargetMod && currentRoleType !== 'ADMIN') {
+      if (isTargetMod && !isAdminAccount()) {
         manageMemberStatus.textContent = 'ONLY ADMIN CAN REMOVE MODERATOR ACCOUNTS';
         return;
       }
