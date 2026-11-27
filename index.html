@@ -1491,6 +1491,18 @@
       }
     }
 
+    async function deletePublicChatFromCloud(id) {
+      if (!db) return;
+      try {
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // PURGING...';
+        await deleteDoc(doc(db, "public_chat_messages", id));
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
+      } catch (err) {
+        console.error("Firestore public chat delete error:", err);
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_DEL';
+      }
+    }
+
     async function syncApprovedAccountsToRoster(accountsList) {
       if (!db || !rosterCollection) return;
       for (const acc of accountsList) {
@@ -2356,6 +2368,7 @@
 
     function renderPublicChat() {
       recordCount.textContent = `${publicChatMessages.length} MSG${publicChatMessages.length === 1 ? '' : 'S'}`;
+      const isAdmin = currentRoleType === 'ADMIN';
 
       if (publicChatMessages.length === 0) {
         publicChatList.innerHTML = `
@@ -2372,13 +2385,37 @@
             <div class="p-2.5 border border-[#17454f] bg-[#040c10] flex flex-col gap-1">
               <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
                 <span class="text-[#7df9ff] font-bold tracking-wider">${escapeHtml(msg.sender || 'OPERATIVE')}</span>
-                <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(msg.createdAt))}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(msg.createdAt))}</span>
+                  ${
+                    isAdmin
+                      ? `<button
+                           type="button"
+                           data-delete-pub-id="${escapeHtml(msg.id)}"
+                           class="text-[9px] px-1.5 py-0.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors uppercase tracking-wider"
+                         >
+                           DELETE
+                         </button>`
+                      : ''
+                  }
+                </div>
               </div>
               <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.text || '')}</pre>
             </div>
           `
         )
         .join('');
+
+      if (isAdmin) {
+        publicChatList.querySelectorAll('[data-delete-pub-id]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const msgId = btn.dataset.deletePubId;
+            publicChatMessages = publicChatMessages.filter((m) => m.id !== msgId);
+            renderPublicChat();
+            await deletePublicChatFromCloud(msgId);
+          });
+        });
+      }
 
       publicChatList.scrollTop = publicChatList.scrollHeight;
     }
