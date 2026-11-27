@@ -1173,16 +1173,24 @@
       height = canvas.height = window.innerHeight;
     });
 
-    const wisps = Array.from({ length: 7 }, (_, i) => ({
+    const wisps = Array.from({ length: 5 }, (_, i) => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      r: 220 + Math.random() * 280,
+      r: 200 + Math.random() * 240,
       vx: (Math.random() - 0.5) * 0.22,
       vy: (Math.random() - 0.5) * 0.18,
       alpha: 0.09 + (i % 3) * 0.035
     }));
 
+    let backdropRafId = null;
+    let isPageVisible = !document.hidden;
+
     function renderBackdrop() {
+      if (!isPageVisible) {
+        backdropRafId = null;
+        return;
+      }
+
       ctx.fillStyle = '#040709';
       ctx.fillRect(0, 0, width, height);
 
@@ -1203,8 +1211,16 @@
         ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2);
         ctx.fill();
       }
-      requestAnimationFrame(renderBackdrop);
+      backdropRafId = requestAnimationFrame(renderBackdrop);
     }
+
+    document.addEventListener('visibilitychange', () => {
+      isPageVisible = !document.hidden;
+      if (isPageVisible && !backdropRafId) {
+        backdropRafId = requestAnimationFrame(renderBackdrop);
+      }
+    });
+
     renderBackdrop();
 
     /**
@@ -1235,6 +1251,7 @@
     let activePmId = null;
     let editingShardId = null;
     let managingMemberId = null;
+    let searchDebounceTimer = null;
     let currentUser = 'ADMIN';
     let currentRoleType = 'ADMIN'; // 'ADMIN' | 'MODERATOR' | 'USER'
     let dismissedNotificationKeys = new Set();
@@ -1244,98 +1261,80 @@
     const MAX_IMAGES = 4;
     const MAX_IMAGE_BYTES = 200 * 1024;
 
-    function isAdminAccount() {
-      return String(currentRoleType || '').toUpperCase() === 'ADMIN' || String(currentUser || '').toUpperCase() === 'ADMIN';
-    }
-
-    function hasStaffPrivileges() {
-      const r = String(currentRoleType || '').toUpperCase();
-      return isAdminAccount() || r === 'MODERATOR';
-    }
-
-    function escapeHtml(str) {
-      return String(str || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    /**
-     * 3. DOM ELEMENT REFERENCES
-     */
+    // DOM Element References
     const loginScreen = document.getElementById('login-screen');
     const loginForm = document.getElementById('login-form');
     const loginUsername = document.getElementById('login-username');
     const loginPassword = document.getElementById('login-password');
     const loginSubmit = document.getElementById('login-submit');
     const loginStatus = document.getElementById('login-status');
-    const openRegisterLink = document.getElementById('open-register-link');
 
     const registerForm = document.getElementById('register-form');
+    const openRegisterLink = document.getElementById('open-register-link');
+    const backToLoginLink = document.getElementById('back-to-login-link');
     const registerUsername = document.getElementById('register-username');
     const registerRole = document.getElementById('register-role');
     const registerPassword = document.getElementById('register-password');
     const registerSubmit = document.getElementById('register-submit');
-    const backToLoginLink = document.getElementById('back-to-login-link');
     const registerStatus = document.getElementById('register-status');
 
     const desktopScreen = document.getElementById('desktop-screen');
-    const hudUser = document.getElementById('hud-user');
     const hudClock = document.getElementById('hud-clock');
+    const hudUser = document.getElementById('hud-user');
     const cloudSyncBadge = document.getElementById('cloud-sync-badge');
     const activeSectorLabel = document.getElementById('active-sector-label');
-    const requestsBtn = document.getElementById('requests-btn');
-    const requestsBadge = document.getElementById('requests-badge');
-    const notificationsBtn = document.getElementById('notifications-btn');
-    const notificationsBadge = document.getElementById('notifications-badge');
     const logoutBtn = document.getElementById('logout-btn');
 
-    const notificationsModal = document.getElementById('notifications-modal');
-    const closeNotificationsBtn = document.getElementById('close-notifications-btn');
-    const notificationsList = document.getElementById('notifications-list');
-
+    const requestsBtn = document.getElementById('requests-btn');
+    const requestsBadge = document.getElementById('requests-badge');
     const requestsModal = document.getElementById('requests-modal');
     const closeRequestsBtn = document.getElementById('close-requests-btn');
     const requestsList = document.getElementById('requests-list');
 
-    const navModules = document.querySelectorAll('.nav-module');
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationsBadge = document.getElementById('notifications-badge');
+    const notificationsModal = document.getElementById('notifications-modal');
+    const closeNotificationsBtn = document.getElementById('close-notifications-btn');
+    const notificationsList = document.getElementById('notifications-list');
+
+    const navModules = document.querySelectorAll('.nav-module[data-tab]');
     const workspaceToolbar = document.getElementById('workspace-toolbar');
-    const searchBoxWrap = document.getElementById('search-box-wrap');
     const searchInput = document.getElementById('search-input');
     const recordCount = document.getElementById('record-count');
-    const itemsGrid = document.getElementById('items-grid');
-    const gridContainer = document.getElementById('grid-container');
-    const emptyState = document.getElementById('empty-state');
     const newEntryBtn = document.getElementById('new-entry-btn');
+    const gridContainer = document.getElementById('grid-container');
+    const itemsGrid = document.getElementById('items-grid');
+    const emptyState = document.getElementById('empty-state');
 
     const messagesBoard = document.getElementById('messages-board');
     const msgModePrivateBtn = document.getElementById('msg-mode-private-btn');
     const msgModePublicBtn = document.getElementById('msg-mode-public-btn');
     const privateMessagesView = document.getElementById('private-messages-view');
     const publicChatView = document.getElementById('public-chat-view');
+    const pmStatus = document.getElementById('pm-status');
     const openSendPmBtn = document.getElementById('open-send-pm-btn');
+    const privateMessagesList = document.getElementById('private-messages-list');
+
     const sendPmModal = document.getElementById('send-pm-modal');
+    const privateMessageForm = document.getElementById('private-message-form');
     const closeSendPmBtn = document.getElementById('close-send-pm-btn');
     const cancelSendPmBtn = document.getElementById('cancel-send-pm-btn');
-    const privateMessageForm = document.getElementById('private-message-form');
     const pmToSelect = document.getElementById('pm-to-select');
     const pmSubjectInput = document.getElementById('pm-subject-input');
     const pmBodyInput = document.getElementById('pm-body-input');
-    const pmStatus = document.getElementById('pm-status');
-    const privateMessagesList = document.getElementById('private-messages-list');
+
     const pmReaderModal = document.getElementById('pm-reader-modal');
     const closePmReaderBtn = document.getElementById('close-pm-reader-btn');
     const pmReaderSubject = document.getElementById('pm-reader-subject');
     const pmReaderFrom = document.getElementById('pm-reader-from');
     const pmReaderTo = document.getElementById('pm-reader-to');
     const pmReaderThread = document.getElementById('pm-reader-thread');
-    const pmReaderDeleteBtn = document.getElementById('pm-reader-delete-btn');
-    const pmReaderReplyBtn = document.getElementById('pm-reader-reply-btn');
     const pmReplyForm = document.getElementById('pm-reply-form');
     const pmReplyInput = document.getElementById('pm-reply-input');
     const cancelPmReplyBtn = document.getElementById('cancel-pm-reply-btn');
+    const pmReaderDeleteBtn = document.getElementById('pm-reader-delete-btn');
+    const pmReaderReplyBtn = document.getElementById('pm-reader-reply-btn');
+
     const publicChatList = document.getElementById('public-chat-list');
     const publicChatForm = document.getElementById('public-chat-form');
     const publicChatInput = document.getElementById('public-chat-input');
@@ -1359,10 +1358,10 @@
     const createForm = document.getElementById('create-form');
     const createModalMeta = document.getElementById('create-modal-meta');
     const createModalTitle = document.getElementById('create-modal-title');
-    const createSubmitBtn = document.getElementById('create-submit-btn');
     const createClassificationWrap = document.getElementById('create-classification-wrap');
     const closeCreateBtn = document.getElementById('close-create-btn');
     const cancelCreateBtn = document.getElementById('cancel-create-btn');
+    const createSubmitBtn = document.getElementById('create-submit-btn');
     const uploadImageBtn = document.getElementById('upload-image-btn');
     const createImageInput = document.getElementById('create-image-input');
     const uploadImageStatus = document.getElementById('upload-image-status');
@@ -1381,147 +1380,280 @@
     const cancelManageMemberBtn = document.getElementById('cancel-manage-member-btn');
 
     const lightboxModal = document.getElementById('lightbox-modal');
-    const lightboxTitle = document.getElementById('lightbox-title');
     const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxTitle = document.getElementById('lightbox-title');
     const closeLightboxBtn = document.getElementById('close-lightbox-btn');
 
-    /**
-     * 4. CLOUD FIRESTORE SYNC HANDLERS
-     */
+    // Firestore Persistence Helpers
     async function saveShardToCloud(shard) {
-      if (!db) return;
+      if (!db || !shard?.id) return false;
       try {
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SAVING...';
-        await setDoc(doc(db, "archive_shards", shard.id), shard);
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
-      } catch (err) {
-        console.error("Firestore write error:", err);
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_WRITE';
-      }
-    }
-
-    async function deleteShardFromCloud(id) {
-      if (!db) return;
-      try {
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // PURGING...';
-        await deleteDoc(doc(db, "archive_shards", id));
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
-      } catch (err) {
-        console.error("Firestore delete error:", err);
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_DEL';
-      }
-    }
-
-    async function saveMemberToCloud(member) {
-      if (!db) return;
-      try {
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SAVING...';
-        await setDoc(doc(db, "roster_members", member.id), member);
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
-      } catch (err) {
-        console.error("Firestore member write error:", err);
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_WRITE';
-      }
-    }
-
-    async function deleteMemberFromCloud(id) {
-      if (!db) return;
-      try {
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // PURGING...';
-        await deleteDoc(doc(db, "roster_members", id));
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
-      } catch (err) {
-        console.error("Firestore member delete error:", err);
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_DEL';
-      }
-    }
-
-    async function saveAccountRequestToCloud(reqObj) {
-      if (!db) return;
-      try {
-        await setDoc(doc(db, "account_requests", reqObj.id), reqObj);
-      } catch (err) {
-        console.error("Firestore account request write error:", err);
-      }
-    }
-
-    async function deleteAccountRequestFromCloud(id) {
-      if (!db) return;
-      try {
-        await deleteDoc(doc(db, "account_requests", id));
-      } catch (err) {
-        console.error("Firestore account request delete error:", err);
-      }
-    }
-
-    async function saveApprovedAccountToCloud(accObj) {
-      if (!db) return;
-      try {
-        await setDoc(doc(db, "approved_accounts", accObj.id), accObj);
-      } catch (err) {
-        console.error("Firestore approved account write error:", err);
-      }
-    }
-
-    async function deleteApprovedAccountFromCloud(id) {
-      if (!db) return;
-      try {
-        await deleteDoc(doc(db, "approved_accounts", id));
-      } catch (err) {
-        console.error("Firestore approved account delete error:", err);
-      }
-    }
-
-    async function savePrivateMessageToCloud(pmObj) {
-      if (!db) return;
-      try {
-        await setDoc(doc(db, "private_messages", pmObj.id), pmObj);
-      } catch (err) {
-        console.error("Firestore private message write error:", err);
-      }
-    }
-
-    async function savePublicChatToCloud(msgObj) {
-      if (!db) return;
-      try {
-        await setDoc(doc(db, "public_chat_messages", msgObj.id), msgObj);
-      } catch (err) {
-        console.error("Firestore public chat write error:", err);
-      }
-    }
-
-    async function deletePublicChatFromCloud(id) {
-      if (!db) return false;
-      try {
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // PURGING...';
-        await deleteDoc(doc(db, "public_chat_messages", String(id)));
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
+        await setDoc(doc(db, 'archive_shards', String(shard.id)), shard);
         return true;
       } catch (err) {
-        console.error("Firestore public chat delete error:", err);
-        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_DEL';
+        console.error('saveShardToCloud failed:', err);
         return false;
       }
     }
 
-    async function syncApprovedAccountsToRoster(accountsList) {
-      if (!db || !rosterCollection) return;
-      for (const acc of accountsList) {
-        const expectedMemberId = `mbr-${acc.id}`;
-        const existingMember = rosterMembers.find((m) => m.id === expectedMemberId);
-        const isLeader = Boolean(acc.isModerator || acc.isLeadership);
-        if (!existingMember) {
-          await saveMemberToCloud({
-            id: expectedMemberId,
-            username: acc.username,
-            name: acc.username,
-            role: acc.role || 'ACTIVE_OPERATIVE',
-            isModerator: isLeader,
-            isLeadership: isLeader,
-            createdAt: acc.approvedAt || acc.createdAt || Date.now()
-          });
-        }
+    async function deleteShardFromCloud(shardId) {
+      if (!db || !shardId) return false;
+      try {
+        await deleteDoc(doc(db, 'archive_shards', String(shardId)));
+        return true;
+      } catch (err) {
+        console.error('deleteShardFromCloud failed:', err);
+        return false;
       }
+    }
+
+    async function saveMemberToCloud(member) {
+      if (!db || !member?.id) return false;
+      try {
+        await setDoc(doc(db, 'roster_members', String(member.id)), member);
+        return true;
+      } catch (err) {
+        console.error('saveMemberToCloud failed:', err);
+        return false;
+      }
+    }
+
+    async function deleteMemberFromCloud(memberId) {
+      if (!db || !memberId) return false;
+      try {
+        await deleteDoc(doc(db, 'roster_members', String(memberId)));
+        return true;
+      } catch (err) {
+        console.error('deleteMemberFromCloud failed:', err);
+        return false;
+      }
+    }
+
+    async function saveAccountRequestToCloud(reqObj) {
+      if (!db || !reqObj?.id) return false;
+      try {
+        await setDoc(doc(db, 'account_requests', String(reqObj.id)), reqObj);
+        return true;
+      } catch (err) {
+        console.error('saveAccountRequestToCloud failed:', err);
+        return false;
+      }
+    }
+
+    async function deleteAccountRequestFromCloud(reqId) {
+      if (!db || !reqId) return false;
+      try {
+        await deleteDoc(doc(db, 'account_requests', String(reqId)));
+        return true;
+      } catch (err) {
+        console.error('deleteAccountRequestFromCloud failed:', err);
+        return false;
+      }
+    }
+
+    async function saveApprovedAccountToCloud(accObj) {
+      if (!db || !accObj?.id) return false;
+      try {
+        await setDoc(doc(db, 'approved_accounts', String(accObj.id)), accObj);
+        return true;
+      } catch (err) {
+        console.error('saveApprovedAccountToCloud failed:', err);
+        return false;
+      }
+    }
+
+    async function deleteApprovedAccountFromCloud(accId) {
+      if (!db || !accId) return false;
+      try {
+        await deleteDoc(doc(db, 'approved_accounts', String(accId)));
+        return true;
+      } catch (err) {
+        console.error('deleteApprovedAccountFromCloud failed:', err);
+        return false;
+      }
+    }
+
+    async function savePrivateMessageToCloud(pmObj) {
+      if (!db || !pmObj?.id) return false;
+      try {
+        await setDoc(doc(db, 'private_messages', String(pmObj.id)), pmObj);
+        return true;
+      } catch (err) {
+        console.error('savePrivateMessageToCloud failed:', err);
+        return false;
+      }
+    }
+
+    async function savePublicChatToCloud(msgObj) {
+      if (!db || !msgObj?.id) return false;
+      try {
+        await setDoc(doc(db, 'public_chat_messages', String(msgObj.id)), msgObj);
+        return true;
+      } catch (err) {
+        console.error('savePublicChatToCloud failed:', err);
+        return false;
+      }
+    }
+
+    async function deletePublicChatFromCloud(msgId) {
+      if (!db || !msgId) return false;
+      try {
+        await deleteDoc(doc(db, 'public_chat_messages', String(msgId)));
+        return true;
+      } catch (err) {
+        console.error('deletePublicChatFromCloud failed:', err);
+        return false;
+      }
+    }
+
+    // Messaging View Helpers
+    function populatePmRecipientSelect() {
+      if (!pmToSelect) return;
+      const me = currentUser.toUpperCase();
+      const names = new Set(['ADMIN', 'USER']);
+      for (const m of rosterMembers) {
+        if (m?.name) names.add(String(m.name).toUpperCase());
+      }
+      for (const a of approvedAccounts) {
+        if (a?.username) names.add(String(a.username).toUpperCase());
+      }
+      names.delete(me);
+
+      const sorted = Array.from(names).sort((a, b) => a.localeCompare(b));
+      pmToSelect.innerHTML =
+        '<option value="">SELECT MEMBER...</option>' +
+        sorted.map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    }
+
+    function renderPmReaderContent(pm) {
+      if (!pm) return;
+      pmReaderSubject.textContent = pm.subject || 'NO SUBJECT';
+      pmReaderFrom.textContent = pm.from || 'UNKNOWN';
+      pmReaderTo.textContent = pm.to || 'UNKNOWN';
+
+      const replies = Array.isArray(pm.replies) ? [...pm.replies].reverse() : [];
+      const repliesHtml = replies
+        .map(
+          (rep) => `
+            <div class="p-3 border border-[#236978] bg-[#082029]">
+              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px] text-[#48d1e8] mb-1">
+                <span class="font-bold text-[#7df9ff]">REPLY // ${escapeHtml(rep.sender || 'OPERATIVE')}</span>
+                <span>${escapeHtml(formatMsgTimestamp(rep.createdAt))}</span>
+              </div>
+              <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(rep.text || '')}</pre>
+            </div>
+          `
+        )
+        .join('');
+
+      const originalHtml = `
+        <div class="p-3 border border-[#17454f] bg-[#040c10]">
+          <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px] text-[#397c8a] mb-1">
+            <span>INITIAL // ${escapeHtml(pm.from || 'UNKNOWN')}</span>
+            <span>${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
+          </div>
+          <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(pm.body || '')}</pre>
+        </div>
+      `;
+
+      pmReaderThread.innerHTML = repliesHtml + originalHtml;
+    }
+
+    function renderPrivateMessages() {
+      if (!privateMessagesList) return;
+      const me = currentUser.toUpperCase();
+      const visible = privateMessages.filter((pm) => {
+        const deletedBy = Array.isArray(pm.deletedBy) ? pm.deletedBy.map((u) => String(u).toUpperCase()) : [];
+        if (deletedBy.includes(me)) return false;
+        return (pm.to || '').toUpperCase() === me || (pm.from || '').toUpperCase() === me;
+      });
+
+      if (recordCount) {
+        recordCount.textContent = `${visible.length} PM${visible.length === 1 ? '' : 'S'}`;
+      }
+
+      if (visible.length === 0) {
+        privateMessagesList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            NO PRIVATE MESSAGES IN THREAD BUFFER.
+          </div>
+        `;
+        return;
+      }
+
+      privateMessagesList.innerHTML = visible
+        .map((pm) => {
+          const isIncoming = (pm.to || '').toUpperCase() === me && (pm.from || '').toUpperCase() !== me;
+          const peerLabel = isIncoming ? `FROM: ${pm.from || 'UNKNOWN'}` : `TO: ${pm.to || 'UNKNOWN'}`;
+          return `
+            <button
+              type="button"
+              data-open-pm-id="${escapeHtml(pm.id)}"
+              class="w-full text-left p-3 border border-[#17454f] bg-[#040c10] hover:border-[#48d1e8] hover:bg-[#081d26] flex items-center justify-between gap-3 transition-colors"
+            >
+              <div class="min-w-0">
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8] truncate">${escapeHtml(peerLabel)}</div>
+                <div class="font-hud font-bold text-base tracking-wider text-[#7df9ff] truncate mt-0.5">${escapeHtml(pm.subject || 'NO SUBJECT')}</div>
+              </div>
+              <span class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] shrink-0">${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
+            </button>
+          `;
+        })
+        .join('');
+
+      privateMessagesList.querySelectorAll('[data-open-pm-id]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const pm = privateMessages.find((item) => item.id === btn.dataset.openPmId);
+          if (pm) openPmReaderModal(pm);
+        });
+      });
+    }
+
+    function renderMessagesBoard() {
+      if (messageSubTab === 'PUBLIC') {
+        msgModePublicBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
+        msgModePrivateBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
+        privateMessagesView.classList.add('hidden');
+        publicChatView.classList.remove('hidden');
+        renderPublicChat();
+      } else {
+        messageSubTab = 'PRIVATE';
+        msgModePrivateBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
+        msgModePublicBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
+        publicChatView.classList.add('hidden');
+        privateMessagesView.classList.remove('hidden');
+        populatePmRecipientSelect();
+        renderPrivateMessages();
+      }
+    }
+
+    function isAdminAccount() {
+      return String(currentRoleType || '').toUpperCase() === 'ADMIN' || String(currentUser || '').toUpperCase() === 'ADMIN';
+    }
+
+    function hasStaffPrivileges() {
+      const r = String(currentRoleType || '').toUpperCase();
+      return isAdminAccount() || r === 'MODERATOR';
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getShardImages(shard) {
+      if (!shard) return [];
+      if (Array.isArray(shard.images)) {
+        return shard.images.filter(Boolean);
+      }
+      if (shard.image) {
+        return [shard.image];
+      }
+      return [];
     }
 
     function updateRequestsBadge() {
@@ -1541,50 +1673,29 @@
       }
     }
 
-    function getActiveNotifications() {
-      const items = [];
+    function getIncomingUnreadPms() {
       const me = currentUser.toUpperCase();
-
-      for (const pm of privateMessages) {
-        if ((pm.to || '').toUpperCase() === me) {
-          const key = `pm:${pm.id}`;
-          if (!dismissedNotificationKeys.has(key)) {
-            items.push({
-              key,
-              type: 'PM',
-              pmId: pm.id,
-              title: `PM FROM ${pm.from || 'UNKNOWN'}`,
-              subtitle: pm.subject || 'ENCRYPTED MESSAGE',
-              createdAt: pm.createdAt || 0
-            });
-          }
-        }
-      }
-
-      if (hasStaffPrivileges()) {
-        for (const req of accountRequests) {
-          const key = `req:${req.id}`;
-          if (!dismissedNotificationKeys.has(key)) {
-            items.push({
-              key,
-              type: 'REQUEST',
-              title: `ACCOUNT REQUEST // ${req.username || 'UNKNOWN'}`,
-              subtitle: `ROLE: ${req.role || 'OPERATIVE'}`,
-              createdAt: req.createdAt || 0
-            });
-          }
-        }
-      }
-
-      items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-      return items;
+      return privateMessages.filter((pm) => {
+        const deletedBy = Array.isArray(pm.deletedBy) ? pm.deletedBy.map((u) => String(u).toUpperCase()) : [];
+        if (deletedBy.includes(me)) return false;
+        const isToMe = (pm.to || '').toUpperCase() === me;
+        const isFromMe = (pm.from || '').toUpperCase() === me;
+        const lastReply = Array.isArray(pm.replies) && pm.replies.length > 0
+          ? pm.replies[pm.replies.length - 1]
+          : null;
+        const hasReplyForMe = lastReply && String(lastReply.sender || '').toUpperCase() !== me && (isToMe || isFromMe);
+        if (!isToMe && !hasReplyForMe) return false;
+        return !dismissedNotificationKeys.has(`pm:${pm.id}`);
+      });
     }
 
     function updateNotificationsBadge() {
       if (!notificationsBadge) return;
-      const items = getActiveNotifications();
-      if (items.length > 0) {
-        notificationsBadge.textContent = String(items.length);
+      const pmCount = getIncomingUnreadPms().length;
+      const reqCount = hasStaffPrivileges() ? accountRequests.length : 0;
+      const total = pmCount + reqCount;
+      if (total > 0) {
+        notificationsBadge.textContent = String(total);
         notificationsBadge.classList.remove('hidden');
       } else {
         notificationsBadge.classList.add('hidden');
@@ -1592,7 +1703,40 @@
     }
 
     function renderNotificationsModal() {
-      const items = getActiveNotifications();
+      if (!notificationsList) return;
+      const items = [];
+
+      if (hasStaffPrivileges()) {
+        for (const req of accountRequests) {
+          items.push({
+            type: 'REQ',
+            title: `ACCOUNT REQUEST // ${escapeHtml(req.username)}`,
+            meta: `ROLE: ${escapeHtml(req.role || 'OPERATIVE')}`,
+            onClick: () => {
+              notificationsModal.classList.add('hidden');
+              openRequestsModal();
+            }
+          });
+        }
+      }
+
+      for (const pm of getIncomingUnreadPms()) {
+        items.push({
+          type: 'PM',
+          title: `PRIVATE MESSAGE // ${escapeHtml(pm.from || 'UNKNOWN')}`,
+          meta: `SUBJECT: ${escapeHtml(pm.subject || 'NO SUBJECT')}`,
+          onClick: () => {
+            notificationsModal.classList.add('hidden');
+            navModules.forEach((b) => b.classList.toggle('active', b.dataset.tab === 'MESSAGES'));
+            activeTab = 'MESSAGES';
+            messageSubTab = 'PRIVATE';
+            activeSectorLabel.textContent = 'SECTOR_01 // MESSAGES';
+            renderWorkspace();
+            openPmReaderModal(pm);
+          }
+        });
+      }
+
       if (items.length === 0) {
         notificationsList.innerHTML = `
           <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
@@ -1604,56 +1748,56 @@
 
       notificationsList.innerHTML = items
         .map(
-          (n) => `
-            <div data-notif-key="${escapeHtml(n.key)}" data-notif-type="${escapeHtml(n.type)}" data-notif-pm-id="${escapeHtml(n.pmId || '')}" class="p-3 border border-[#1d5663] bg-[#040c10] hover:border-[#48d1e8] flex items-center justify-between gap-3 cursor-pointer transition-colors">
-              <div class="min-w-0 flex-1">
-                <div class="font-hud font-bold text-sm tracking-wider text-[#7df9ff] truncate">${escapeHtml(n.title)}</div>
-                <div class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] truncate mt-0.5">${escapeHtml(n.subtitle)}</div>
+          (it, idx) => `
+            <button
+              type="button"
+              data-notif-idx="${idx}"
+              class="w-full text-left p-3 border border-[#1d5663] bg-[#040c10] hover:border-[#48d1e8] flex items-center justify-between gap-3 transition-colors"
+            >
+              <div class="min-w-0">
+                <div class="font-hud font-bold text-sm tracking-wider text-[#7df9ff] truncate">${it.title}</div>
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">${it.meta}</div>
               </div>
-              <button type="button" data-dismiss-notif="${escapeHtml(n.key)}" class="font-mono-tech text-[10px] px-2 py-1 border border-[#2a7585] text-[#48d1e8] hover:border-[#ff4d5a] hover:text-[#ff6b76] shrink-0">
-                DISMISS
-              </button>
-            </div>
+              <span class="font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] text-[#7df9ff] shrink-0">${it.type}</span>
+            </button>
           `
         )
         .join('');
 
-      notificationsList.querySelectorAll('[data-notif-key]').forEach((row) => {
-        row.addEventListener('click', (e) => {
-          const dismissBtn = e.target.closest('[data-dismiss-notif]');
-          if (dismissBtn) {
-            e.stopPropagation();
-            dismissedNotificationKeys.add(dismissBtn.dataset.dismissNotif);
-            updateNotificationsBadge();
-            renderNotificationsModal();
-            return;
-          }
-
-          const key = row.dataset.notifKey;
-          const type = row.dataset.notifType;
-          const pmId = row.dataset.notifPmId;
-          dismissedNotificationKeys.add(key);
-          updateNotificationsBadge();
-          notificationsModal.classList.add('hidden');
-
-          if (type === 'PM') {
-            activeTab = 'MESSAGES';
-            messageSubTab = 'PRIVATE';
-            activePmId = pmId || null;
-            navModules.forEach((b) => b.classList.toggle('active', b.dataset.tab === 'MESSAGES'));
-            activeSectorLabel.textContent = 'SECTOR_01 // MESSAGES';
-            renderWorkspace();
-          } else if (type === 'REQUEST' && hasStaffPrivileges()) {
-            openRequestsModal();
+      notificationsList.querySelectorAll('[data-notif-idx]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.notifIdx);
+          if (items[idx] && typeof items[idx].onClick === 'function') {
+            items[idx].onClick();
           }
         });
       });
+    }
+    async function syncApprovedAccountsToRoster(accountsList) {
+      if (!db || !rosterCollection || !Array.isArray(accountsList) || accountsList.length === 0) return;
+      const existingIds = new Set(rosterMembers.map((m) => m.id));
+      for (const acc of accountsList) {
+        if (!acc || !acc.id) continue;
+        const expectedMemberId = `mbr-${acc.id}`;
+        if (existingIds.has(expectedMemberId)) continue;
+        const isLeader = Boolean(acc.isModerator || acc.isLeadership);
+        existingIds.add(expectedMemberId);
+        await saveMemberToCloud({
+          id: expectedMemberId,
+          username: acc.username,
+          name: acc.username,
+          role: acc.role || 'ACTIVE_OPERATIVE',
+          isModerator: isLeader,
+          isLeadership: isLeader,
+          createdAt: acc.approvedAt || acc.createdAt || Date.now()
+        });
+      }
     }
 
     if (shardsCollection) {
       onSnapshot(
         shardsCollection,
-        async (snapshot) => {
+        (snapshot) => {
           const cloudList = [];
           for (const docSnap of snapshot.docs) {
             const data = docSnap.data();
@@ -1663,14 +1807,15 @@
             }
             cloudList.push(data);
           }
-
           cloudList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
           records = cloudList;
           if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ONLINE';
-          renderWorkspace();
+          if (!desktopScreen.classList.contains('hidden') && activeTab === 'FILES') {
+            renderWorkspace();
+          }
         },
         (error) => {
-          console.error("Firestore sync error:", error);
+          console.error("Shards sync error:", error);
           if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // OFFLINE';
         }
       );
@@ -1681,19 +1826,15 @@
         rosterCollection,
         (snapshot) => {
           const list = [];
-          snapshot.forEach((docSnap) => {
-            list.push(docSnap.data());
-          });
+          snapshot.forEach((docSnap) => list.push(docSnap.data()));
           list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
           rosterMembers = list;
-          populatePmRecipientSelect();
-          if (activeTab === 'ROSTER') {
-            renderWorkspace();
+          if (!desktopScreen.classList.contains('hidden')) {
+            if (activeTab === 'ROSTER') renderWorkspace();
+            if (activeTab === 'MESSAGES') populatePmRecipientSelect();
           }
         },
-        (error) => {
-          console.error("Roster sync error:", error);
-        }
+        (error) => console.error("Roster sync error:", error)
       );
     }
 
@@ -1702,9 +1843,7 @@
         accountRequestsCollection,
         (snapshot) => {
           const list = [];
-          snapshot.forEach((docSnap) => {
-            list.push(docSnap.data());
-          });
+          snapshot.forEach((docSnap) => list.push(docSnap.data()));
           list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
           accountRequests = list;
           updateRequestsBadge();
@@ -1712,13 +1851,8 @@
           if (!requestsModal.classList.contains('hidden')) {
             renderRequestsModal();
           }
-          if (!notificationsModal.classList.contains('hidden')) {
-            renderNotificationsModal();
-          }
         },
-        (error) => {
-          console.error("Account requests sync error:", error);
-        }
+        (error) => console.error("Account requests sync error:", error)
       );
     }
 
@@ -1727,19 +1861,14 @@
         approvedAccountsCollection,
         (snapshot) => {
           const list = [];
-          snapshot.forEach((docSnap) => {
-            list.push(docSnap.data());
-          });
+          snapshot.forEach((docSnap) => list.push(docSnap.data()));
           approvedAccounts = list;
-          populatePmRecipientSelect();
           syncApprovedAccountsToRoster(list).catch(() => {});
-          if (activeTab === 'ROSTER') {
-            renderWorkspace();
+          if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES') {
+            populatePmRecipientSelect();
           }
         },
-        (error) => {
-          console.error("Approved accounts sync error:", error);
-        }
+        (error) => console.error("Approved accounts sync error:", error)
       );
     }
 
@@ -1748,22 +1877,15 @@
         privateMessagesCollection,
         (snapshot) => {
           const list = [];
-          snapshot.forEach((docSnap) => {
-            list.push(docSnap.data());
-          });
+          snapshot.forEach((docSnap) => list.push(docSnap.data()));
           list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
           privateMessages = list;
           updateNotificationsBadge();
-          if (!notificationsModal.classList.contains('hidden')) {
-            renderNotificationsModal();
-          }
-          if (activeTab === 'MESSAGES' && messageSubTab === 'PRIVATE') {
+          if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PRIVATE') {
             renderPrivateMessages();
           }
         },
-        (error) => {
-          console.error("Private messages sync error:", error);
-        }
+        (error) => console.error("Private messages sync error:", error)
       );
     }
 
@@ -1772,26 +1894,22 @@
         publicChatCollection,
         (snapshot) => {
           const list = [];
-          snapshot.forEach((docSnap) => {
-            const data = docSnap.data() || {};
-            list.push({ ...data, id: data.id || docSnap.id });
-          });
+          snapshot.forEach((docSnap) => list.push(docSnap.data()));
           list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
           publicChatMessages = list;
-          if (activeTab === 'MESSAGES' && messageSubTab === 'PUBLIC') {
+          if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PUBLIC') {
             renderPublicChat();
           }
         },
-        (error) => {
-          console.error("Public chat sync error:", error);
-        }
+        (error) => console.error("Public chat sync error:", error)
       );
     }
 
     /**
-     * 5. LOGIN & REGISTRATION GATE LOGIC
+     * 5. LOGIN & REGISTRATION HANDLERS
      */
     function showLoginMessage(msg, isSuccess = false) {
+      if (!loginStatus) return;
       loginStatus.textContent = msg;
       loginStatus.style.color = isSuccess ? '#7df9ff' : '#ff4d5a';
       loginStatus.classList.remove('opacity-0');
@@ -1799,138 +1917,163 @@
     }
 
     function showRegisterMessage(msg, isSuccess = false) {
+      if (!registerStatus) return;
       registerStatus.textContent = msg;
       registerStatus.style.color = isSuccess ? '#7df9ff' : '#ff4d5a';
       registerStatus.classList.remove('opacity-0');
       registerStatus.classList.add('opacity-100');
     }
 
-    openRegisterLink.addEventListener('click', () => {
-      loginForm.classList.add('hidden');
-      registerForm.classList.remove('hidden');
-      loginStatus.classList.add('opacity-0');
-      registerStatus.classList.add('opacity-0');
-      registerUsername.focus();
-    });
+    if (openRegisterLink) {
+      openRegisterLink.addEventListener('click', () => {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+        loginStatus.classList.add('opacity-0');
+        registerStatus.classList.add('opacity-0');
+        registerUsername.focus();
+      });
+    }
 
-    backToLoginLink.addEventListener('click', () => {
-      registerForm.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-      registerStatus.classList.add('opacity-0');
-      loginStatus.classList.add('opacity-0');
-      loginUsername.focus();
-    });
+    if (backToLoginLink) {
+      backToLoginLink.addEventListener('click', () => {
+        registerForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+        registerStatus.classList.add('opacity-0');
+        loginStatus.classList.add('opacity-0');
+        loginUsername.focus();
+      });
+    }
 
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (isSubmittingRequest) return;
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (isSubmittingRequest) return;
 
-      const rawUser = registerUsername.value.trim();
-      const rawRole = registerRole.value.trim();
-      const rawPass = registerPassword.value;
+        const rawUser = registerUsername.value.trim();
+        const rawRole = registerRole.value.trim();
+        const rawPass = registerPassword.value;
 
-      if (!rawUser || !rawRole || !rawPass) {
-        showRegisterMessage('ALL FIELDS REQUIRED');
-        return;
-      }
-
-      isSubmittingRequest = true;
-      registerSubmit.disabled = true;
-
-      const normalizedName = rawUser.toUpperCase();
-      const reqId = `req-${normalizedName.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
-      const newReq = {
-        id: reqId,
-        username: normalizedName,
-        role: rawRole.toUpperCase(),
-        password: rawPass,
-        createdAt: Date.now()
-      };
-
-      accountRequests = [
-        newReq,
-        ...accountRequests.filter((r) => r.id !== reqId && (r.username || '').toUpperCase() !== normalizedName)
-      ];
-      await saveAccountRequestToCloud(newReq);
-      updateRequestsBadge();
-      updateNotificationsBadge();
-
-      registerForm.reset();
-      showRegisterMessage('REQUEST SENT // AWAITING ADMIN APPROVAL', true);
-      registerSubmit.disabled = false;
-      isSubmittingRequest = false;
-    });
-
-    loginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const user = loginUsername.value.trim();
-      const pass = loginPassword.value;
-
-      if (!user || !pass) {
-        showLoginMessage('ACCESS DENIED // CREDENTIALS REQUIRED');
-        return;
-      }
-
-      const upperUser = user.toUpperCase();
-      let matchedRoleType = null;
-      let displayName = upperUser;
-
-      if (upperUser === 'ADMIN' && pass === 'VDBForever') {
-        matchedRoleType = 'ADMIN';
-        displayName = 'ADMIN';
-      } else if (upperUser === 'USER' && pass === 'Blackwall') {
-        matchedRoleType = 'USER';
-        displayName = 'USER';
-      } else {
-        const pendingMatch = accountRequests.find(
-          (r) => (r.username || '').toUpperCase() === upperUser
-        );
-        if (pendingMatch && pendingMatch.password === pass) {
-          showLoginMessage('ACCOUNT PENDING ADMIN CONFIRMATION');
+        if (!rawUser || !rawPass) {
+          showRegisterMessage('USERNAME AND PASSWORD REQUIRED');
           return;
         }
 
-        const approvedMatch = approvedAccounts.find(
-          (a) => (a.username || '').toUpperCase() === upperUser && a.password === pass
-        );
-        if (approvedMatch) {
-          matchedRoleType = approvedMatch.isModerator ? 'MODERATOR' : 'USER';
-          displayName = approvedMatch.username.toUpperCase();
+        const normalizedUpper = rawUser.toUpperCase();
+        if (normalizedUpper === 'ADMIN' || normalizedUpper === 'USER') {
+          showRegisterMessage('RESERVED HANDLE // PICK ANOTHER NAME');
+          return;
         }
-      }
 
-      if (!matchedRoleType) {
-        showLoginMessage('ACCESS DENIED // INVALID CREDENTIALS');
-        return;
-      }
+        const slug = rawUser.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+        const reqId = `req-${slug}`;
 
-      currentUser = displayName;
-      currentRoleType = matchedRoleType;
-      loginSubmit.disabled = true;
-      showLoginMessage('HANDSHAKE VERIFIED // DECRYPTING...', true);
+        const alreadyApproved = approvedAccounts.some(
+          (a) => String(a.username || '').toUpperCase() === normalizedUpper
+        );
+        if (alreadyApproved) {
+          showRegisterMessage('ACCOUNT ALREADY EXISTS // USE LOGIN');
+          return;
+        }
 
-      setTimeout(() => {
-        hudUser.textContent = `USR // ${currentUser} [${currentRoleType}]`;
+        isSubmittingRequest = true;
+        registerSubmit.disabled = true;
+
+        const reqObj = {
+          id: reqId,
+          username: normalizedUpper,
+          role: rawRole ? rawRole.toUpperCase() : 'ACTIVE_OPERATIVE',
+          password: rawPass,
+          createdAt: Date.now()
+        };
+
+        accountRequests = [reqObj, ...accountRequests.filter((r) => r.id !== reqId)];
         updateRequestsBadge();
         updateNotificationsBadge();
-        loginScreen.classList.add('hidden');
-        desktopScreen.classList.remove('hidden');
-        desktopScreen.classList.add('hud-enter');
-        loginSubmit.disabled = false;
-        loginStatus.classList.add('opacity-0');
-        renderWorkspace();
-      }, 420);
-    });
 
-    logoutBtn.addEventListener('click', () => {
-      desktopScreen.classList.add('hidden');
-      loginScreen.classList.remove('hidden');
-      registerForm.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-      loginPassword.value = '';
-      loginStatus.classList.add('opacity-0');
-      loginUsername.focus();
-    });
+        await saveAccountRequestToCloud(reqObj);
+        showRegisterMessage('REQUEST SENT // AWAITING ADMIN APPROVAL', true);
+        registerForm.reset();
+
+        setTimeout(() => {
+          registerSubmit.disabled = false;
+          isSubmittingRequest = false;
+        }, 600);
+      });
+    }
+
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const rawUser = loginUsername.value.trim();
+        const pass = loginPassword.value;
+
+        if (!rawUser || !pass) {
+          showLoginMessage('ACCESS DENIED // CREDENTIALS REQUIRED');
+          return;
+        }
+
+        const lowerUser = rawUser.toLowerCase();
+        let matchedUser = null;
+        let matchedRoleType = 'USER';
+
+        if (lowerUser === 'admin' && pass === 'VDBForever') {
+          matchedUser = 'ADMIN';
+          matchedRoleType = 'ADMIN';
+        } else if (lowerUser === 'user' && pass === 'Blackwall') {
+          matchedUser = 'USER';
+          matchedRoleType = 'USER';
+        } else {
+          const foundAcc = approvedAccounts.find(
+            (a) => String(a.username || '').toLowerCase() === lowerUser && a.password === pass
+          );
+          if (foundAcc) {
+            matchedUser = String(foundAcc.username || rawUser).toUpperCase();
+            matchedRoleType = foundAcc.isModerator || foundAcc.isLeadership ? 'MODERATOR' : 'USER';
+          }
+        }
+
+        if (!matchedUser) {
+          const isPending = accountRequests.some(
+            (r) => String(r.username || '').toLowerCase() === lowerUser
+          );
+          if (isPending) {
+            showLoginMessage('ACCOUNT PENDING // AWAITING ADMIN CONFIRMATION');
+          } else {
+            showLoginMessage('ACCESS DENIED // INVALID CREDENTIALS');
+          }
+          return;
+        }
+
+        currentUser = matchedUser;
+        currentRoleType = matchedRoleType;
+        loginSubmit.disabled = true;
+        showLoginMessage('HANDSHAKE VERIFIED // DECRYPTING...', true);
+
+        setTimeout(() => {
+          hudUser.textContent = `USR // ${currentUser}`;
+          updateRequestsBadge();
+          updateNotificationsBadge();
+          loginScreen.classList.add('hidden');
+          desktopScreen.classList.remove('hidden');
+          desktopScreen.classList.add('hud-enter');
+          loginSubmit.disabled = false;
+          loginStatus.classList.add('opacity-0');
+          renderWorkspace();
+        }, 320);
+      });
+    }
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        desktopScreen.classList.add('hidden');
+        loginScreen.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+        loginPassword.value = '';
+        loginStatus.classList.add('opacity-0');
+        loginUsername.focus();
+      });
+    }
 
     /**
      * 6. CLOCK & HUD METADATA UPDATER
@@ -1939,19 +2082,19 @@
       const now = new Date();
       const hh = String(now.getHours()).padStart(2, '0');
       const mm = String(now.getMinutes()).padStart(2, '0');
-      hudClock.textContent = `${hh}:${mm}`;
+      if (hudClock) hudClock.textContent = `${hh}:${mm}`;
     }
     updateClock();
     setInterval(updateClock, 15000);
 
     /**
-     * 7. RENDER WORKSPACE, ROSTER & MESSAGES
+     * 7. RENDER WORKSPACE, SHARDS & ROSTER
      */
     function getFilteredRecords() {
       const q = searchInput.value.trim().toLowerCase();
       const canSeeSecret = hasStaffPrivileges();
       return records.filter((item) => {
-        if (item.tab !== activeTab) return false;
+        if ((item.tab || 'FILES') !== activeTab) return false;
         if (item.secret && !canSeeSecret) return false;
         if (!q) return true;
         return (
@@ -1962,19 +2105,7 @@
       });
     }
 
-    function getShardImages(shard) {
-      if (Array.isArray(shard.images)) {
-        return shard.images.filter(Boolean);
-      }
-      if (shard.image) {
-        return [shard.image];
-      }
-      return [];
-    }
-
     function renderWorkspace() {
-      const canManage = hasStaffPrivileges();
-
       if (activeTab === 'MESSAGES') {
         workspaceToolbar.classList.add('hidden');
         gridContainer.classList.add('hidden');
@@ -1983,9 +2114,9 @@
         return;
       }
 
+      messagesBoard.classList.add('hidden');
       workspaceToolbar.classList.remove('hidden');
       gridContainer.classList.remove('hidden');
-      messagesBoard.classList.add('hidden');
 
       if (activeTab === 'ROSTER') {
         newEntryBtn.classList.add('hidden');
@@ -2073,8 +2204,6 @@
           openReaderModal(id);
         });
       });
-
-      void canManage;
     }
 
     function renderRoster() {
@@ -2091,12 +2220,8 @@
       const compareAlphabetical = (a, b) =>
         String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' });
 
-      const leadershipList = filteredMembers
-        .filter((m) => Boolean(m.isModerator || m.isLeadership))
-        .sort(compareAlphabetical);
-      const standardMembersList = filteredMembers
-        .filter((m) => !Boolean(m.isModerator || m.isLeadership))
-        .sort(compareAlphabetical);
+      const leadershipList = filteredMembers.filter((m) => Boolean(m.isModerator || m.isLeadership)).sort(compareAlphabetical);
+      const standardMembersList = filteredMembers.filter((m) => !Boolean(m.isModerator || m.isLeadership)).sort(compareAlphabetical);
 
       recordCount.textContent = `${filteredMembers.length} MEMBER${filteredMembers.length === 1 ? '' : 'S'}`;
 
@@ -2111,12 +2236,12 @@
 
       const buildMemberCardHtml = (member) => {
         const isSelected = member.id === selectedId;
-        const isMod = Boolean(member.isModerator || member.isLeadership);
+        const isLeader = Boolean(member.isModerator || member.isLeadership);
         const manageBtnHtml = canManage
           ? `<button
                type="button"
                data-manage-member-id="${escapeHtml(member.id)}"
-               class="shrink-0 font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#09212a]/85 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#134252] tracking-wider uppercase transition-colors"
+               class="shrink-0 font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#09212a]/85 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#134252] hover:text-white transition-colors uppercase tracking-wider"
              >
                Manage
              </button>`
@@ -2136,7 +2261,7 @@
                   <div class="card-title font-hud font-bold text-base sm:text-lg tracking-[0.08em] text-[#6cd9ed] truncate">
                     ${escapeHtml(member.name)}
                   </div>
-                  ${isMod ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff]">MODERATOR</span>' : ''}
+                  ${isLeader ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff]">LEADERSHIP</span>' : ''}
                 </div>
                 <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
                   ${escapeHtml(member.role || 'ACTIVE_OPERATIVE')}
@@ -2154,7 +2279,7 @@
         sectionsHtml.push(`
           <div class="col-span-1 md:col-span-2 flex flex-col gap-2">
             <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#7df9ff] border-b border-[#1c5461] pb-1 uppercase">
-              LEADERSHIP // MODERATOR_TIER (${leadershipList.length})
+              LEADERSHIP // COMMAND_TIER (${leadershipList.length})
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
               ${leadershipList.map(buildMemberCardHtml).join('')}
@@ -2190,143 +2315,6 @@
           });
         });
       }
-    }
-
-    /**
-     * 7B. MESSAGES BOARD (PRIVATE MESSAGES & PUBLIC CHAT)
-     */
-    function populatePmRecipientSelect() {
-      if (!pmToSelect) return;
-      const namesSet = new Set(['ADMIN', 'USER']);
-      for (const m of rosterMembers) {
-        if (m.name) namesSet.add(String(m.name).toUpperCase());
-      }
-      for (const acc of approvedAccounts) {
-        if (acc.username) namesSet.add(String(acc.username).toUpperCase());
-      }
-      namesSet.delete(currentUser.toUpperCase());
-
-      const sortedNames = Array.from(namesSet).sort((a, b) =>
-        a.localeCompare(b, undefined, { sensitivity: 'base' })
-      );
-
-      pmToSelect.innerHTML =
-        `<option value="">SELECT MEMBER...</option>` +
-        sortedNames.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
-    }
-
-    function renderMessagesBoard() {
-      populatePmRecipientSelect();
-      if (messageSubTab === 'PUBLIC') {
-        msgModePublicBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
-        msgModePrivateBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
-        privateMessagesView.classList.add('hidden');
-        publicChatView.classList.remove('hidden');
-        renderPublicChat();
-      } else {
-        msgModePrivateBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
-        msgModePublicBtn.className = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
-        publicChatView.classList.add('hidden');
-        privateMessagesView.classList.remove('hidden');
-        renderPrivateMessages();
-      }
-    }
-
-    function renderPrivateMessages() {
-      const me = currentUser.toUpperCase();
-      const myPms = privateMessages.filter((pm) => {
-        const deletedBy = Array.isArray(pm.deletedBy) ? pm.deletedBy.map((u) => String(u).toUpperCase()) : [];
-        if (deletedBy.includes(me)) return false;
-        return (pm.to || '').toUpperCase() === me || (pm.from || '').toUpperCase() === me;
-      });
-
-      recordCount.textContent = `${myPms.length} PM${myPms.length === 1 ? '' : 'S'}`;
-
-      if (activePmId) {
-        const selectedPm = myPms.find((p) => p.id === activePmId);
-        if (selectedPm && !pmReaderModal.classList.contains('hidden')) {
-          renderPmReaderContent(selectedPm);
-        }
-      }
-
-      if (myPms.length === 0) {
-        privateMessagesList.innerHTML = `
-          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
-            NO PRIVATE MESSAGES IN LOG.
-          </div>
-        `;
-        return;
-      }
-
-      privateMessagesList.innerHTML = myPms
-        .map((pm) => {
-          const isIncoming = (pm.to || '').toUpperCase() === me;
-          const personLabel = isIncoming
-            ? `FROM: ${escapeHtml(pm.from || 'UNKNOWN')}`
-            : `TO: ${escapeHtml(pm.to || 'UNKNOWN')} (SENT)`;
-
-          return `
-            <div data-pm-id="${escapeHtml(pm.id)}" class="p-3 border border-[#1d5663] bg-[#040c10] hover:border-[#48d1e8] flex items-center justify-between gap-3 cursor-pointer transition-colors">
-              <div class="min-w-0 flex-1">
-                <div class="font-mono-tech text-[11px] tracking-wider text-[#48d1e8] truncate">
-                  ${personLabel}
-                </div>
-                <div class="font-hud font-bold text-base tracking-wider text-[#7df9ff] truncate mt-0.5">
-                  ${escapeHtml(pm.subject || 'NO SUBJECT')}
-                </div>
-              </div>
-              <span class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] shrink-0">
-                [OPEN]
-              </span>
-            </div>
-          `;
-        })
-        .join('');
-
-      privateMessagesList.querySelectorAll('[data-pm-id]').forEach((el) => {
-        el.addEventListener('click', () => {
-          const pm = myPms.find((item) => item.id === el.dataset.pmId);
-          if (pm) {
-            openPmReaderModal(pm);
-          }
-        });
-      });
-    }
-
-    function renderPmReaderContent(pm) {
-      if (!pm) return;
-      pmReaderSubject.textContent = pm.subject || 'NO SUBJECT';
-      pmReaderFrom.textContent = pm.from || 'UNKNOWN';
-      pmReaderTo.textContent = pm.to || 'UNKNOWN';
-
-      const replies = Array.isArray(pm.replies) ? [...pm.replies] : [];
-      replies.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-      const repliesHtml = replies
-        .map(
-          (rep) => `
-            <div class="p-3 border border-[#2b7b8c] bg-[#071c25] flex flex-col gap-1">
-              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
-                <span class="text-[#7df9ff] font-bold tracking-wider">REPLY // ${escapeHtml(rep.sender || 'OPERATIVE')}</span>
-                <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(rep.createdAt))}</span>
-              </div>
-              <pre class="font-mono-tech text-xs text-[#b7f3fc] whitespace-pre-wrap leading-relaxed">${escapeHtml(rep.text || '')}</pre>
-            </div>
-          `
-        )
-        .join('');
-
-      const originalHtml = `
-        <div class="p-3 border border-[#17454f] bg-[#040c10] flex flex-col gap-1">
-          <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
-            <span class="text-[#48d1e8] tracking-wider">ORIGINAL // ${escapeHtml(pm.from || 'UNKNOWN')}</span>
-            <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
-          </div>
-          <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(pm.body || '')}</pre>
-        </div>
-      `;
-
-      pmReaderThread.innerHTML = repliesHtml + originalHtml;
     }
 
     function openPmReaderModal(pm) {
@@ -2570,7 +2558,10 @@
     });
 
     searchInput.addEventListener('input', () => {
-      renderWorkspace();
+      if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        renderWorkspace();
+      }, 90);
     });
 
     notificationsBtn.addEventListener('click', () => {
