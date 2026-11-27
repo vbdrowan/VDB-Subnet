@@ -282,6 +282,32 @@
       text-shadow: 0 0 8px rgba(125, 249, 255, 0.45);
     }
 
+    /* Secret Archive Card (Admin Only - Crimson Theme) */
+    .archive-card.secret-card {
+      background: rgba(34, 8, 12, 0.78);
+      border-color: #6e171e;
+    }
+
+    .archive-card.secret-card:hover {
+      border-color: #b8323c;
+      background: rgba(54, 12, 18, 0.86);
+    }
+
+    .archive-card.secret-card.selected {
+      background: rgba(74, 14, 22, 0.86);
+      border-color: #ff4d5a;
+      box-shadow: 0 0 16px rgba(255, 77, 90, 0.28), inset 0 0 18px rgba(255, 77, 90, 0.16);
+    }
+
+    .archive-card.secret-card .card-title {
+      color: #ff6b76;
+    }
+
+    .archive-card.secret-card.selected .card-title {
+      color: #ff9aa2;
+      text-shadow: 0 0 8px rgba(255, 77, 90, 0.55);
+    }
+
     /* Custom Terminal Scrollbar */
     .cp-scroll::-webkit-scrollbar {
       width: 8px;
@@ -562,9 +588,9 @@
        3. SHARD READER / DECRYPTION MODAL
        ========================================================= -->
   <div id="reader-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
-    <div class="w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter">
+    <div id="reader-modal-box" class="w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter">
       <!-- Modal Top Bar -->
-      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+      <div id="reader-modal-header" class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
         <div>
           <div id="modal-meta-top" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DATASHARD // DECRYPTED</div>
           <h2 id="modal-title" class="font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5">TITLE</h2>
@@ -634,6 +660,25 @@
             placeholder="E.G. ARASAKA_SUBNET_DUMP_04"
             class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
           />
+        </div>
+
+        <!-- Admin-Only Classification Selector (Standard vs Secret) -->
+        <div id="create-classification-wrap" class="hidden">
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">CLEARANCE LEVEL</label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <label class="cursor-pointer">
+              <input type="radio" name="shard-classification" value="STANDARD" checked class="peer sr-only" />
+              <div class="px-3 py-2 border border-[#236978] bg-[#040c10] text-center font-mono-tech text-xs text-[#48d1e8] peer-checked:border-[#7df9ff] peer-checked:bg-[#103642] peer-checked:text-[#7df9ff] transition-all">
+                STANDARD // CYAN
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="shard-classification" value="SECRET" class="peer sr-only" />
+              <div class="px-3 py-2 border border-[#5e171d] bg-[#140507] text-center font-mono-tech text-xs text-[#b8323c] peer-checked:border-[#ff4d5a] peer-checked:bg-[#3d0c12] peer-checked:text-[#ff7a84] transition-all">
+                SECRET // CRIMSON
+              </div>
+            </label>
+          </div>
         </div>
 
         <div>
@@ -837,6 +882,8 @@
     const newEntryBtn = document.getElementById('new-entry-btn');
 
     const readerModal = document.getElementById('reader-modal');
+    const readerModalBox = document.getElementById('reader-modal-box');
+    const readerModalHeader = document.getElementById('reader-modal-header');
     const modalMetaTop = document.getElementById('modal-meta-top');
     const modalTitle = document.getElementById('modal-title');
     const modalMetaStrip = document.getElementById('modal-meta-strip');
@@ -851,6 +898,7 @@
 
     const createModal = document.getElementById('create-modal');
     const createForm = document.getElementById('create-form');
+    const createClassificationWrap = document.getElementById('create-classification-wrap');
     const closeCreateBtn = document.getElementById('close-create-btn');
     const cancelCreateBtn = document.getElementById('cancel-create-btn');
     const uploadImageBtn = document.getElementById('upload-image-btn');
@@ -939,7 +987,12 @@
         return;
       }
 
-      if (user !== 'Admin' || pass !== 'VDBForever') {
+      const validAccounts = {
+        Admin: 'VDBForever',
+        User: 'Blackwall'
+      };
+
+      if (!Object.prototype.hasOwnProperty.call(validAccounts, user) || validAccounts[user] !== pass) {
         showLoginMessage('ACCESS DENIED // INVALID CREDENTIALS');
         return;
       }
@@ -993,8 +1046,10 @@
 
     function getFilteredRecords() {
       const q = searchInput.value.trim().toLowerCase();
+      const isAdmin = currentUser === 'ADMIN';
       return records.filter((item) => {
         if (item.tab !== activeTab) return false;
+        if (item.secret && !isAdmin) return false;
         if (!q) return true;
         return (
           (item.title && item.title.toLowerCase().includes(q)) ||
@@ -1019,27 +1074,36 @@
       itemsGrid.innerHTML = list
         .map((item) => {
           const isSelected = item.id === selectedId;
+          const isSecret = Boolean(item.secret);
+          const iconColor = isSecret ? 'text-[#ff4d5a]' : 'text-[#48d1e8]';
+          const iconFill = isSecret ? 'rgba(255, 77, 90, 0.22)' : 'rgba(72, 209, 232, 0.16)';
+          const subtitleColor = isSecret ? 'text-[#c94a53]' : 'text-[#397c8a]';
+          const thumbBorder = isSecret ? 'border-[#8f1d24] hover:border-[#ff4d5a]' : 'border-[#236978] hover:border-[#7df9ff]';
+
           const thumbHtml = item.image
-            ? `<button type="button" data-enlarge-id="${escapeHtml(item.id)}" title="Click to enlarge image" class="shrink-0 w-10 h-10 border border-[#236978] hover:border-[#7df9ff] bg-[#040c10] overflow-hidden cursor-zoom-in">
+            ? `<button type="button" data-enlarge-id="${escapeHtml(item.id)}" title="Click to enlarge image" class="shrink-0 w-10 h-10 border ${thumbBorder} bg-[#040c10] overflow-hidden cursor-zoom-in">
                  <img src="${item.image}" alt="" class="w-full h-full object-cover block" />
                </button>`
             : '';
 
           return `
-            <div data-id="${escapeHtml(item.id)}" class="archive-card chamfer-card ${isSelected ? 'selected' : ''}">
-              <div class="shrink-0 text-[#48d1e8]">
+            <div data-id="${escapeHtml(item.id)}" class="archive-card chamfer-card ${isSecret ? 'secret-card' : ''} ${isSelected ? 'selected' : ''}">
+              <div class="shrink-0 ${iconColor}">
                 <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                  <polygon points="6,3 16,5 16,21 6,19" fill="rgba(72,209,232,0.16)" />
+                  <polygon points="6,3 16,5 16,21 6,19" fill="${iconFill}" />
                   <polyline points="9,2 19,4 19,20" />
                   <line x1="9" y1="8.5" x2="13" y2="9.3" />
                   <line x1="9" y1="12" x2="13" y2="12.8" />
                 </svg>
               </div>
               <div class="min-w-0 flex-1">
-                <div class="card-title font-hud font-bold text-base sm:text-lg tracking-[0.08em] text-[#6cd9ed] truncate">
-                  ${escapeHtml(item.title)}
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="card-title font-hud font-bold text-base sm:text-lg tracking-[0.08em] text-[#6cd9ed] truncate">
+                    ${escapeHtml(item.title)}
+                  </div>
+                  ${isSecret ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#8f1d24] bg-[#3a0d12]/80 text-[#ff6b76]">SECRET</span>' : ''}
                 </div>
-                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                <div class="font-mono-tech text-[10px] tracking-widest ${subtitleColor} truncate mt-0.5">
                   ${escapeHtml(item.subtitle || 'SYS.ARCHIVE // SHARD')}
                 </div>
               </div>
@@ -1094,17 +1158,38 @@
     function openReaderModal(id) {
       const shard = records.find((r) => r.id === id);
       if (!shard) return;
+      if (shard.secret && currentUser !== 'ADMIN') return;
 
+      const isSecret = Boolean(shard.secret);
       selectedId = shard.id;
-      modalMetaTop.textContent = `DATASHARD // ${shard.tab || 'FILES'}`;
+
+      // Apply Crimson or Cyan HUD theme to reader modal
+      if (isSecret) {
+        readerModalBox.className = 'w-full max-w-2xl border border-[#ff4d5a] bg-[#120507] shadow-[0_0_40px_rgba(255,77,90,0.32)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        readerModalHeader.className = 'flex items-center justify-between px-5 py-3 border-b border-[#5e171d] bg-[#24090d]';
+        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#ff4d5a]';
+        modalMetaTop.textContent = `CLASSIFIED // SECRET_SHARD`;
+        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#ff7a84] mt-0.5';
+        modalBody.className = 'font-mono-tech text-xs sm:text-sm text-[#ffb3b8] whitespace-pre-wrap leading-relaxed';
+      } else {
+        readerModalBox.className = 'w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        readerModalHeader.className = 'flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]';
+        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]';
+        modalMetaTop.textContent = `DATASHARD // ${shard.tab || 'FILES'}`;
+        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5';
+        modalBody.className = 'font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed';
+      }
+
       modalTitle.textContent = shard.title;
       modalBody.textContent = shard.content || '';
 
+      const labelColor = isSecret ? 'text-[#a33840]' : 'text-[#397c8a]';
+      const valColor = isSecret ? 'text-[#ff7a84]' : 'text-[#7df9ff]';
       modalMetaStrip.innerHTML = `
-        <div><span class="text-[#397c8a] block text-[9px]">DATE</span><span class="text-[#7df9ff]">${escapeHtml(shard.date || '2077.04.14')}</span></div>
-        <div><span class="text-[#397c8a] block text-[9px]">AUTHOR</span><span class="text-[#7df9ff]">${escapeHtml(shard.author || 'ADMIN')}</span></div>
-        <div><span class="text-[#397c8a] block text-[9px]">SIZE</span><span class="text-[#7df9ff]">${escapeHtml(shard.size || '1.0 KB')}</span></div>
-        <div><span class="text-[#397c8a] block text-[9px]">HASH</span><span class="text-[#7df9ff]">${escapeHtml(shard.hash || '0x0000...FFFF')}</span></div>
+        <div><span class="${labelColor} block text-[9px]">DATE</span><span class="${valColor}">${escapeHtml(shard.date || '2077.04.14')}</span></div>
+        <div><span class="${labelColor} block text-[9px]">AUTHOR</span><span class="${valColor}">${escapeHtml(shard.author || 'ADMIN')}</span></div>
+        <div><span class="${labelColor} block text-[9px]">SIZE</span><span class="${valColor}">${escapeHtml(shard.size || '1.0 KB')}</span></div>
+        <div><span class="${labelColor} block text-[9px]">CLEARANCE</span><span class="${valColor}">${isSecret ? 'SECRET // LVL_5' : 'STANDARD'}</span></div>
       `;
 
       if (shard.image) {
@@ -1171,6 +1256,11 @@
     function openCreateModal() {
       createForm.reset();
       resetCreateImage();
+      if (currentUser === 'ADMIN') {
+        createClassificationWrap.classList.remove('hidden');
+      } else {
+        createClassificationWrap.classList.add('hidden');
+      }
       createModal.classList.remove('hidden');
       document.getElementById('create-title').focus();
     }
@@ -1238,6 +1328,9 @@
       const rawContent = document.getElementById('create-content').value.trim();
       if (!rawTitle || !rawContent) return;
 
+      const selectedClassification = document.querySelector('input[name="shard-classification"]:checked')?.value || 'STANDARD';
+      const isSecret = currentUser === 'ADMIN' && selectedClassification === 'SECRET';
+
       const formattedTitle = rawTitle.toUpperCase().replace(/\s+/g, '_');
       const now = new Date();
       const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
@@ -1248,8 +1341,9 @@
       const newShard = {
         id: `usr-${Date.now()}`,
         tab: 'FILES',
+        secret: isSecret,
         title: formattedTitle,
-        subtitle: `USR_UPLOAD // ${currentUser.toUpperCase()}`,
+        subtitle: isSecret ? `CLASSIFIED_SHARD // ${currentUser.toUpperCase()}` : `USR_UPLOAD // ${currentUser.toUpperCase()}`,
         date: dateStr,
         author: currentUser.toUpperCase(),
         size: sizeStr,
