@@ -1,0 +1,4107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voodoo Boys /// Archive Terminal v1.0</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-obsidian: #040709;
+      --bg-panel: rgba(7, 19, 24, 0.78);
+      --bg-card: rgba(8, 22, 28, 0.72);
+      --bg-card-active: rgba(18, 56, 68, 0.78);
+      --border-dim: #17454f;
+      --border-mid: #236978;
+      --cyan-bright: #48d1e8;
+      --cyan-glow: #7df9ff;
+      --crimson-deep: #4a0d13;
+      --crimson-glow: #8f1d24;
+      --text-primary: #7be2f4;
+      --text-muted: #397c8a;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    input, textarea {
+      user-select: text;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-obsidian);
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .font-mono-tech {
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .font-hud {
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    /* Atmospheric Background Canvas + Scanlines */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.22) 50%
+      );
+      background-size: 100% 4px;
+      opacity: 0.45;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(circle at center, transparent 40%, rgba(2, 4, 6, 0.85) 100%);
+    }
+
+    /* Chamfered Cyberpunk Geometry */
+    .chamfer-sm {
+      clip-path: polygon(
+        8px 0, 100% 0, 100% calc(100% - 8px),
+        calc(100% - 8px) 100%, 0 100%, 0 8px
+      );
+    }
+
+    .chamfer-md {
+      clip-path: polygon(
+        14px 0, 100% 0, 100% calc(100% - 14px),
+        calc(100% - 14px) 100%, 0 100%, 0 14px
+      );
+    }
+
+    .chamfer-card {
+      clip-path: polygon(
+        0 0, calc(100% - 10px) 0, 100% 10px,
+        100% 100%, 10px 100%, 0 calc(100% - 10px)
+      );
+    }
+
+    /* Tactical Input & Button Styling */
+    .cp-input-wrap {
+      position: relative;
+      background: rgba(6, 17, 22, 0.85);
+      border: 1px solid var(--border-mid);
+      transition: all 0.2s ease;
+    }
+
+    .cp-input-wrap::before,
+    .cp-input-wrap::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-color: var(--cyan-bright);
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+
+    .cp-input-wrap::before {
+      top: -1px;
+      left: -1px;
+      border-top: 2px solid var(--cyan-bright);
+      border-left: 2px solid var(--cyan-bright);
+    }
+
+    .cp-input-wrap::after {
+      bottom: -1px;
+      right: -1px;
+      border-bottom: 2px solid var(--cyan-bright);
+      border-right: 2px solid var(--cyan-bright);
+    }
+
+    .cp-input-wrap:focus-within {
+      border-color: var(--cyan-bright);
+      box-shadow: 0 0 16px rgba(72, 209, 232, 0.24), inset 0 0 10px rgba(72, 209, 232, 0.1);
+      background: rgba(10, 28, 36, 0.92);
+    }
+
+    .cp-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--cyan-glow);
+      font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 0.12em;
+    }
+
+    .cp-input::placeholder {
+      color: #2f6c79;
+      text-transform: uppercase;
+    }
+
+    .cp-btn {
+      position: relative;
+      background: rgba(14, 46, 56, 0.72);
+      border: 1px solid var(--cyan-bright);
+      color: var(--cyan-glow);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      box-shadow: 0 0 12px rgba(72, 209, 232, 0.15);
+    }
+
+    .cp-btn:hover:not(:disabled) {
+      background: rgba(72, 209, 232, 0.22);
+      box-shadow: 0 0 22px rgba(72, 209, 232, 0.42), inset 0 0 12px rgba(125, 249, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .cp-btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .cp-btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    /* Top Navigation Tabs Matching Reference */
+    .nav-module {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.55rem 0.9rem;
+      background: rgba(6, 16, 20, 0.72);
+      border: 1px solid var(--border-dim);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-module:hover {
+      border-color: var(--border-mid);
+      background: rgba(11, 30, 38, 0.85);
+    }
+
+    .nav-module.locked,
+    .nav-module:disabled {
+      cursor: not-allowed;
+      opacity: 0.62;
+      border-color: #13363e;
+      background: rgba(5, 13, 17, 0.65);
+    }
+
+    .nav-module.locked:hover,
+    .nav-module:disabled:hover {
+      border-color: #13363e;
+      background: rgba(5, 13, 17, 0.65);
+    }
+
+    .nav-module.active {
+      border-color: var(--cyan-bright);
+      background: linear-gradient(180deg, rgba(20, 62, 74, 0.65) 0%, rgba(8, 24, 30, 0.92) 100%);
+      box-shadow: 0 0 18px rgba(72, 209, 232, 0.22), inset 0 0 14px rgba(72, 209, 232, 0.12);
+    }
+
+    /* Corner bracket ticks around module icons */
+    .icon-bracket {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-bracket span {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-color: var(--border-mid);
+      transition: border-color 0.2s ease;
+    }
+
+    .nav-module.active .icon-bracket span {
+      border-color: var(--cyan-bright);
+    }
+
+    .icon-bracket .tl { top: 0; left: 0; border-top: 1.5px solid; border-left: 1.5px solid; }
+    .icon-bracket .tr { top: 0; right: 0; border-top: 1.5px solid; border-right: 1.5px solid; }
+    .icon-bracket .bl { bottom: 0; left: 0; border-bottom: 1.5px solid; border-left: 1.5px solid; }
+    .icon-bracket .br { bottom: 0; right: 0; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+
+    /* Archive Item Card */
+    .archive-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .archive-card:hover {
+      border-color: var(--border-mid);
+      background: rgba(13, 36, 45, 0.82);
+    }
+
+    .archive-card.selected {
+      background: var(--bg-card-active);
+      border-color: var(--cyan-bright);
+      box-shadow: 0 0 16px rgba(72, 209, 232, 0.22), inset 0 0 18px rgba(72, 209, 232, 0.14);
+    }
+
+    .archive-card.selected .card-title {
+      color: var(--cyan-glow);
+      text-shadow: 0 0 8px rgba(125, 249, 255, 0.45);
+    }
+
+    /* Secret Archive Card (Admin Only - Crimson Theme) */
+    .archive-card.secret-card {
+      background: rgba(34, 8, 12, 0.78);
+      border-color: #6e171e;
+    }
+
+    .archive-card.secret-card:hover {
+      border-color: #b8323c;
+      background: rgba(54, 12, 18, 0.86);
+    }
+
+    .archive-card.secret-card.selected {
+      background: rgba(74, 14, 22, 0.86);
+      border-color: #ff4d5a;
+      box-shadow: 0 0 16px rgba(255, 77, 90, 0.28), inset 0 0 18px rgba(255, 77, 90, 0.16);
+    }
+
+    .archive-card.secret-card .card-title {
+      color: #ff6b76;
+    }
+
+    .archive-card.secret-card.selected .card-title {
+      color: #ff9aa2;
+      text-shadow: 0 0 8px rgba(255, 77, 90, 0.55);
+    }
+
+    /* Custom Terminal Scrollbar */
+    .cp-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .cp-scroll::-webkit-scrollbar-track {
+      background: rgba(5, 14, 18, 0.85);
+      border-left: 1px solid var(--border-dim);
+    }
+    .cp-scroll::-webkit-scrollbar-thumb {
+      background: var(--border-mid);
+      border: 1px solid var(--cyan-bright);
+    }
+    .cp-scroll::-webkit-scrollbar-thumb:hover {
+      background: var(--cyan-bright);
+    }
+
+    /* Subtle Boot / Reveal Transition */
+    @keyframes hudFadeIn {
+      0% { opacity: 0; transform: scale(0.985); filter: brightness(1.3); }
+      100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+    }
+
+    .hud-enter {
+      animation: hudFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pulseRed {
+      0%, 100% { opacity: 0.65; }
+      50% { opacity: 1; }
+    }
+    .pulse-red {
+      animation: pulseRed 2.4s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Organic Crimson Smoke / Energy Wisp Canvas -->
+  <canvas id="bg-canvas"></canvas>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+
+  <!-- =========================================================
+       1. STRICT INITIAL LOGIN SCREEN (NOTHING ELSE VISIBLE)
+       ========================================================= -->
+  <main id="login-screen" class="relative z-10 min-h-screen w-full flex items-center justify-center p-4">
+    <form id="login-form" class="w-full max-w-xs flex flex-col gap-3.5" autocomplete="off" novalidate>
+      <!-- 1. Username Box -->
+      <div class="cp-input-wrap">
+        <input
+          id="login-username"
+          type="text"
+          placeholder="USERNAME"
+          aria-label="Username"
+          class="cp-input px-4 py-3 text-sm"
+          spellcheck="false"
+        />
+      </div>
+
+      <!-- 2. Password Box Directly Below -->
+      <div class="cp-input-wrap">
+        <input
+          id="login-password"
+          type="password"
+          placeholder="PASSWORD"
+          aria-label="Password"
+          class="cp-input px-4 py-3 text-sm"
+        />
+      </div>
+
+      <!-- 3. Login Button Directly Below -->
+      <button id="login-submit" type="submit" class="cp-btn py-2.5 px-6 text-base">
+        LOGIN
+      </button>
+
+      <!-- Create Account Link Directly Below Login -->
+      <button
+        id="open-register-link"
+        type="button"
+        class="font-mono-tech text-xs tracking-[0.2em] text-[#48d1e8] hover:text-[#7df9ff] underline underline-offset-4 uppercase text-center transition-colors"
+      >
+        Create account
+      </button>
+
+      <!-- Subtle Inline Terminal Feedback -->
+      <div id="login-status" class="font-mono-tech text-[11px] tracking-widest text-center h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
+    </form>
+
+    <!-- Create Account Form (Hidden by default) -->
+    <form id="register-form" class="hidden w-full max-w-xs flex flex-col gap-3.5 hud-enter" autocomplete="off" novalidate>
+      <div class="text-center border-b border-[#1c5461] pb-2">
+        <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8]">NET_ACCESS // REGISTRATION</div>
+        <div class="font-hud font-bold text-lg tracking-[0.16em] text-[#7df9ff]">CREATE ACCOUNT</div>
+      </div>
+
+      <!-- Username + In-Game Name Warning -->
+      <div>
+        <div class="cp-input-wrap">
+          <input
+            id="register-username"
+            type="text"
+            placeholder="USERNAME"
+            aria-label="Username"
+            class="cp-input px-4 py-3 text-sm"
+            spellcheck="false"
+          />
+        </div>
+        <div class="font-mono-tech text-[10px] tracking-wider text-[#e05a65] mt-1">
+          * USE YOUR IN-GAME NAME
+        </div>
+      </div>
+
+      <!-- Role -->
+      <div class="cp-input-wrap">
+        <input
+          id="register-role"
+          type="text"
+          placeholder="ROLE"
+          aria-label="Role"
+          class="cp-input px-4 py-3 text-sm"
+          spellcheck="false"
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="cp-input-wrap">
+        <input
+          id="register-password"
+          type="password"
+          placeholder="PASSWORD"
+          aria-label="Password"
+          class="cp-input px-4 py-3 text-sm"
+        />
+      </div>
+
+      <button id="register-submit" type="submit" class="cp-btn py-2.5 px-6 text-base">
+        REQUEST ACCESS
+      </button>
+
+      <button
+        id="back-to-login-link"
+        type="button"
+        class="font-mono-tech text-xs tracking-[0.2em] text-[#48d1e8] hover:text-[#7df9ff] underline underline-offset-4 uppercase text-center transition-colors"
+      >
+        Back to Login
+      </button>
+
+      <div id="register-status" class="font-mono-tech text-[11px] tracking-widest text-center min-h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
+    </form>
+  </main>
+
+  <!-- =========================================================
+       2. MAIN ARCHIVE DESKTOP (POST-LOGIN)
+       ========================================================= -->
+  <div id="desktop-screen" class="hidden relative z-10 min-h-screen w-full flex flex-col justify-between py-4 md:py-7 px-2 sm:px-5 md:px-8">
+
+    <!-- Top Terminal Header + Tab Modules -->
+    <header class="w-full max-w-[1380px] mx-auto">
+      <!-- Navigation Tabs Container -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 px-1 sm:px-6 md:px-14">
+        <!-- TAB: FILES -->
+        <button data-tab="FILES" class="nav-module active text-left" type="button">
+          <div class="icon-bracket">
+            <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="7,3 17,5 17,21 7,19" fill="rgba(72,209,232,0.18)" />
+              <polyline points="10,2 20,4 20,20" />
+              <line x1="10" y1="8" x2="14" y2="8.8" />
+              <line x1="10" y1="11.5" x2="14" y2="12.3" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#7df9ff] leading-none">FILES</div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">SYS.ARCHIVE // DB_01</div>
+          </div>
+        </button>
+
+        <!-- TAB: ROSTER -->
+        <button data-tab="ROSTER" class="nav-module text-left" type="button">
+          <div class="icon-bracket">
+            <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <circle cx="12" cy="8.5" r="3.5" fill="rgba(72,209,232,0.16)" />
+              <path d="M5 19.5c0-3.5 3.1-6 7-6s7 2.5 7 6" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#7df9ff] leading-none">ROSTER</div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">VOODOO BOYS MEMBERS</div>
+          </div>
+        </button>
+
+        <!-- TAB: MESSAGES -->
+        <button data-tab="MESSAGES" class="nav-module text-left" type="button">
+          <div class="icon-bracket">
+            <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <polygon points="5,5 19,3 19,17 5,19" fill="rgba(72,209,232,0.12)" />
+              <polyline points="5,6 12,11.5 19,4" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#7df9ff] leading-none">MESSAGES</div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">ENC.COMMS // LOGS</div>
+          </div>
+        </button>
+
+        <!-- TAB: VIRTUAL MAP -->
+        <a
+          href="https://vbdrowan.github.io/VDB-VirtualMap/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="nav-module text-left no-underline"
+        >
+          <div class="icon-bracket">
+            <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <polygon points="3,6 9,3 15,6 21,3 21,18 15,21 9,18 3,21" fill="rgba(72,209,232,0.14)" />
+              <line x1="9" y1="3" x2="9" y2="18" />
+              <line x1="15" y1="6" x2="15" y2="21" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#7df9ff] leading-none truncate">VIRTUAL MAP</div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">GRID // VDB_MAP</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Horizontal Tactical Divider Line with Outer Edge Metadata -->
+      <div class="relative mt-2.5 flex items-center justify-between border-b border-[#1c5461] pb-1.5">
+        <div class="flex items-center gap-3">
+          <div class="font-mono-tech text-[10px] leading-tight tracking-wider">
+            <div id="hud-date" class="text-[#c94a53]">14 April 2077</div>
+            <div id="hud-user" class="text-[#397c8a] uppercase">USR // ADMIN</div>
+          </div>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-2 font-mono-tech text-[10px] tracking-[0.25em] text-[#286370]">
+          <span>[</span>
+          <span id="active-sector-label" class="text-[#48d1e8]">SECTOR_01 // ARCHIVE_ROOT</span>
+          <span>]</span>
+        </div>
+
+        <div class="flex items-center gap-3 text-right">
+          <div class="font-mono-tech text-[10px] leading-tight tracking-wider">
+            <div id="hud-clock" class="text-[#c94a53]">03:41</div>
+            <div id="cloud-sync-badge" class="text-[#397c8a]">CLOUD // SYNCING</div>
+          </div>
+          <button
+            id="requests-btn"
+            type="button"
+            title="Pending Account Requests"
+            class="hidden font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase flex items-center gap-1.5"
+          >
+            <span>REQUESTS</span>
+            <span id="requests-badge" class="hidden px-1 py-0.2 bg-[#6e171e] border border-[#ff4d5a] text-[#ff9aa2] text-[9px] leading-tight">0</span>
+          </button>
+          <button
+            id="make-request-btn"
+            type="button"
+            title="Submit a Request to Staff"
+            class="hidden font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase"
+          >
+            MAKE REQUEST
+          </button>
+          <button
+            id="notifications-btn"
+            type="button"
+            title="Notifications"
+            class="font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase flex items-center gap-1.5"
+          >
+            <span>NOTIFICATIONS</span>
+            <span id="notifications-badge" class="hidden px-1 py-0.2 bg-[#6e171e] border border-[#ff4d5a] text-[#ff9aa2] text-[9px] leading-tight">0</span>
+          </button>
+          <button
+            id="admin-settings-btn"
+            type="button"
+            title="Admin Settings"
+            aria-label="Admin Settings"
+            class="hidden font-mono-tech text-[10px] px-2 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors flex items-center justify-center"
+          >
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
+          <button
+            id="logout-btn"
+            type="button"
+            title="Disconnect Terminal"
+            class="font-mono-tech text-[10px] px-2 py-1 border border-[#1d5360] text-[#48d1e8] hover:border-[#ff4d5a] hover:text-[#ff6b76] hover:bg-[#3a0d12]/40 transition-colors tracking-widest uppercase"
+          >
+            EXIT
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Bordered Terminal Window -->
+    <section class="w-full max-w-[1220px] mx-auto my-3 flex-1 flex flex-col min-h-[500px] max-h-[74vh]">
+      <div class="relative flex-1 flex border border-[#1d5663] bg-[#050e13]/80 backdrop-blur-[2px] shadow-[0_0_35px_rgba(0,0,0,0.75)] overflow-hidden">
+
+        <!-- Main Workspace Column -->
+        <div class="flex-1 flex flex-col min-w-0">
+
+          <!-- Subtle Terminal Action & Search Toolbar -->
+          <div id="workspace-toolbar" class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-b border-[#143d47] bg-[#07151c]/80">
+            <div id="search-box-wrap" class="flex items-center gap-2 flex-1 min-w-[200px] max-w-md">
+              <span class="font-mono-tech text-xs text-[#397c8a]">QUERY&gt;</span>
+              <input
+                id="search-input"
+                type="text"
+                placeholder="FILTER ARCHIVE RECORDS..."
+                class="w-full bg-[#040c10] border border-[#184854] focus:border-[#48d1e8] outline-none px-2.5 py-1 font-mono-tech text-xs text-[#7df9ff] placeholder-[#295c68] tracking-wider"
+              />
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span id="record-count" class="font-mono-tech text-[11px] text-[#397c8a] hidden sm:inline mr-2">0 RECORDS</span>
+              <button
+                id="new-entry-btn"
+                type="button"
+                class="font-mono-tech text-xs px-3 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider"
+              >
+                + ARCHIVE_ENTRY
+              </button>
+            </div>
+          </div>
+
+          <!-- Admin Settings View (Hidden unless SETTINGS tab active for Admin) -->
+          <div id="admin-settings-view" class="hidden flex-1 overflow-y-auto cp-scroll p-4 sm:p-6">
+            <form id="admin-settings-form" class="max-w-2xl flex flex-col gap-5">
+              <div class="border-b border-[#143d47] pb-3 flex items-center justify-between gap-3">
+                <div>
+                  <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8]">ROOT_CONFIG // GLOBAL_SUBNET_PREFS</div>
+                  <h2 class="font-hud font-bold text-xl tracking-[0.14em] text-[#7df9ff] mt-0.5">ADMIN SETTINGS</h2>
+                </div>
+                <span class="font-mono-tech text-[10px] tracking-widest px-2 py-0.5 border border-[#236978] bg-[#040c10] text-[#48d1e8] uppercase">
+                  ADMIN ONLY
+                </span>
+              </div>
+
+              <!-- Global Background Image Setting -->
+              <div class="p-4 border border-[#17454f] bg-[#040c10]/85 flex flex-col gap-2.5">
+                <label for="admin-bg-url-input" class="font-mono-tech text-xs tracking-widest text-[#7df9ff] uppercase">
+                  Background Image:
+                </label>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <input
+                    id="admin-bg-url-input"
+                    type="url"
+                    placeholder="HTTPS://EXAMPLE.COM/BACKGROUND.JPG"
+                    class="flex-1 bg-[#061319] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+                  />
+                  <button
+                    id="admin-submit-bg-btn"
+                    type="button"
+                    class="cp-btn text-xs px-4 py-2 shrink-0"
+                  >
+                    Submit
+                  </button>
+                  <button
+                    id="admin-remove-bg-btn"
+                    type="button"
+                    class="font-mono-tech text-xs px-3 py-2 border border-[#7a2028] bg-[#26080c]/80 text-[#e05a65] hover:text-white hover:border-[#ff4d5a] transition-colors tracking-wider uppercase shrink-0"
+                  >
+                    Remove Background Image
+                  </button>
+                </div>
+              </div>
+
+              <!-- Global UI Accent Color Picker (Blue/Cyan UI Elements Only) -->
+              <div class="p-4 border border-[#17454f] bg-[#040c10]/85 flex flex-col gap-2.5">
+                <label for="admin-ui-color-input" class="font-mono-tech text-xs tracking-widest text-[#7df9ff] uppercase">
+                  UI Color:
+                </label>
+                <div class="flex flex-wrap items-center gap-3">
+                  <input
+                    id="admin-ui-color-input"
+                    type="color"
+                    value="#48d1e8"
+                    class="w-12 h-9 bg-[#061319] border border-[#236978] cursor-pointer p-0.5"
+                  />
+                  <span id="admin-ui-color-hex" class="font-mono-tech text-xs tracking-widest text-[#7df9ff]">#48D1E8</span>
+                  <button
+                    id="admin-reset-color-btn"
+                    type="button"
+                    class="font-mono-tech text-xs px-3 py-1.5 border border-[#226675] bg-[#071820] text-[#48d1e8] hover:text-white hover:border-[#7df9ff] transition-colors tracking-wider uppercase"
+                  >
+                    RESET DEFAULT
+                  </button>
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-wider text-[#397c8a]">
+                  APPLIES ONLY TO THE BLUE/CYAN INTERFACE ELEMENTS FOR ALL USERS; SECRET CRIMSON ACCENTS REMAIN UNCHANGED.
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between gap-3 pt-1">
+                <span id="admin-settings-status" class="font-mono-tech text-[11px] tracking-widest text-[#7df9ff] min-h-4"></span>
+                <button type="submit" class="cp-btn text-xs py-2 px-5">
+                  SAVE SETTINGS
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Messages Sub-Board View (Hidden unless MESSAGES tab active) -->
+          <div id="messages-board" class="hidden flex-1 flex flex-col overflow-hidden">
+            <div class="flex items-center gap-2 px-4 py-2 border-b border-[#143d47] bg-[#061218]/90">
+              <button
+                id="msg-mode-private-btn"
+                type="button"
+                class="font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all"
+              >
+                PRIVATE MESSAGES
+              </button>
+              <button
+                id="msg-mode-public-btn"
+                type="button"
+                class="font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all"
+              >
+                PUBLIC CHAT
+              </button>
+            </div>
+
+            <!-- Private Messages View -->
+            <div id="private-messages-view" class="flex-1 overflow-y-auto cp-scroll p-3 sm:p-4 flex flex-col gap-3">
+              <div class="flex items-center justify-between gap-2 border-b border-[#143d47] pb-2">
+                <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">
+                  ENCRYPTED_INBOX_AND_SENT
+                </div>
+                <div class="flex items-center gap-2">
+                  <span id="pm-status" class="font-mono-tech text-[10px] tracking-wider text-[#7df9ff]"></span>
+                  <button id="open-send-pm-btn" type="button" class="cp-btn text-xs py-1 px-3.5">
+                    Send Message
+                  </button>
+                </div>
+              </div>
+
+              <div id="private-messages-list" class="flex flex-col gap-2">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Public Chat View -->
+            <div id="public-chat-view" class="hidden flex-1 flex flex-col overflow-hidden p-3 sm:p-4 gap-3">
+              <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8] border-b border-[#143d47] pb-1.5">
+                SUBNET_BROADCAST // ALL_MEMBERS_CHANNEL
+              </div>
+
+              <div id="public-chat-list" class="flex-1 overflow-y-auto cp-scroll flex flex-col gap-2 pr-1">
+                <!-- Populated dynamically -->
+              </div>
+
+              <form id="public-chat-form" class="flex items-center gap-2 pt-2 border-t border-[#143d47]">
+                <input
+                  id="public-chat-input"
+                  type="text"
+                  required
+                  placeholder="BROADCAST MESSAGE TO ALL MEMBERS..."
+                  class="flex-1 bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+                />
+                <button type="submit" class="cp-btn text-xs py-2 px-4 shrink-0">
+                  SEND
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Content Area: 2-Column Grid -->
+          <div id="grid-container" class="flex-1 flex overflow-hidden">
+            <div class="flex-1 overflow-y-auto cp-scroll p-3 sm:p-4">
+              <div id="items-grid" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
+                <!-- Cards injected dynamically -->
+              </div>
+              <div id="empty-state" class="hidden py-16 text-center font-mono-tech text-sm text-[#397c8a] tracking-widest">
+                NO MATCHING DATA SHARDS FOUND IN CURRENT SECTOR.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Decorative Vertical Terminal Track -->
+        <div class="w-7 sm:w-8 border-l border-[#17454f] bg-[#061319]/90 flex flex-col items-center justify-between py-3 shrink-0">
+          <div class="w-1.5 h-16 bg-[#133b45] border border-[#256b7a]"></div>
+          <div class="w-[1px] flex-1 my-3 bg-gradient-to-b from-transparent via-[#1c5461] to-transparent"></div>
+          <div class="flex flex-col items-center gap-2.5 text-[#397c8a]">
+            <span class="w-2.5 h-2.5 rotate-45 border border-[#b8323c] bg-[#6e171e]/60 pulse-red" title="NETWATCH MONITOR ACTIVE"></span>
+            <svg class="w-3.5 h-3.5 text-[#3c8391]" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3">
+              <circle cx="8" cy="8" r="5" />
+              <line x1="8" y1="1" x2="8" y2="15" />
+              <line x1="1" y1="8" x2="15" y2="8" />
+            </svg>
+            <svg class="w-3.5 h-3.5 text-[#3c8391]" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3">
+              <polygon points="8,1.5 14,5 14,11 8,14.5 2,11 2,5" />
+              <circle cx="8" cy="8" r="2" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Subtle Footer Coordinates -->
+    <footer class="w-full max-w-[1220px] mx-auto flex items-center justify-between font-mono-tech text-[10px] tracking-[0.2em] text-[#285d69] px-1">
+      <span>NC_SUBNET // ENCRYPTION: AES-4096-Q</span>
+      <span class="hidden sm:inline">CLICK CARD TO OPEN SHARD // CLICK IMAGE TO ENLARGE</span>
+      <span>MEM_ALLOC: 98.4%</span>
+    </footer>
+  </div>
+
+  <!-- =========================================================
+       3. SHARD READER / DECRYPTION MODAL
+       ========================================================= -->
+  <div id="reader-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div id="reader-modal-box" class="w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter">
+      <!-- Modal Top Bar -->
+      <div id="reader-modal-header" class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div id="modal-meta-top" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DATASHARD // DECRYPTED</div>
+          <h2 id="modal-title" class="font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5">TITLE</h2>
+        </div>
+        <button id="close-reader-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76] transition-colors">
+          [X] CLOSE
+        </button>
+      </div>
+
+      <!-- Metadata Strip -->
+      <div id="modal-meta-strip" class="grid grid-cols-2 sm:grid-cols-4 gap-2 px-5 py-2.5 border-b border-[#133b45] bg-[#050f14] font-mono-tech text-[11px]">
+        <!-- Populated dynamically -->
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto cp-scroll flex-1">
+        <pre id="modal-body" class="font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed"></pre>
+        <!-- Attached Images Thumbnail Container -->
+        <div id="modal-image-wrap" class="hidden mt-4 pt-3 border-t border-[#143d47]">
+          <div class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8] mb-2">ATTACHED_OPTIC_CAPTURES // CLICK TO ENLARGE</div>
+          <div id="modal-images-list" class="flex flex-wrap gap-2.5">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer Actions -->
+      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <div class="flex items-center gap-2">
+          <button id="modal-delete-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors">
+            PURGE_SHARD
+          </button>
+          <button id="modal-edit-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors">
+            EDIT_SHARD
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="copy-feedback" class="font-mono-tech text-[11px] text-[#7df9ff] opacity-0 transition-opacity">COPIED TO BUFFER</span>
+          <button id="modal-copy-btn" type="button" class="cp-btn text-xs py-1.5 px-4">
+            COPY DATA
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       4. CREATE / EDIT ARCHIVE ENTRY MODAL
+       ========================================================= -->
+  <div id="create-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="create-form" class="w-full max-w-lg border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div id="create-modal-meta" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">WRITE_PROTOCOL // NEW_RECORD</div>
+          <h2 id="create-modal-title" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">ARCHIVE NEW SHARD</h2>
+        </div>
+        <button id="close-create-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-3.5">
+        <div>
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">TITLE</label>
+          <input
+            id="create-title"
+            type="text"
+            required
+            placeholder="E.G. ARASAKA_SUBNET_DUMP_04"
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
+          />
+        </div>
+
+        <!-- Admin / Moderator Classification Selector (Standard vs Secret) -->
+        <div id="create-classification-wrap" class="hidden">
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">CLEARANCE LEVEL</label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <label class="cursor-pointer">
+              <input type="radio" name="shard-classification" value="STANDARD" checked class="peer sr-only" />
+              <div class="px-3 py-2 border border-[#236978] bg-[#040c10] text-center font-mono-tech text-xs text-[#48d1e8] peer-checked:border-[#7df9ff] peer-checked:bg-[#103642] peer-checked:text-[#7df9ff] transition-all">
+                STANDARD // CYAN
+              </div>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="shard-classification" value="SECRET" class="peer sr-only" />
+              <div class="px-3 py-2 border border-[#5e171d] bg-[#140507] text-center font-mono-tech text-xs text-[#b8323c] peer-checked:border-[#ff4d5a] peer-checked:bg-[#3d0c12] peer-checked:text-[#ff7a84] transition-all">
+                SECRET // CRIMSON
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ARCHIVE CONTENTS</label>
+          <textarea
+            id="create-content"
+            rows="6"
+            required
+            placeholder="ENTER ENCRYPTED LOGS, NOTES, OR DATASHARD CONTENTS..."
+            class="w-full bg-[#040c10] border border-[#236978] p-3 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
+          ></textarea>
+        </div>
+
+        <!-- Upload Image Control & Live Preview -->
+        <div>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <input
+              id="create-image-url-input"
+              type="url"
+              placeholder="HTTPS://EXAMPLE.COM/IMAGE.JPG"
+              class="flex-1 bg-[#040c10] border border-[#236978] px-3 py-1.5 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+            />
+            <button
+              id="add-image-url-btn"
+              type="button"
+              class="font-mono-tech text-xs px-3.5 py-1.5 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider shrink-0"
+            >
+              + ADD URL
+            </button>
+          </div>
+          <div class="flex items-center justify-between gap-2 mt-1">
+            <span class="font-mono-tech text-[10px] tracking-wider text-[#397c8a]">
+              MAX 4 IMAGE URLS // HTTP OR HTTPS LINK
+            </span>
+            <span id="upload-image-status" class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] truncate">
+              0 / 4 OPTIC LINKS ATTACHED
+            </span>
+          </div>
+
+          <!-- Thumbnails Preview List -->
+          <div id="create-image-preview-wrap" class="hidden mt-2.5 flex flex-col gap-2">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button id="cancel-create-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+          CANCEL
+        </button>
+        <button id="create-submit-btn" type="submit" class="cp-btn text-xs py-1.5 px-5">
+          COMMIT TO ARCHIVE
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================================================
+       4B-2. MANAGE MEMBER OVERLAY MODAL (ADMIN & MODERATOR)
+       ========================================================= -->
+  <div id="manage-member-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="manage-member-form" class="w-full max-w-md border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">ROSTER_MGMT // OPERATIVE_CONTROL</div>
+          <h2 id="manage-member-title" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">MANAGE MEMBER</h2>
+        </div>
+        <button id="close-manage-member-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-3.5">
+        <div class="p-2.5 border border-[#17454f] bg-[#040c10] font-mono-tech text-xs text-[#7df9ff] flex items-center justify-between">
+          <span id="manage-member-name" class="font-bold tracking-wider">OPERATIVE</span>
+          <span id="manage-member-tier" class="text-[10px] tracking-widest text-[#397c8a]">STANDARD</span>
+        </div>
+
+        <div>
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ROLE / DESIGNATION</label>
+          <input
+            id="manage-member-role-input"
+            type="text"
+            placeholder="E.G. NETRUNNER // SUBNET_OPS"
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
+          />
+        </div>
+
+        <!-- Moderator Checkbox: Admin Only -->
+        <div id="manage-moderator-wrap" class="hidden pt-1">
+          <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              id="manage-moderator-input"
+              type="checkbox"
+              class="w-4 h-4 accent-[#48d1e8] bg-[#040c10] border border-[#236978] cursor-pointer"
+            />
+            <span class="font-mono-tech text-[11px] text-[#7df9ff] tracking-widest uppercase">
+              MODERATOR (LEADERSHIP)
+            </span>
+          </label>
+        </div>
+
+        <div id="manage-member-status" class="font-mono-tech text-[10px] tracking-widest text-[#ff6b76] min-h-4"></div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button
+          id="manage-delete-user-btn"
+          type="button"
+          class="font-mono-tech text-xs px-3 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors"
+        >
+          DELETE ACCOUNT
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="cancel-manage-member-btn" type="button" class="font-mono-tech text-xs px-3.5 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+            CANCEL
+          </button>
+          <button type="submit" class="cp-btn text-xs py-1.5 px-4">
+            SAVE ROLE
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================================================
+       4C. ACCOUNT ACCESS REQUESTS OVERLAY MODAL (ADMIN & MODERATOR)
+       ========================================================= -->
+  <div id="requests-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="w-full max-w-xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[85vh] hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">SECURITY_CLEARANCE // PENDING_QUEUE</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">ACCOUNT REQUESTS</h2>
+        </div>
+        <button id="close-requests-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X] CLOSE
+        </button>
+      </div>
+
+      <div id="requests-list" class="p-5 overflow-y-auto cp-scroll flex-1 flex flex-col gap-3">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       4C-2. NORMAL USER MAKE REQUEST OVERLAY MODAL
+       ========================================================= -->
+  <div id="make-request-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="make-request-form" class="w-full max-w-md border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">SUBNET_UPLINK // STAFF_REQUEST</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">MAKE REQUEST</h2>
+        </div>
+        <button id="close-make-request-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-3.5">
+        <div>
+          <label for="user-request-title" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">REQUEST TITLE</label>
+          <input
+            id="user-request-title"
+            type="text"
+            required
+            placeholder="ENTER REQUEST TITLE..."
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+          />
+        </div>
+
+        <div>
+          <label for="user-request-body" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">REQUEST CONTENTS</label>
+          <textarea
+            id="user-request-body"
+            rows="5"
+            required
+            placeholder="DESCRIBE YOUR REQUEST FOR ADMINS AND MODERATORS..."
+            class="w-full bg-[#040c10] border border-[#236978] p-3 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button id="cancel-make-request-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+          CANCEL
+        </button>
+        <button type="submit" class="cp-btn text-xs py-1.5 px-5">
+          SUBMIT REQUEST
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================================================
+       4C-3. STAFF REQUEST READER & ACTION OVERLAY MODAL
+       ========================================================= -->
+  <div id="request-reader-modal" class="hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div id="request-reader-box" class="w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_45px_rgba(72,209,232,0.32)] chamfer-md flex flex-col max-h-[88vh] hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div class="min-w-0 pr-3">
+          <div id="request-reader-meta" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">REQUEST_INSPECTION // STAFF_QUEUE</div>
+          <h2 id="request-reader-title" class="font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5 truncate">REQUEST TITLE</h2>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            id="request-reader-expand-btn"
+            type="button"
+            title="Toggle Max Window"
+            class="font-mono-tech text-xs px-2.5 py-1.5 border border-[#2a7585] text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#123844] transition-colors"
+          >
+            [MAX]
+          </button>
+          <button id="close-request-reader-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76] transition-colors">
+            [X] CLOSE
+          </button>
+        </div>
+      </div>
+
+      <div class="px-5 py-2.5 border-b border-[#133b45] bg-[#050f14] font-mono-tech text-[11px] flex flex-wrap items-center justify-between gap-2">
+        <span>SENDER: <strong id="request-reader-sender" class="text-[#7df9ff]"></strong></span>
+        <span id="request-reader-status-badge" class="px-2 py-0.5 border border-[#236978] text-[#48d1e8] text-[10px] tracking-widest uppercase">PENDING</span>
+      </div>
+
+      <div class="p-5 overflow-y-auto cp-scroll flex-1">
+        <pre id="request-reader-body" class="font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed"></pre>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button
+          id="request-reader-deny-btn"
+          type="button"
+          class="font-mono-tech text-xs px-4 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors uppercase tracking-wider"
+        >
+          DENY
+        </button>
+        <div class="flex items-center gap-2">
+          <button
+            id="request-reader-archive-btn"
+            type="button"
+            class="hidden font-mono-tech text-xs px-4 py-1.5 border border-[#7df9ff] bg-[#123844]/90 text-[#7df9ff] hover:bg-[#1b5263] hover:text-white transition-colors uppercase tracking-wider"
+          >
+            ARCHIVE
+          </button>
+          <button
+            id="request-reader-accept-btn"
+            type="button"
+            class="cp-btn text-xs py-1.5 px-4"
+          >
+            ACCEPT
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       4D. SEND PRIVATE MESSAGE OVERLAY MODAL
+       ========================================================= -->
+  <div id="send-pm-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="private-message-form" class="w-full max-w-md border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DIRECT_LINK // TRANSMIT_PM</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">SEND MESSAGE</h2>
+        </div>
+        <button id="close-send-pm-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-3.5">
+        <div>
+          <label for="pm-to-select" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">TO:</label>
+          <select
+            id="pm-to-select"
+            required
+            class="w-full bg-[#040c10] border border-[#236978] px-2.5 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+          >
+            <option value="">SELECT MEMBER...</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="pm-subject-input" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">SUBJECT:</label>
+          <input
+            id="pm-subject-input"
+            type="text"
+            required
+            placeholder="ENTER SUBJECT..."
+            class="w-full bg-[#040c10] border border-[#236978] px-2.5 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+          />
+        </div>
+
+        <div>
+          <label for="pm-body-input" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">MESSAGE:</label>
+          <textarea
+            id="pm-body-input"
+            rows="5"
+            required
+            placeholder="WRITE PRIVATE TRANSMISSION..."
+            class="w-full bg-[#040c10] border border-[#236978] p-2.5 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button id="cancel-send-pm-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+          CANCEL
+        </button>
+        <button type="submit" class="cp-btn text-xs py-1.5 px-5">
+          SEND PM
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================================================
+       4D-2. PRIVATE MESSAGE READER & REPLY OVERLAY MODAL
+       ========================================================= -->
+  <div id="pm-reader-modal" class="hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="w-full max-w-xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_45px_rgba(72,209,232,0.32)] chamfer-md flex flex-col max-h-[86vh] hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">ENCRYPTED_THREAD // DIRECT_COMMS</div>
+          <h2 id="pm-reader-subject" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff] mt-0.5">SUBJECT</h2>
+        </div>
+        <button id="close-pm-reader-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X] CLOSE
+        </button>
+      </div>
+
+      <div class="px-5 py-2 border-b border-[#133b45] bg-[#050f14] font-mono-tech text-[11px] flex flex-wrap items-center justify-between gap-2">
+        <span>FROM: <strong id="pm-reader-from" class="text-[#7df9ff]"></strong></span>
+        <span>TO: <strong id="pm-reader-to" class="text-[#7df9ff]"></strong></span>
+      </div>
+
+      <div id="pm-reader-thread" class="p-5 overflow-y-auto cp-scroll flex-1 flex flex-col gap-3">
+        <!-- Replies and original message rendered dynamically (newest reply above last one) -->
+      </div>
+
+      <form id="pm-reply-form" class="hidden px-5 py-3 border-t border-[#17454f] bg-[#051016] flex flex-col gap-2">
+        <label for="pm-reply-input" class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8]">REPLY MESSAGE:</label>
+        <textarea
+          id="pm-reply-input"
+          rows="3"
+          required
+          placeholder="WRITE REPLY..."
+          class="w-full bg-[#040c10] border border-[#236978] p-2.5 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
+        ></textarea>
+        <div class="flex items-center justify-end gap-2">
+          <button id="cancel-pm-reply-btn" type="button" class="font-mono-tech text-xs px-3 py-1 border border-[#226675] text-[#48d1e8] hover:text-white">
+            CANCEL
+          </button>
+          <button type="submit" class="cp-btn text-xs py-1 px-4">
+            SEND REPLY
+          </button>
+        </div>
+      </form>
+
+      <div class="flex items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button
+          id="pm-reader-delete-btn"
+          type="button"
+          class="font-mono-tech text-xs px-3.5 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors uppercase tracking-wider"
+        >
+          Delete
+        </button>
+        <button
+          id="pm-reader-reply-btn"
+          type="button"
+          class="cp-btn text-xs py-1.5 px-4"
+        >
+          Reply
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       4E. NOTIFICATIONS OVERLAY MODAL (ALL USERS)
+       ========================================================= -->
+  <div id="notifications-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="w-full max-w-xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[85vh] hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">SYS_ALERTS // SIGNAL_FEED</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">NOTIFICATIONS</h2>
+        </div>
+        <button id="close-notifications-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X] CLOSE
+        </button>
+      </div>
+
+      <div id="notifications-list" class="p-5 overflow-y-auto cp-scroll flex-1 flex flex-col gap-2.5">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       5. FULL-SIZE ENLARGED IMAGE LIGHTBOX MODAL
+       ========================================================= -->
+  <div id="lightbox-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8">
+    <div class="relative max-w-5xl max-h-[92vh] flex flex-col border border-[#48d1e8] bg-[#051015] shadow-[0_0_50px_rgba(72,209,232,0.35)] hud-enter">
+      <div class="flex items-center justify-between gap-4 px-4 py-2.5 border-b border-[#1b525e] bg-[#0a212b]">
+        <span id="lightbox-title" class="font-mono-tech text-xs tracking-widest text-[#7df9ff] truncate">OPTIC_CAPTURE // FULL_RESOLUTION</span>
+        <button id="close-lightbox-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76] shrink-0">
+          [X] CLOSE
+        </button>
+      </div>
+      <div class="p-3 overflow-auto flex items-center justify-center bg-[#03080b]">
+        <img id="lightbox-img" src="" alt="Enlarged shard image" class="max-w-full max-h-[78vh] object-contain border border-[#17454f]" />
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    /**
+     * 0. FIREBASE CLOUD FIRESTORE CONFIGURATION (VDB-Database)
+     */
+    const firebaseConfig = {
+      apiKey: "AIzaSyCoa87CgsnJlua6Pz3Lrq8W5tm4ouXR1FU",
+      authDomain: "vdb-database.firebaseapp.com",
+      projectId: "vdb-database",
+      storageBucket: "vdb-database.firebasestorage.app",
+      messagingSenderId: "977064596342",
+      appId: "1:977064596342:web:80f734ebbad33d2a9ee057",
+      measurementId: "G-GSZ2JPR1F1"
+    };
+
+    let db = null;
+    let shardsCollection = null;
+    let rosterCollection = null;
+    let accountRequestsCollection = null;
+    let approvedAccountsCollection = null;
+    let privateMessagesCollection = null;
+    let publicChatCollection = null;
+    let userRequestsCollection = null;
+    let userNotificationsCollection = null;
+    let siteSettingsDocRef = null;
+    try {
+      const firebaseApp = initializeApp(firebaseConfig);
+      db = getFirestore(firebaseApp);
+      shardsCollection = collection(db, "archive_shards");
+      rosterCollection = collection(db, "roster_members");
+      accountRequestsCollection = collection(db, "account_requests");
+      approvedAccountsCollection = collection(db, "approved_accounts");
+      privateMessagesCollection = collection(db, "private_messages");
+      publicChatCollection = collection(db, "public_chat_messages");
+      userRequestsCollection = collection(db, "user_requests");
+      userNotificationsCollection = collection(db, "user_notifications");
+      siteSettingsDocRef = doc(db, "site_settings", "global");
+    } catch (initErr) {
+      console.error("Firebase initialization warning:", initErr);
+    }
+
+    /**
+     * 1. ATMOSPHERIC BACKGROUND CANVAS (CRIMSON WISPS)
+     */
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    function createWispSprite(radius, r, g, b, alpha) {
+      const sprite = document.createElement('canvas');
+      const size = Math.ceil(radius * 2);
+      sprite.width = size;
+      sprite.height = size;
+      const sctx = sprite.getContext('2d');
+      const grad = sctx.createRadialGradient(radius, radius, 10, radius, radius, radius);
+      grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha})`);
+      grad.addColorStop(0.55, `rgba(${Math.round(r * 0.55)}, ${Math.round(g * 0.5)}, ${Math.round(b * 0.53)}, ${(alpha * 0.45).toFixed(4)})`);
+      grad.addColorStop(1, 'rgba(4, 7, 9, 0)');
+      sctx.fillStyle = grad;
+      sctx.beginPath();
+      sctx.arc(radius, radius, radius, 0, Math.PI * 2);
+      sctx.fill();
+      return sprite;
+    }
+
+    const wisps = Array.from({ length: 5 }, (_, i) => {
+      const r = Math.round(200 + Math.random() * 240);
+      const alpha = Number((0.09 + (i % 3) * 0.035).toFixed(4));
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r,
+        vx: (Math.random() - 0.5) * 0.22,
+        vy: (Math.random() - 0.5) * 0.18,
+        sprite: createWispSprite(r, 148, 24, 34, alpha)
+      };
+    });
+
+    let backdropRafId = null;
+    let isPageVisible = !document.hidden;
+
+    function renderBackdrop() {
+      if (!isPageVisible) {
+        backdropRafId = null;
+        return;
+      }
+
+      ctx.fillStyle = '#040709';
+      ctx.fillRect(0, 0, width, height);
+
+      for (const w of wisps) {
+        w.x += w.vx;
+        w.y += w.vy;
+        if (w.x < -w.r) w.x = width + w.r;
+        if (w.x > width + w.r) w.x = -w.r;
+        if (w.y < -w.r) w.y = height + w.r;
+        if (w.y > height + w.r) w.y = -w.r;
+
+        ctx.drawImage(w.sprite, w.x - w.r, w.y - w.r);
+      }
+      backdropRafId = requestAnimationFrame(renderBackdrop);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      isPageVisible = !document.hidden;
+      if (isPageVisible && !backdropRafId) {
+        backdropRafId = requestAnimationFrame(renderBackdrop);
+      }
+    });
+
+    renderBackdrop();
+
+    /**
+     * 2. ARCHIVE DATA & CLOUD FIRESTORE SYNC
+     */
+    const SAMPLE_IDS = new Set([
+      'cp-2077-231',
+      'marmoset-tb',
+      'steam-apex',
+      'figma-ui',
+      'riot-league',
+      'cursor-ide',
+      'zbrush-sculpt',
+      'aseprite-px',
+      'autodesk-maya',
+      'appdata-roaming'
+    ]);
+
+    let records = [];
+    let rosterMembers = [];
+    let accountRequests = [];
+    let approvedAccounts = [];
+    let privateMessages = [];
+    let publicChatMessages = [];
+    let userRequests = [];
+    let userNotifications = [];
+    let globalSiteSettings = {
+      backgroundUrl: '',
+      uiAccentColor: '#48d1e8'
+    };
+    let activeTab = 'FILES';
+    let messageSubTab = 'PRIVATE';
+    let selectedId = null;
+    let activePmId = null;
+    let activeStaffRequestId = null;
+    let isRequestReaderMaxed = false;
+    let editingShardId = null;
+    let managingMemberId = null;
+    let searchDebounceTimer = null;
+    let currentUser = 'ADMIN';
+    let currentRoleType = 'ADMIN'; // 'ADMIN' | 'MODERATOR' | 'USER'
+    let dismissedNotificationKeys = new Set();
+    let pendingImages = [];
+    let isSubmittingRequest = false;
+    let firestoreUnsubscribers = [];
+    let globalSettingsUnsubscriber = null;
+    let activeShardId = null;
+    let clockIntervalId = null;
+
+    const MAX_IMAGES = 4;
+
+    function isAdminAccount(username = currentUser) {
+      return String(username || '').trim().toUpperCase() === 'ADMIN';
+    }
+
+    function setStatusMessage(el, message, isError = true) {
+      if (!el) return;
+      el.textContent = message || '';
+      el.className = `font-mono-tech text-[11px] tracking-widest text-center min-h-4 uppercase transition-opacity duration-200 ${
+        isError ? 'text-[#ff4d5a]' : 'text-[#7df9ff]'
+      } ${message ? 'opacity-100' : 'opacity-0'}`;
+    }
+
+    function updateHudDateAndClock() {
+      const dateEl = document.getElementById('hud-date');
+      if (dateEl) {
+        dateEl.textContent = '14 April 2077';
+      }
+      if (hudClock) {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        hudClock.textContent = `${hh}:${mm}`;
+      }
+    }
+
+    function enterDesktopSession(username, roleType = 'USER') {
+      currentUser = String(username || 'USER').trim().toUpperCase();
+      currentRoleType = String(roleType || (isAdminAccount(currentUser) ? 'ADMIN' : 'USER')).toUpperCase();
+      dismissedNotificationKeys = new Set();
+
+      if (hudUser) {
+        hudUser.textContent = `USR // ${currentUser} [${currentRoleType}]`;
+      }
+
+      updateHudDateAndClock();
+      if (clockIntervalId) clearInterval(clockIntervalId);
+      clockIntervalId = setInterval(updateHudDateAndClock, 15000);
+
+      activeTab = 'FILES';
+      messageSubTab = 'PRIVATE';
+      navModules.forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === 'FILES'));
+      if (activeSectorLabel) {
+        activeSectorLabel.textContent = 'SECTOR_01 // FILES';
+      }
+
+      loginScreen.classList.add('hidden');
+      desktopScreen.classList.remove('hidden');
+      desktopScreen.classList.add('hud-enter');
+
+      startFirestoreListeners();
+      applyGlobalSiteSettings(globalSiteSettings);
+      updateRequestsBadge();
+      updateNotificationsBadge();
+      renderWorkspace();
+    }
+
+    // DOM Element References
+    const loginScreen = document.getElementById('login-screen');
+    const loginForm = document.getElementById('login-form');
+    const loginUsername = document.getElementById('login-username');
+    const loginPassword = document.getElementById('login-password');
+    const loginSubmit = document.getElementById('login-submit');
+    const loginStatus = document.getElementById('login-status');
+
+    const registerForm = document.getElementById('register-form');
+    const openRegisterLink = document.getElementById('open-register-link');
+    const backToLoginLink = document.getElementById('back-to-login-link');
+    const registerUsername = document.getElementById('register-username');
+    const registerRole = document.getElementById('register-role');
+    const registerPassword = document.getElementById('register-password');
+    const registerSubmit = document.getElementById('register-submit');
+    const registerStatus = document.getElementById('register-status');
+
+    const desktopScreen = document.getElementById('desktop-screen');
+    const hudUser = document.getElementById('hud-user');
+    const hudClock = document.getElementById('hud-clock');
+    const cloudSyncBadge = document.getElementById('cloud-sync-badge');
+    const activeSectorLabel = document.getElementById('active-sector-label');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    const requestsBtn = document.getElementById('requests-btn');
+    const requestsBadge = document.getElementById('requests-badge');
+    const makeRequestBtn = document.getElementById('make-request-btn');
+    const adminSettingsBtn = document.getElementById('admin-settings-btn');
+    const adminSettingsView = document.getElementById('admin-settings-view');
+    const adminSettingsForm = document.getElementById('admin-settings-form');
+    const adminBgUrlInput = document.getElementById('admin-bg-url-input');
+    const adminSubmitBgBtn = document.getElementById('admin-submit-bg-btn');
+    const adminRemoveBgBtn = document.getElementById('admin-remove-bg-btn');
+    const adminUiColorInput = document.getElementById('admin-ui-color-input');
+    const adminUiColorHex = document.getElementById('admin-ui-color-hex');
+    const adminResetColorBtn = document.getElementById('admin-reset-color-btn');
+    const adminSettingsStatus = document.getElementById('admin-settings-status');
+    const requestsModal = document.getElementById('requests-modal');
+    const closeRequestsBtn = document.getElementById('close-requests-btn');
+    const requestsList = document.getElementById('requests-list');
+
+    const makeRequestModal = document.getElementById('make-request-modal');
+    const makeRequestForm = document.getElementById('make-request-form');
+    const closeMakeRequestBtn = document.getElementById('close-make-request-btn');
+    const cancelMakeRequestBtn = document.getElementById('cancel-make-request-btn');
+    const userRequestTitleInput = document.getElementById('user-request-title');
+    const userRequestBodyInput = document.getElementById('user-request-body');
+
+    const requestReaderModal = document.getElementById('request-reader-modal');
+    const requestReaderBox = document.getElementById('request-reader-box');
+    const requestReaderMeta = document.getElementById('request-reader-meta');
+    const requestReaderTitle = document.getElementById('request-reader-title');
+    const requestReaderSender = document.getElementById('request-reader-sender');
+    const requestReaderStatusBadge = document.getElementById('request-reader-status-badge');
+    const requestReaderBody = document.getElementById('request-reader-body');
+    const requestReaderExpandBtn = document.getElementById('request-reader-expand-btn');
+    const closeRequestReaderBtn = document.getElementById('close-request-reader-btn');
+    const requestReaderDenyBtn = document.getElementById('request-reader-deny-btn');
+    const requestReaderAcceptBtn = document.getElementById('request-reader-accept-btn');
+    const requestReaderArchiveBtn = document.getElementById('request-reader-archive-btn');
+    const recordCount = document.getElementById('record-count');
+    const searchInput = document.getElementById('search-input');
+    const navModules = document.querySelectorAll('.nav-module[data-tab]');
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationsBadge = document.getElementById('notifications-badge');
+    const notificationsModal = document.getElementById('notifications-modal');
+    const closeNotificationsBtn = document.getElementById('close-notifications-btn');
+    const notificationsList = document.getElementById('notifications-list');
+    const msgModePrivateBtn = document.getElementById('msg-mode-private-btn');
+    const msgModePublicBtn = document.getElementById('msg-mode-public-btn');
+    const privateMessagesView = document.getElementById('private-messages-view');
+    const publicChatView = document.getElementById('public-chat-view');
+    const pmStatus = document.getElementById('pm-status');
+    const openSendPmBtn = document.getElementById('open-send-pm-btn');
+    const privateMessagesList = document.getElementById('private-messages-list');
+
+    const sendPmModal = document.getElementById('send-pm-modal');
+    const privateMessageForm = document.getElementById('private-message-form');
+    const closeSendPmBtn = document.getElementById('close-send-pm-btn');
+    const cancelSendPmBtn = document.getElementById('cancel-send-pm-btn');
+    const pmToSelect = document.getElementById('pm-to-select');
+    const pmSubjectInput = document.getElementById('pm-subject-input');
+    const pmBodyInput = document.getElementById('pm-body-input');
+
+    const pmReaderModal = document.getElementById('pm-reader-modal');
+    const closePmReaderBtn = document.getElementById('close-pm-reader-btn');
+    const pmReaderSubject = document.getElementById('pm-reader-subject');
+    const pmReaderFrom = document.getElementById('pm-reader-from');
+    const pmReaderTo = document.getElementById('pm-reader-to');
+    const pmReaderThread = document.getElementById('pm-reader-thread');
+    const pmReplyForm = document.getElementById('pm-reply-form');
+    const pmReplyInput = document.getElementById('pm-reply-input');
+    const cancelPmReplyBtn = document.getElementById('cancel-pm-reply-btn');
+    const pmReaderDeleteBtn = document.getElementById('pm-reader-delete-btn');
+    const pmReaderReplyBtn = document.getElementById('pm-reader-reply-btn');
+
+    const publicChatList = document.getElementById('public-chat-list');
+    const publicChatForm = document.getElementById('public-chat-form');
+    const publicChatInput = document.getElementById('public-chat-input');
+
+    const readerModal = document.getElementById('reader-modal');
+    const readerModalBox = document.getElementById('reader-modal-box');
+    const readerModalHeader = document.getElementById('reader-modal-header');
+    const modalMetaTop = document.getElementById('modal-meta-top');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMetaStrip = document.getElementById('modal-meta-strip');
+    const modalBody = document.getElementById('modal-body');
+    const modalImageWrap = document.getElementById('modal-image-wrap');
+    const modalImagesList = document.getElementById('modal-images-list');
+    const closeReaderBtn = document.getElementById('close-reader-btn');
+    const modalDeleteBtn = document.getElementById('modal-delete-btn');
+    const modalEditBtn = document.getElementById('modal-edit-btn');
+    const modalCopyBtn = document.getElementById('modal-copy-btn');
+    const copyFeedback = document.getElementById('copy-feedback');
+
+    const createModal = document.getElementById('create-modal');
+    const createForm = document.getElementById('create-form');
+    const createModalMeta = document.getElementById('create-modal-meta');
+    const createModalTitle = document.getElementById('create-modal-title');
+    const createClassificationWrap = document.getElementById('create-classification-wrap');
+    const closeCreateBtn = document.getElementById('close-create-btn');
+    const cancelCreateBtn = document.getElementById('cancel-create-btn');
+    const createSubmitBtn = document.getElementById('create-submit-btn');
+    const createImageUrlInput = document.getElementById('create-image-url-input');
+    const addImageUrlBtn = document.getElementById('add-image-url-btn');
+    const uploadImageStatus = document.getElementById('upload-image-status');
+    const createImagePreviewWrap = document.getElementById('create-image-preview-wrap');
+
+    const manageMemberModal = document.getElementById('manage-member-modal');
+    const manageMemberForm = document.getElementById('manage-member-form');
+    const manageMemberName = document.getElementById('manage-member-name');
+    const manageMemberTier = document.getElementById('manage-member-tier');
+    const manageMemberRoleInput = document.getElementById('manage-member-role-input');
+    const manageModeratorWrap = document.getElementById('manage-moderator-wrap');
+    const manageModeratorInput = document.getElementById('manage-moderator-input');
+    const manageMemberStatus = document.getElementById('manage-member-status');
+    const manageDeleteUserBtn = document.getElementById('manage-delete-user-btn');
+    const closeManageMemberBtn = document.getElementById('close-manage-member-btn');
+    const cancelManageMemberBtn = document.getElementById('cancel-manage-member-btn');
+
+    const lightboxModal = document.getElementById('lightbox-modal');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxTitle = document.getElementById('lightbox-title');
+    const closeLightboxBtn = document.getElementById('close-lightbox-btn');
+
+    // Firestore Persistence Helpers
+    async function saveDocToCloud(colName, docObj) {
+      if (!db || !colName || !docObj?.id) return false;
+      try {
+        await setDoc(doc(db, colName, String(docObj.id)), docObj);
+        return true;
+      } catch (err) {
+        console.error(`saveDocToCloud (${colName}) failed:`, err);
+        return false;
+      }
+    }
+
+    async function deleteDocFromCloud(colName, docId) {
+      if (!db || !colName || !docId) return false;
+      try {
+        await deleteDoc(doc(db, colName, String(docId)));
+        return true;
+      } catch (err) {
+        console.error(`deleteDocFromCloud (${colName}) failed:`, err);
+        return false;
+      }
+    }
+
+    const saveShardToCloud = (shard) => saveDocToCloud('archive_shards', shard);
+    const deleteShardFromCloud = (shardId) => deleteDocFromCloud('archive_shards', shardId);
+    const saveMemberToCloud = (member) => saveDocToCloud('roster_members', member);
+    const deleteMemberFromCloud = (memberId) => deleteDocFromCloud('roster_members', memberId);
+    const saveAccountRequestToCloud = (reqObj) => saveDocToCloud('account_requests', reqObj);
+    const deleteAccountRequestFromCloud = (reqId) => deleteDocFromCloud('account_requests', reqId);
+    const saveApprovedAccountToCloud = (accObj) => saveDocToCloud('approved_accounts', accObj);
+    const deleteApprovedAccountFromCloud = (accId) => deleteDocFromCloud('approved_accounts', accId);
+    const savePrivateMessageToCloud = (pmObj) => saveDocToCloud('private_messages', pmObj);
+    const savePublicChatToCloud = (msgObj) => saveDocToCloud('public_chat_messages', msgObj);
+    const deletePublicChatFromCloud = (msgId) => deleteDocFromCloud('public_chat_messages', msgId);
+    const saveUserRequestToCloud = (reqObj) => saveDocToCloud('user_requests', reqObj);
+    const deleteUserRequestFromCloud = (reqId) => deleteDocFromCloud('user_requests', reqId);
+    const saveUserNotificationToCloud = (notifObj) => saveDocToCloud('user_notifications', notifObj);
+    const deleteUserNotificationFromCloud = (notifId) => deleteDocFromCloud('user_notifications', notifId);
+
+    async function saveSiteSettingsToCloud(settingsObj) {
+      if (!db || !siteSettingsDocRef) return false;
+      try {
+        await setDoc(siteSettingsDocRef, settingsObj, { merge: true });
+        return true;
+      } catch (err) {
+        console.error('saveSiteSettingsToCloud failed:', err);
+        return false;
+      }
+    }
+
+    function normalizeHexColor(hex) {
+      const cleaned = String(hex || '').trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(cleaned)) return cleaned.toLowerCase();
+      if (/^#[0-9a-fA-F]{3}$/.test(cleaned)) {
+        const r = cleaned[1];
+        const g = cleaned[2];
+        const b = cleaned[3];
+        return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+      }
+      return '#48d1e8';
+    }
+
+    function mixHex(hexA, hexB, weightB) {
+      const a = normalizeHexColor(hexA);
+      const b = normalizeHexColor(hexB);
+      const w = Math.max(0, Math.min(1, weightB));
+      const ar = parseInt(a.slice(1, 3), 16);
+      const ag = parseInt(a.slice(3, 5), 16);
+      const ab = parseInt(a.slice(5, 7), 16);
+      const br = parseInt(b.slice(1, 3), 16);
+      const bg = parseInt(b.slice(3, 5), 16);
+      const bb = parseInt(b.slice(5, 7), 16);
+      const rr = Math.round(ar * (1 - w) + br * w).toString(16).padStart(2, '0');
+      const rg = Math.round(ag * (1 - w) + bg * w).toString(16).padStart(2, '0');
+      const rb = Math.round(ab * (1 - w) + bb * w).toString(16).padStart(2, '0');
+      return `#${rr}${rg}${rb}`;
+    }
+
+    function applyGlobalSiteSettings(settings) {
+      const bgUrl = String(settings?.backgroundUrl || '').trim();
+      const accentHex = normalizeHexColor(settings?.uiAccentColor || '#48d1e8');
+      const glowHex = mixHex(accentHex, '#ffffff', 0.42);
+      const midBorderHex = mixHex('#071922', accentHex, 0.52);
+      const dimBorderHex = mixHex('#040d12', accentHex, 0.34);
+      const mutedTextHex = mixHex('#0b2933', accentHex, 0.52);
+      const softTextHex = mixHex(accentHex, '#ffffff', 0.58);
+      const darkPanelHex = mixHex('#040d12', accentHex, 0.16);
+      const activeCardHex = mixHex('#06171e', accentHex, 0.24);
+      const uiScopes = '#desktop-screen, #login-screen, #reader-modal:not(.secret-reader), #create-modal, #manage-member-modal, #requests-modal, #make-request-modal, #request-reader-modal, #send-pm-modal, #pm-reader-modal, #notifications-modal, #lightbox-modal';
+
+      const rootStyle = document.documentElement.style;
+      rootStyle.setProperty('--cyan-bright', accentHex);
+      rootStyle.setProperty('--cyan-glow', glowHex);
+      rootStyle.setProperty('--border-mid', midBorderHex);
+      rootStyle.setProperty('--border-dim', dimBorderHex);
+      rootStyle.setProperty('--text-primary', mixHex(accentHex, '#ffffff', 0.25));
+      rootStyle.setProperty('--text-muted', mutedTextHex);
+
+      let dynamicStyleEl = document.getElementById('dynamic-ui-accent-style');
+      if (!dynamicStyleEl) {
+        dynamicStyleEl = document.createElement('style');
+        dynamicStyleEl.id = 'dynamic-ui-accent-style';
+        document.head.appendChild(dynamicStyleEl);
+      }
+
+      dynamicStyleEl.textContent = `
+        #desktop-screen :not(.secret-card):not(.secret-card *):not(.pulse-red):not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#c94a53"]):not([class*="#b8323c"]):not([class*="#7a2028"]):not([class*="#6e171e"]):not([class*="#5e171d"]),
+        #login-screen :not([class*="#ff4d5a"]):not([class*="#e05a65"]),
+        #reader-modal:not(.secret-reader) :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #create-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#b8323c"]):not([class*="#7a2028"]):not([class*="#6e171e"]):not([class*="#5e171d"]),
+        #manage-member-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #requests-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #make-request-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #request-reader-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #send-pm-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #pm-reader-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #notifications-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #lightbox-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]) {
+          border-color: var(--border-mid);
+        }
+        #login-screen .cp-input-wrap,
+        #login-screen .cp-input-wrap::before,
+        #login-screen .cp-input-wrap::after {
+          border-color: ${accentHex} !important;
+        }
+        #login-screen .cp-input {
+          color: ${glowHex} !important;
+        }
+        #login-screen .cp-btn {
+          border-color: ${accentHex} !important;
+          color: ${glowHex} !important;
+        }
+        :is(${uiScopes}) .border-\\[\\#48d1e8\\],
+        :is(${uiScopes}) .border-\\[\\#2b7b8c\\],
+        :is(${uiScopes}) .border-\\[\\#2a7585\\],
+        :is(${uiScopes}) .border-\\[\\#236978\\],
+        :is(${uiScopes}) .border-\\[\\#226675\\] {
+          border-color: ${accentHex} !important;
+        }
+        :is(${uiScopes}) .border-\\[\\#1d5663\\],
+        :is(${uiScopes}) .border-\\[\\#1d5360\\],
+        :is(${uiScopes}) .border-\\[\\#1c5461\\],
+        :is(${uiScopes}) .border-\\[\\#1b525e\\],
+        :is(${uiScopes}) .border-\\[\\#184854\\],
+        :is(${uiScopes}) .border-\\[\\#17454f\\],
+        :is(${uiScopes}) .border-\\[\\#143d47\\],
+        :is(${uiScopes}) .border-\\[\\#133b45\\],
+        :is(${uiScopes}) .border-\\[\\#13363e\\] {
+          border-color: ${dimBorderHex} !important;
+        }
+        :is(${uiScopes}) .text-\\[\\#7df9ff\\],
+        :is(${uiScopes}) .hover\\:text-\\[\\#7df9ff\\]:hover {
+          color: ${glowHex} !important;
+        }
+        :is(${uiScopes}) .text-\\[\\#48d1e8\\] {
+          color: ${accentHex} !important;
+        }
+        :is(${uiScopes}) .text-\\[\\#9beaf7\\] {
+          color: ${softTextHex} !important;
+        }
+        :is(${uiScopes}) .text-\\[\\#397c8a\\],
+        :is(${uiScopes}) .text-\\[\\#286370\\],
+        :is(${uiScopes}) .text-\\[\\#285d69\\],
+        :is(${uiScopes}) .text-\\[\\#295c68\\],
+        .cp-input::placeholder {
+          color: ${mutedTextHex} !important;
+        }
+        :is(${uiScopes}) .bg-\\[\\#0c2933\\]\\/80,
+        :is(${uiScopes}) .bg-\\[\\#123844\\]\\/80,
+        :is(${uiScopes}) .hover\\:bg-\\[\\#164959\\]:hover {
+          background-color: ${activeCardHex} !important;
+        }
+        :is(${uiScopes}) .bg-\\[\\#07151c\\]\\/80,
+        :is(${uiScopes}) .bg-\\[\\#061218\\]\\/90,
+        :is(${uiScopes}) .bg-\\[\\#061319\\]\\/90,
+        :is(${uiScopes}) .bg-\\[\\#040c10\\] {
+          background-color: ${darkPanelHex} !important;
+        }
+      `;
+
+      // Apply background image across the page for every user
+      const validBgUrl = /^https?:\/\//i.test(bgUrl) ? bgUrl : '';
+      if (validBgUrl) {
+        document.body.style.backgroundImage = `url("${validBgUrl.replace(/"/g, '%22')}")`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center center';
+        document.body.style.backgroundAttachment = 'fixed';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        if (canvas) canvas.style.opacity = '0.28';
+      } else {
+        document.body.style.backgroundImage = '';
+        document.body.style.backgroundSize = '';
+        document.body.style.backgroundPosition = '';
+        document.body.style.backgroundAttachment = '';
+        document.body.style.backgroundRepeat = '';
+        if (canvas) canvas.style.opacity = '1';
+      }
+
+      if (adminBgUrlInput && document.activeElement !== adminBgUrlInput) {
+        adminBgUrlInput.value = validBgUrl;
+      }
+      if (adminUiColorInput && document.activeElement !== adminUiColorInput) {
+        adminUiColorInput.value = accentHex;
+      }
+      if (adminUiColorHex) {
+        adminUiColorHex.textContent = accentHex.toUpperCase();
+      }
+    }
+
+    function hasStaffPrivileges() {
+      const r = String(currentRoleType || '').toUpperCase();
+      return isAdminAccount() || r === 'MODERATOR';
+    }
+
+    function hasModeratorRequestPrivileges() {
+      return String(currentRoleType || '').toUpperCase() === 'MODERATOR';
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getShardImages(shard) {
+      if (!shard) return [];
+      if (Array.isArray(shard.images)) {
+        return shard.images.filter(Boolean);
+      }
+      if (shard.image) {
+        return [shard.image];
+      }
+      return [];
+    }
+
+    function updateRequestsBadge() {
+      if (adminSettingsBtn) {
+        adminSettingsBtn.classList.toggle('hidden', !isAdminAccount());
+      }
+      if (!requestsBtn || !requestsBadge) return;
+      const isStaff = hasStaffPrivileges();
+      if (makeRequestBtn) {
+        makeRequestBtn.classList.toggle('hidden', isStaff);
+      }
+      if (!isStaff) {
+        requestsBtn.classList.add('hidden');
+        requestsBadge.classList.add('hidden');
+        return;
+      }
+      requestsBtn.classList.remove('hidden');
+      const openUserReqCount = userRequests.filter((r) => !r.archived).length;
+      const count = accountRequests.length + openUserReqCount;
+      if (count > 0) {
+        requestsBadge.textContent = String(count);
+        requestsBadge.classList.remove('hidden');
+      } else {
+        requestsBadge.classList.add('hidden');
+      }
+    }
+
+    function getMyUserNotifications() {
+      const me = currentUser.toUpperCase();
+      return userNotifications.filter(
+        (n) => String(n.recipient || '').toUpperCase() === me && !dismissedNotificationKeys.has(`unotif:${n.id}`)
+      );
+    }
+
+    function getIncomingUnreadPms() {
+      const me = currentUser.toUpperCase();
+      return privateMessages.filter((pm) => {
+        const deletedBy = Array.isArray(pm.deletedBy) ? pm.deletedBy.map((u) => String(u).toUpperCase()) : [];
+        if (deletedBy.includes(me)) return false;
+        const isToMe = (pm.to || '').toUpperCase() === me;
+        const isFromMe = (pm.from || '').toUpperCase() === me;
+        const lastReply = Array.isArray(pm.replies) && pm.replies.length > 0
+          ? pm.replies[pm.replies.length - 1]
+          : null;
+        const hasReplyForMe = lastReply && String(lastReply.sender || '').toUpperCase() !== me && (isToMe || isFromMe);
+        if (!isToMe && !hasReplyForMe) return false;
+        return !dismissedNotificationKeys.has(`pm:${pm.id}`);
+      });
+    }
+
+    function updateNotificationsBadge() {
+      if (!notificationsBadge) return;
+      const pmCount = getIncomingUnreadPms().length;
+      const userNotifCount = getMyUserNotifications().length;
+      const reqCount = hasModeratorRequestPrivileges() ? accountRequests.length : 0;
+      const total = pmCount + userNotifCount + reqCount;
+      if (total > 0) {
+        notificationsBadge.textContent = String(total);
+        notificationsBadge.classList.remove('hidden');
+      } else {
+        notificationsBadge.classList.add('hidden');
+      }
+    }
+
+    function renderNotificationsModal() {
+      if (!notificationsList) return;
+      const items = [];
+
+      if (hasModeratorRequestPrivileges()) {
+        for (const req of accountRequests) {
+          items.push({
+            type: 'REQ',
+            title: `ACCOUNT REQUEST // ${escapeHtml(req.username)}`,
+            meta: `ROLE: ${escapeHtml(req.role || 'OPERATIVE')}`,
+            onClick: () => {
+              notificationsModal.classList.add('hidden');
+              openRequestsModal();
+            }
+          });
+        }
+      }
+
+      for (const un of getMyUserNotifications()) {
+        const statusUpper = String(un.status || 'UPDATE').toUpperCase();
+        items.push({
+          type: statusUpper,
+          title: `REQUEST ${escapeHtml(statusUpper)} // ${escapeHtml(un.requestTitle || 'REQUEST')}`,
+          meta: `BY: ${escapeHtml(un.actor || 'STAFF')}`,
+          onClick: async () => {
+            dismissedNotificationKeys.add(`unotif:${un.id}`);
+            userNotifications = userNotifications.filter((x) => x.id !== un.id);
+            updateNotificationsBadge();
+            renderNotificationsModal();
+            await deleteUserNotificationFromCloud(un.id);
+          }
+        });
+      }
+
+      for (const pm of getIncomingUnreadPms()) {
+        items.push({
+          type: 'PM',
+          title: `PRIVATE MESSAGE // ${escapeHtml(pm.from || 'UNKNOWN')}`,
+          meta: `SUBJECT: ${escapeHtml(pm.subject || 'NO SUBJECT')}`,
+          onClick: () => {
+            notificationsModal.classList.add('hidden');
+            navModules.forEach((b) => b.classList.toggle('active', b.dataset.tab === 'MESSAGES'));
+            activeTab = 'MESSAGES';
+            messageSubTab = 'PRIVATE';
+            activeSectorLabel.textContent = 'SECTOR_01 // MESSAGES';
+            renderWorkspace();
+            openPmReaderModal(pm);
+          }
+        });
+      }
+
+      if (items.length === 0) {
+        notificationsList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            NO NEW NOTIFICATIONS.
+          </div>
+        `;
+        return;
+      }
+
+      notificationsList.innerHTML = items
+        .map(
+          (it, idx) => `
+            <button
+              type="button"
+              data-notif-idx="${idx}"
+              class="w-full text-left p-3 border border-[#1d5663] bg-[#040c10] hover:border-[#48d1e8] flex items-center justify-between gap-3 transition-colors"
+            >
+              <div class="min-w-0">
+                <div class="font-hud font-bold text-sm tracking-wider text-[#7df9ff] truncate">${it.title}</div>
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">${it.meta}</div>
+              </div>
+              <span class="font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] text-[#7df9ff] shrink-0">${it.type}</span>
+            </button>
+          `
+        )
+        .join('');
+
+      notificationsList.querySelectorAll('[data-notif-idx]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.notifIdx);
+          if (items[idx] && typeof items[idx].onClick === 'function') {
+            items[idx].onClick();
+          }
+        });
+      });
+    }
+
+    function populatePmRecipientSelect() {
+      if (!pmToSelect) return;
+      const me = currentUser.toUpperCase();
+      const namesSet = new Set(['ADMIN', 'USER']);
+      for (const m of rosterMembers) {
+        const n = String(m.name || m.username || '').trim().toUpperCase();
+        if (n) namesSet.add(n);
+      }
+      for (const a of approvedAccounts) {
+        const n = String(a.username || '').trim().toUpperCase();
+        if (n) namesSet.add(n);
+      }
+      const recipients = Array.from(namesSet)
+        .filter((n) => n !== me)
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+      pmToSelect.innerHTML =
+        `<option value="">SELECT MEMBER...</option>` +
+        recipients.map((r) => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+    }
+
+    function renderPmReaderContent(pm) {
+      if (!pm || !pmReaderThread) return;
+      pmReaderSubject.textContent = pm.subject || 'NO SUBJECT';
+      pmReaderFrom.textContent = pm.from || 'UNKNOWN';
+      pmReaderTo.textContent = pm.to || 'UNKNOWN';
+
+      const replies = Array.isArray(pm.replies) ? pm.replies : [];
+      const orderedReplies = [...replies].reverse();
+
+      const repliesHtml = orderedReplies
+        .map(
+          (rep) => `
+            <div class="p-3 border border-[#236978] bg-[#071922] flex flex-col gap-1">
+              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+                <span class="text-[#7df9ff] font-bold tracking-wider">REPLY // ${escapeHtml(rep.sender || 'OPERATIVE')}</span>
+                <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(rep.createdAt))}</span>
+              </div>
+              <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(rep.text || '')}</pre>
+            </div>
+          `
+        )
+        .join('');
+
+      const originalMsgHtml = `
+        <div class="p-3 border border-[#17454f] bg-[#040c10] flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+            <span class="text-[#48d1e8] font-bold tracking-wider">ORIGINAL // ${escapeHtml(pm.from || 'OPERATIVE')}</span>
+            <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
+          </div>
+          <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(pm.body || '')}</pre>
+        </div>
+      `;
+
+      pmReaderThread.innerHTML = `${repliesHtml}${originalMsgHtml}`;
+    }
+
+    function renderPrivateMessages() {
+      const me = currentUser.toUpperCase();
+      const visiblePms = privateMessages.filter((pm) => {
+        const deletedBy = Array.isArray(pm.deletedBy) ? pm.deletedBy.map((u) => String(u).toUpperCase()) : [];
+        if (deletedBy.includes(me)) return false;
+        return (pm.from || '').toUpperCase() === me || (pm.to || '').toUpperCase() === me;
+      });
+
+      recordCount.textContent = `${visiblePms.length} PM${visiblePms.length === 1 ? '' : 'S'}`;
+
+      if (visiblePms.length === 0) {
+        privateMessagesList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            NO PRIVATE MESSAGES IN INBOX OR SENT LOGS.
+          </div>
+        `;
+        return;
+      }
+
+      privateMessagesList.innerHTML = visiblePms
+        .map((pm) => {
+          const isSentByMe = (pm.from || '').toUpperCase() === me;
+          const directionLabel = isSentByMe
+            ? `TO: ${escapeHtml(pm.to || 'UNKNOWN')}`
+            : `FROM: ${escapeHtml(pm.from || 'UNKNOWN')}`;
+          const repliesCount = Array.isArray(pm.replies) ? pm.replies.length : 0;
+          const hasUnreadBadge = !isSentByMe && !dismissedNotificationKeys.has(`pm:${pm.id}`);
+
+          return `
+            <button
+              type="button"
+              data-open-pm-id="${escapeHtml(pm.id)}"
+              class="w-full text-left p-3 border border-[#1d5663] hover:border-[#48d1e8] bg-[#040c10] transition-colors flex flex-col gap-1 cursor-pointer"
+            >
+              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+                <span class="text-[#48d1e8] tracking-widest">${directionLabel}</span>
+                <div class="flex items-center gap-2">
+                  ${
+                    hasUnreadBadge
+                      ? '<span class="px-1.5 py-0.2 bg-[#6e171e] border border-[#ff4d5a] text-[#ff9aa2] text-[9px] tracking-widest uppercase">NEW</span>'
+                      : ''
+                  }
+                  ${
+                    repliesCount > 0
+                      ? `<span class="text-[#7df9ff] tracking-wider">${repliesCount} REPL${repliesCount === 1 ? 'Y' : 'IES'}</span>`
+                      : ''
+                  }
+                  <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
+                </div>
+              </div>
+              <div class="font-hud font-bold text-base tracking-wider text-[#7df9ff]">
+                ${escapeHtml(pm.subject || 'NO SUBJECT')}
+              </div>
+              <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed line-clamp-2">${escapeHtml(pm.body || '')}</pre>
+            </button>
+          `;
+        })
+        .join('');
+
+      privateMessagesList.querySelectorAll('[data-open-pm-id]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetPm = privateMessages.find((p) => p.id === btn.dataset.openPmId);
+          if (targetPm) {
+            openPmReaderModal(targetPm);
+          }
+        });
+      });
+    }
+
+    function renderMessagesBoard() {
+      if (messageSubTab === 'PUBLIC') {
+        msgModePublicBtn.className =
+          'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
+        msgModePrivateBtn.className =
+          'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
+        privateMessagesView.classList.add('hidden');
+        publicChatView.classList.remove('hidden');
+        renderPublicChat();
+      } else {
+        msgModePrivateBtn.className =
+          'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
+        msgModePublicBtn.className =
+          'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
+        publicChatView.classList.add('hidden');
+        privateMessagesView.classList.remove('hidden');
+        populatePmRecipientSelect();
+        renderPrivateMessages();
+      }
+    }
+
+    async function syncApprovedAccountsToRoster(accountsList) {
+      if (!db || !rosterCollection || !Array.isArray(accountsList) || accountsList.length === 0) return;
+      const existingIds = new Set(rosterMembers.map((m) => m.id));
+      for (const acc of accountsList) {
+        if (!acc || !acc.id) continue;
+        const expectedMemberId = `mbr-${acc.id}`;
+        if (existingIds.has(expectedMemberId)) continue;
+        const isLeader = Boolean(acc.isModerator || acc.isLeadership);
+        existingIds.add(expectedMemberId);
+        await saveMemberToCloud({
+          id: expectedMemberId,
+          username: acc.username,
+          name: acc.username,
+          role: acc.role || 'ACTIVE_OPERATIVE',
+          isModerator: isLeader,
+          isLeadership: isLeader,
+          createdAt: acc.approvedAt || acc.createdAt || Date.now()
+        });
+      }
+    }
+
+    function stopFirestoreListeners() {
+      for (const unsub of firestoreUnsubscribers) {
+        try {
+          unsub();
+        } catch (_) {}
+      }
+      firestoreUnsubscribers = [];
+    }
+
+    function startGlobalSettingsListener() {
+      if (!db || !siteSettingsDocRef || globalSettingsUnsubscriber) return;
+      globalSettingsUnsubscriber = onSnapshot(
+        siteSettingsDocRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            globalSiteSettings = {
+              ...globalSiteSettings,
+              ...docSnap.data()
+            };
+            applyGlobalSiteSettings(globalSiteSettings);
+          }
+        },
+        (error) => console.error('Site settings sync error:', error)
+      );
+    }
+
+    function startFirestoreListeners() {
+      stopFirestoreListeners();
+      startGlobalSettingsListener();
+      if (!db) return;
+
+      if (shardsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            shardsCollection,
+            (snapshot) => {
+              const cloudList = [];
+              for (const docSnap of snapshot.docs) {
+                const data = docSnap.data();
+                if (SAMPLE_IDS.has(docSnap.id) || SAMPLE_IDS.has(data.id)) {
+                  deleteDoc(doc(db, 'archive_shards', docSnap.id)).catch(() => {});
+                  continue;
+                }
+                cloudList.push(data);
+              }
+              cloudList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              records = cloudList;
+              if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ONLINE';
+              if (!desktopScreen.classList.contains('hidden') && activeTab === 'FILES') {
+                renderWorkspace();
+              }
+            },
+            (error) => {
+              console.error('Shards sync error:', error);
+              if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // OFFLINE';
+            }
+          )
+        );
+      }
+
+      if (rosterCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            rosterCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+              rosterMembers = list;
+              if (!desktopScreen.classList.contains('hidden')) {
+                if (activeTab === 'ROSTER') renderWorkspace();
+                if (activeTab === 'MESSAGES') populatePmRecipientSelect();
+              }
+            },
+            (error) => console.error('Roster sync error:', error)
+          )
+        );
+      }
+
+      if (accountRequestsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            accountRequestsCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              accountRequests = list;
+              updateRequestsBadge();
+              updateNotificationsBadge();
+              if (!requestsModal.classList.contains('hidden')) {
+                renderRequestsModal();
+              }
+            },
+            (error) => console.error('Account requests sync error:', error)
+          )
+        );
+      }
+
+      if (approvedAccountsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            approvedAccountsCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              approvedAccounts = list;
+              syncApprovedAccountsToRoster(list).catch(() => {});
+              if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES') {
+                populatePmRecipientSelect();
+              }
+            },
+            (error) => console.error('Approved accounts sync error:', error)
+          )
+        );
+      }
+
+      if (privateMessagesCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            privateMessagesCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              privateMessages = list;
+              updateNotificationsBadge();
+              if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PRIVATE') {
+                renderPrivateMessages();
+              }
+            },
+            (error) => console.error('Private messages sync error:', error)
+          )
+        );
+      }
+
+      if (publicChatCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            publicChatCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+              publicChatMessages = list;
+              if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PUBLIC') {
+                renderPublicChat();
+              }
+            },
+            (error) => console.error('Public chat sync error:', error)
+          )
+        );
+      }
+
+      if (userRequestsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            userRequestsCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              userRequests = list;
+              updateRequestsBadge();
+              if (!requestsModal.classList.contains('hidden')) {
+                renderRequestsModal();
+              }
+              if (!requestReaderModal.classList.contains('hidden') && activeStaffRequestId) {
+                const updatedActive = userRequests.find((r) => r.id === activeStaffRequestId);
+                if (updatedActive && !updatedActive.archived) {
+                  renderRequestReaderModal(updatedActive);
+                } else {
+                  closeRequestReaderModal();
+                }
+              }
+            },
+            (error) => console.error('User requests sync error:', error)
+          )
+        );
+      }
+
+      if (userNotificationsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            userNotificationsCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              userNotifications = list;
+              updateNotificationsBadge();
+              if (!notificationsModal.classList.contains('hidden')) {
+                renderNotificationsModal();
+              }
+            },
+            (error) => console.error('User notifications sync error:', error)
+          )
+        );
+      }
+
+      if (siteSettingsDocRef) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            siteSettingsDocRef,
+            (docSnap) => {
+              if (docSnap.exists()) {
+                globalSiteSettings = {
+                  ...globalSiteSettings,
+                  ...docSnap.data()
+                };
+                applyGlobalSiteSettings(globalSiteSettings);
+              }
+            },
+            (error) => console.error('Site settings sync error:', error)
+          )
+        );
+      }
+    }
+
+    function openPmReaderModal(pm) {
+      if (!pm) return;
+      activePmId = pm.id;
+      dismissedNotificationKeys.add(`pm:${pm.id}`);
+      updateNotificationsBadge();
+      renderPmReaderContent(pm);
+      pmReplyForm.classList.add('hidden');
+      pmReplyInput.value = '';
+      pmReaderModal.classList.remove('hidden');
+    }
+
+    function closePmReaderModal() {
+      pmReplyForm.classList.add('hidden');
+      pmReplyInput.value = '';
+      pmReaderModal.classList.add('hidden');
+    }
+
+    function formatMsgTimestamp(ts) {
+      if (!ts) return '2077.04.14';
+      const d = new Date(ts);
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mm = String(d.getMinutes()).padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+
+    function renderPublicChat() {
+      recordCount.textContent = `${publicChatMessages.length} MSG${publicChatMessages.length === 1 ? '' : 'S'}`;
+      const isAdmin = isAdminAccount();
+
+      if (publicChatMessages.length === 0) {
+        publicChatList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            PUBLIC CHAT CHANNEL EMPTY. TRANSMIT FIRST MESSAGE BELOW.
+          </div>
+        `;
+        return;
+      }
+
+      publicChatList.innerHTML = publicChatMessages
+        .map(
+          (msg) => `
+            <div class="p-2.5 border border-[#17454f] bg-[#040c10] flex flex-col gap-1">
+              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+                <span class="text-[#7df9ff] font-bold tracking-wider">${escapeHtml(msg.sender || 'OPERATIVE')}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(msg.createdAt))}</span>
+                  ${
+                    isAdmin
+                      ? `<button
+                           type="button"
+                           data-delete-pub-id="${escapeHtml(msg.id)}"
+                           class="text-[9px] px-1.5 py-0.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors uppercase tracking-wider cursor-pointer"
+                         >
+                           DELETE
+                         </button>`
+                      : ''
+                  }
+                </div>
+              </div>
+              <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(msg.text || '')}</pre>
+            </div>
+          `
+        )
+        .join('');
+
+      publicChatList.scrollTop = publicChatList.scrollHeight;
+    }
+
+    publicChatList.addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-delete-pub-id]');
+      if (!btn || !isAdminAccount()) return;
+      e.stopPropagation();
+      const msgId = btn.dataset.deletePubId;
+      if (!msgId) return;
+      btn.disabled = true;
+      const prevMessages = [...publicChatMessages];
+      publicChatMessages = publicChatMessages.filter((m) => String(m.id) !== String(msgId));
+      renderPublicChat();
+      const ok = await deletePublicChatFromCloud(msgId);
+      if (!ok) {
+        publicChatMessages = prevMessages;
+        renderPublicChat();
+      }
+    });
+
+    msgModePrivateBtn.addEventListener('click', () => {
+      messageSubTab = 'PRIVATE';
+      renderMessagesBoard();
+    });
+
+    msgModePublicBtn.addEventListener('click', () => {
+      messageSubTab = 'PUBLIC';
+      renderMessagesBoard();
+    });
+
+    openSendPmBtn.addEventListener('click', () => {
+      populatePmRecipientSelect();
+      privateMessageForm.reset();
+      sendPmModal.classList.remove('hidden');
+      pmToSelect.focus();
+    });
+
+    function closeSendPmModal() {
+      sendPmModal.classList.add('hidden');
+    }
+
+    closeSendPmBtn.addEventListener('click', closeSendPmModal);
+    cancelSendPmBtn.addEventListener('click', closeSendPmModal);
+    sendPmModal.addEventListener('click', (e) => {
+      if (e.target === sendPmModal) closeSendPmModal();
+    });
+
+    closePmReaderBtn.addEventListener('click', closePmReaderModal);
+    pmReaderModal.addEventListener('click', (e) => {
+      if (e.target === pmReaderModal) closePmReaderModal();
+    });
+
+    pmReaderReplyBtn.addEventListener('click', () => {
+      pmReplyForm.classList.remove('hidden');
+      pmReplyInput.focus();
+    });
+
+    cancelPmReplyBtn.addEventListener('click', () => {
+      pmReplyForm.classList.add('hidden');
+      pmReplyInput.value = '';
+    });
+
+    pmReplyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!activePmId) return;
+      const replyText = pmReplyInput.value.trim();
+      if (!replyText) return;
+
+      const targetPm = privateMessages.find((p) => p.id === activePmId);
+      if (!targetPm) return;
+
+      const newReply = {
+        id: `rep-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        sender: currentUser.toUpperCase(),
+        text: replyText,
+        createdAt: Date.now()
+      };
+
+      const existingReplies = Array.isArray(targetPm.replies) ? targetPm.replies : [];
+      const updatedPm = {
+        ...targetPm,
+        replies: [...existingReplies, newReply]
+      };
+
+      privateMessages = privateMessages.map((p) => (p.id === targetPm.id ? updatedPm : p));
+      pmReplyInput.value = '';
+      pmReplyForm.classList.add('hidden');
+      renderPmReaderContent(updatedPm);
+      renderPrivateMessages();
+      await savePrivateMessageToCloud(updatedPm);
+    });
+
+    pmReaderDeleteBtn.addEventListener('click', async () => {
+      if (!activePmId) return;
+      const me = currentUser.toUpperCase();
+      const targetPm = privateMessages.find((p) => p.id === activePmId);
+      if (!targetPm) return;
+
+      const existingDeleted = Array.isArray(targetPm.deletedBy) ? targetPm.deletedBy : [];
+      const updatedDeleted = Array.from(new Set([...existingDeleted.map((u) => String(u).toUpperCase()), me]));
+      const updatedPm = {
+        ...targetPm,
+        deletedBy: updatedDeleted
+      };
+
+      privateMessages = privateMessages.map((p) => (p.id === targetPm.id ? updatedPm : p));
+      activePmId = null;
+      closePmReaderModal();
+      renderPrivateMessages();
+      await savePrivateMessageToCloud(updatedPm);
+    });
+
+    privateMessageForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const recipient = pmToSelect.value.trim().toUpperCase();
+      const subject = pmSubjectInput.value.trim();
+      const body = pmBodyInput.value.trim();
+
+      if (!recipient || !subject || !body) return;
+
+      const newPm = {
+        id: `pm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        from: currentUser.toUpperCase(),
+        to: recipient,
+        subject,
+        body,
+        createdAt: Date.now()
+      };
+
+      privateMessages = [newPm, ...privateMessages];
+      privateMessageForm.reset();
+      closeSendPmModal();
+      pmStatus.textContent = `PM SENT TO ${recipient}`;
+      setTimeout(() => {
+        if (pmStatus) pmStatus.textContent = '';
+      }, 2500);
+
+      renderPrivateMessages();
+      await savePrivateMessageToCloud(newPm);
+    });
+
+    publicChatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = publicChatInput.value.trim();
+      if (!text) return;
+
+      const newMsg = {
+        id: `pub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        sender: currentUser.toUpperCase(),
+        text,
+        createdAt: Date.now()
+      };
+
+      publicChatMessages = [...publicChatMessages, newMsg];
+      publicChatInput.value = '';
+      renderPublicChat();
+      await savePublicChatToCloud(newMsg);
+    });
+
+    /**
+     * 7. LOGIN & ACCOUNT REGISTRATION HANDLERS
+     */
+    openRegisterLink.addEventListener('click', () => {
+      setStatusMessage(loginStatus, '');
+      setStatusMessage(registerStatus, '');
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+      registerUsername.focus();
+    });
+
+    backToLoginLink.addEventListener('click', () => {
+      setStatusMessage(registerStatus, '');
+      setStatusMessage(loginStatus, '');
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      loginUsername.focus();
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (loginSubmit.disabled) return;
+
+      const enteredUser = loginUsername.value.trim();
+      const enteredPass = loginPassword.value;
+
+      if (!enteredUser || !enteredPass) {
+        setStatusMessage(loginStatus, 'ENTER USERNAME AND PASSWORD', true);
+        return;
+      }
+
+      loginSubmit.disabled = true;
+      setStatusMessage(loginStatus, 'VERIFYING CREDENTIALS...', false);
+
+      try {
+        const upperUser = enteredUser.toUpperCase();
+
+        // Primary built-in Admin credential check
+        if (upperUser === 'ADMIN' && enteredPass === 'VDBForever') {
+          loginPassword.value = '';
+          setStatusMessage(loginStatus, '');
+          enterDesktopSession('ADMIN', 'ADMIN');
+          return;
+        }
+
+        // Check approved accounts in Firestore if available
+        let matchedAccount = null;
+        if (db && approvedAccountsCollection) {
+          const { getDocs, query, where } = await import(
+            'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js'
+          );
+          const q = query(approvedAccountsCollection, where('username', '==', upperUser));
+          const snap = await getDocs(q);
+          snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data && data.password === enteredPass) {
+              matchedAccount = data;
+            }
+          });
+        }
+
+        if (!matchedAccount) {
+          matchedAccount = approvedAccounts.find(
+            (acc) =>
+              String(acc.username || '').trim().toUpperCase() === upperUser &&
+              acc.password === enteredPass
+          );
+        }
+
+        if (matchedAccount) {
+          const isMod = Boolean(matchedAccount.isModerator || matchedAccount.isLeadership);
+          loginPassword.value = '';
+          setStatusMessage(loginStatus, '');
+          enterDesktopSession(matchedAccount.username, isMod ? 'MODERATOR' : 'USER');
+          return;
+        }
+
+        // Check if account is still pending approval
+        const pendingMatch = accountRequests.find(
+          (req) => String(req.username || '').trim().toUpperCase() === upperUser
+        );
+        if (pendingMatch) {
+          setStatusMessage(loginStatus, 'ACCOUNT PENDING STAFF APPROVAL', true);
+          return;
+        }
+
+        setStatusMessage(loginStatus, 'ACCESS DENIED // INVALID CREDENTIALS', true);
+      } catch (err) {
+        console.error('Login error:', err);
+        setStatusMessage(loginStatus, 'AUTH LINK ERROR // RETRY', true);
+      } finally {
+        loginSubmit.disabled = false;
+      }
+    });
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isSubmittingRequest || registerSubmit.disabled) return;
+
+      const username = registerUsername.value.trim().toUpperCase();
+      const role = registerRole.value.trim().toUpperCase();
+      const password = registerPassword.value;
+
+      if (!username || !role || !password) {
+        setStatusMessage(registerStatus, 'COMPLETE ALL FIELDS', true);
+        return;
+      }
+
+      if (username === 'ADMIN') {
+        setStatusMessage(registerStatus, 'RESERVED IDENTIFIER', true);
+        return;
+      }
+
+      isSubmittingRequest = true;
+      registerSubmit.disabled = true;
+      setStatusMessage(registerStatus, 'TRANSMITTING REQUEST...', false);
+
+      try {
+        const reqId = `req-${username.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+        const reqObj = {
+          id: reqId,
+          username,
+          role,
+          password,
+          createdAt: Date.now()
+        };
+
+        accountRequests = [reqObj, ...accountRequests.filter((r) => r.id !== reqId)];
+        await saveAccountRequestToCloud(reqObj);
+
+        registerForm.reset();
+        setStatusMessage(registerStatus, 'REQUEST SENT // AWAIT APPROVAL', false);
+        setTimeout(() => {
+          setStatusMessage(registerStatus, '');
+          registerForm.classList.add('hidden');
+          loginForm.classList.remove('hidden');
+        }, 1200);
+      } catch (err) {
+        console.error('Registration error:', err);
+        setStatusMessage(registerStatus, 'REQUEST FAILED // RETRY', true);
+      } finally {
+        isSubmittingRequest = false;
+        registerSubmit.disabled = false;
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      stopFirestoreListeners();
+      if (clockIntervalId) {
+        clearInterval(clockIntervalId);
+        clockIntervalId = null;
+      }
+      currentUser = 'ADMIN';
+      currentRoleType = 'ADMIN';
+      selectedId = null;
+      activeShardId = null;
+      activePmId = null;
+      activeStaffRequestId = null;
+      desktopScreen.classList.add('hidden');
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      loginPassword.value = '';
+      setStatusMessage(loginStatus, '');
+      loginScreen.classList.remove('hidden');
+    });
+
+    /**
+     * 7B. WORKSPACE RENDERER (FILES, ROSTER & ADMIN SETTINGS)
+     */
+    const itemsGrid = document.getElementById('items-grid');
+    const emptyState = document.getElementById('empty-state');
+    const gridContainer = document.getElementById('grid-container');
+    const messagesBoard = document.getElementById('messages-board');
+    const workspaceToolbar = document.getElementById('workspace-toolbar');
+    const searchBoxWrap = document.getElementById('search-box-wrap');
+    const newEntryBtn = document.getElementById('new-entry-btn');
+
+    function renderWorkspace() {
+      if (!itemsGrid || !emptyState) return;
+      const queryText = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+      if (activeTab === 'SETTINGS' && isAdminAccount()) {
+        gridContainer.classList.add('hidden');
+        messagesBoard.classList.add('hidden');
+        if (workspaceToolbar) workspaceToolbar.classList.add('hidden');
+        if (adminSettingsView) adminSettingsView.classList.remove('hidden');
+        if (recordCount) recordCount.textContent = 'ADMIN // CONFIG';
+        if (adminBgUrlInput) adminBgUrlInput.value = globalSiteSettings.backgroundUrl || '';
+        if (adminUiColorInput) {
+          const hex = normalizeHexColor(globalSiteSettings.uiAccentColor || '#48d1e8');
+          adminUiColorInput.value = hex;
+          if (adminUiColorHex) adminUiColorHex.textContent = hex.toUpperCase();
+        }
+        return;
+      }
+
+      if (adminSettingsView) adminSettingsView.classList.add('hidden');
+
+      if (activeTab === 'MESSAGES') {
+        gridContainer.classList.add('hidden');
+        messagesBoard.classList.remove('hidden');
+        if (workspaceToolbar) workspaceToolbar.classList.add('hidden');
+        renderMessagesBoard();
+        return;
+      }
+
+      messagesBoard.classList.add('hidden');
+      gridContainer.classList.remove('hidden');
+      if (workspaceToolbar) workspaceToolbar.classList.remove('hidden');
+
+      if (activeTab === 'ROSTER') {
+        if (searchBoxWrap) searchBoxWrap.classList.add('hidden');
+        if (newEntryBtn) newEntryBtn.classList.add('hidden');
+
+        const canManage = hasStaffPrivileges();
+        recordCount.textContent = `${rosterMembers.length} OPERATIVE${rosterMembers.length === 1 ? '' : 'S'}`;
+
+        if (rosterMembers.length === 0) {
+          itemsGrid.innerHTML = '';
+          emptyState.textContent = 'NO OPERATIVES REGISTERED IN ROSTER.';
+          emptyState.classList.remove('hidden');
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+        itemsGrid.innerHTML = rosterMembers
+          .map((member) => {
+            const isMod = Boolean(member.isModerator || member.isLeadership);
+            const isSelected = selectedId === member.id;
+            return `
+              <div
+                data-member-id="${escapeHtml(member.id)}"
+                class="archive-card chamfer-card ${isSelected ? 'selected' : ''}"
+              >
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="card-title font-hud font-bold text-base tracking-wider truncate">
+                      ${escapeHtml(member.name || member.username || 'OPERATIVE')}
+                    </span>
+                    ${
+                      isMod
+                        ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0e2e38]/90 text-[#7df9ff] uppercase">MODERATOR</span>'
+                        : ''
+                    }
+                  </div>
+                  <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                    ROLE // ${escapeHtml(member.role || 'ACTIVE_OPERATIVE')}
+                  </div>
+                </div>
+                ${
+                  canManage
+                    ? `<button
+                         type="button"
+                         data-manage-member="${escapeHtml(member.id)}"
+                         class="shrink-0 font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase"
+                       >
+                         MANAGE
+                       </button>`
+                    : ''
+                }
+              </div>
+            `;
+          })
+          .join('');
+        return;
+      }
+
+      // Default: FILES tab
+      if (searchBoxWrap) searchBoxWrap.classList.remove('hidden');
+      if (newEntryBtn) newEntryBtn.classList.remove('hidden');
+
+      const visibleShards = records.filter((rec) => {
+        if (rec.tab && rec.tab !== 'FILES') return false;
+        if (rec.secret && !hasStaffPrivileges()) return false;
+        if (!queryText) return true;
+        const hay = `${rec.title || ''} ${rec.subtitle || ''} ${rec.author || ''} ${rec.content || ''}`.toLowerCase();
+        return hay.includes(queryText);
+      });
+
+      recordCount.textContent = `${visibleShards.length} SHARD${visibleShards.length === 1 ? '' : 'S'}`;
+
+      if (visibleShards.length === 0) {
+        itemsGrid.innerHTML = '';
+        emptyState.textContent = 'NO MATCHING DATA SHARDS FOUND IN CURRENT SECTOR.';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      itemsGrid.innerHTML = visibleShards
+        .map((rec) => {
+          const isSelected = selectedId === rec.id;
+          const isSecret = Boolean(rec.secret);
+          const imgs = getShardImages(rec);
+          return `
+            <div
+              data-shard-id="${escapeHtml(rec.id)}"
+              class="archive-card chamfer-card ${isSecret ? 'secret-card' : ''} ${isSelected ? 'selected' : ''}"
+            >
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="card-title font-hud font-bold text-base tracking-wider truncate">
+                    ${escapeHtml(rec.title || 'UNTITLED_SHARD')}
+                  </span>
+                  ${
+                    isSecret
+                      ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#ff4d5a] bg-[#4a0d13]/80 text-[#ff9aa2] uppercase">SECRET</span>'
+                      : ''
+                  }
+                  ${
+                    imgs.length > 0
+                      ? `<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#236978] text-[#48d1e8]">${imgs.length} IMG</span>`
+                      : ''
+                  }
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-widest ${isSecret ? 'text-[#b85a62]' : 'text-[#397c8a]'} truncate mt-0.5">
+                  ${escapeHtml(rec.subtitle || 'ENCRYPTED_RECORD')} // ${escapeHtml(rec.author || 'UNKNOWN')}
+                </div>
+              </div>
+              <div class="font-mono-tech text-[10px] ${isSecret ? 'text-[#b85a62]' : 'text-[#397c8a]'} shrink-0 text-right">
+                <div>${escapeHtml(rec.date || '2077.04.14')}</div>
+                <div>${escapeHtml(rec.size || '1.0 KB')}</div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    itemsGrid.addEventListener('click', (e) => {
+      const manageBtn = e.target.closest('[data-manage-member]');
+      if (manageBtn) {
+        e.stopPropagation();
+        const member = rosterMembers.find((m) => m.id === manageBtn.dataset.manageMember);
+        if (member) {
+          selectedId = member.id;
+          renderWorkspace();
+          openManageMemberModal(member);
+        }
+        return;
+      }
+
+      const memberCard = e.target.closest('[data-member-id]');
+      if (memberCard) {
+        selectedId = memberCard.dataset.memberId;
+        renderWorkspace();
+        return;
+      }
+
+      const shardCard = e.target.closest('[data-shard-id]');
+      if (shardCard) {
+        const shard = records.find((r) => r.id === shardCard.dataset.shardId);
+        if (shard) {
+          selectedId = shard.id;
+          renderWorkspace();
+          openReaderModal(shard);
+        }
+      }
+    });
+
+    /**
+     * 7C. SHARD READER & CREATE / EDIT MODAL HANDLERS
+     */
+    function openReaderModal(shard) {
+      if (!shard) return;
+      activeShardId = shard.id;
+      const isSecret = Boolean(shard.secret);
+
+      if (isSecret) {
+        readerModalBox.className =
+          'w-full max-w-2xl border border-[#ff4d5a] bg-[#120507] shadow-[0_0_45px_rgba(255,77,90,0.3)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        readerModalHeader.className =
+          'flex items-center justify-between px-5 py-3 border-b border-[#6e171e] bg-[#26080c]';
+        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#ff6b76]';
+        modalMetaTop.textContent = 'CLASSIFIED_SHARD // CRIMSON_CLEARANCE';
+        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#ff9aa2] mt-0.5';
+      } else {
+        readerModalBox.className =
+          'w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        readerModalHeader.className =
+          'flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]';
+        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]';
+        modalMetaTop.textContent = 'DATASHARD // DECRYPTED';
+        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5';
+      }
+
+      modalTitle.textContent = shard.title || 'UNTITLED_SHARD';
+      modalBody.textContent = shard.content || '';
+
+      modalMetaStrip.innerHTML = `
+        <div><span class="text-[#397c8a]">AUTHOR:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.author || 'UNKNOWN')}</span></div>
+        <div><span class="text-[#397c8a]">DATE:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.date || '2077.04.14')}</span></div>
+        <div><span class="text-[#397c8a]">SIZE:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.size || '1.0 KB')}</span></div>
+        <div><span class="text-[#397c8a]">HASH:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.hash || '0x0000')}</span></div>
+      `;
+
+      const imgs = getShardImages(shard);
+      if (imgs.length > 0) {
+        modalImageWrap.classList.remove('hidden');
+        modalImagesList.innerHTML = imgs
+          .map(
+            (url, idx) => `
+              <button
+                type="button"
+                data-lightbox-url="${escapeHtml(url)}"
+                class="group relative w-28 h-20 border border-[#236978] hover:border-[#7df9ff] bg-[#040c10] overflow-hidden cursor-pointer"
+              >
+                <img
+                  src="${escapeHtml(url)}"
+                  alt="Capture ${idx + 1}"
+                  onerror="this.src='https://placehold.co/224x160/061319/48d1e8?text=IMG_ERR'"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
+              </button>
+            `
+          )
+          .join('');
+
+        modalImagesList.querySelectorAll('[data-lightbox-url]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            openLightbox(btn.dataset.lightboxUrl, shard.title);
+          });
+        });
+      } else {
+        modalImageWrap.classList.add('hidden');
+        modalImagesList.innerHTML = '';
+      }
+
+      const canModify = hasStaffPrivileges();
+      modalDeleteBtn.classList.toggle('hidden', !canModify);
+      modalEditBtn.classList.toggle('hidden', !canModify);
+
+      readerModal.classList.remove('hidden');
+    }
+
+    function closeReaderModal() {
+      activeShardId = null;
+      readerModal.classList.add('hidden');
+    }
+
+    closeReaderBtn.addEventListener('click', closeReaderModal);
+    readerModal.addEventListener('click', (e) => {
+      if (e.target === readerModal) closeReaderModal();
+    });
+
+    modalCopyBtn.addEventListener('click', () => {
+      const text = modalBody.textContent || '';
+      const tempArea = document.createElement('textarea');
+      tempArea.value = text;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (_) {}
+      document.body.removeChild(tempArea);
+      copyFeedback.classList.remove('opacity-0');
+      setTimeout(() => copyFeedback.classList.add('opacity-0'), 1400);
+    });
+
+    modalDeleteBtn.addEventListener('click', async () => {
+      if (!hasStaffPrivileges() || !activeShardId) return;
+      const targetId = activeShardId;
+      records = records.filter((r) => r.id !== targetId);
+      if (selectedId === targetId) selectedId = null;
+      closeReaderModal();
+      renderWorkspace();
+      await deleteShardFromCloud(targetId);
+    });
+
+    const createTitleInput = document.getElementById('create-title');
+    const createContentInput = document.getElementById('create-content');
+
+    function renderPendingImagesPreview() {
+      if (uploadImageStatus) {
+        uploadImageStatus.textContent = `${pendingImages.length} / ${MAX_IMAGES} OPTIC LINKS ATTACHED`;
+      }
+      if (!createImagePreviewWrap) return;
+      if (pendingImages.length === 0) {
+        createImagePreviewWrap.classList.add('hidden');
+        createImagePreviewWrap.innerHTML = '';
+        return;
+      }
+      createImagePreviewWrap.classList.remove('hidden');
+      createImagePreviewWrap.innerHTML = pendingImages
+        .map(
+          (url, idx) => `
+            <div class="flex items-center justify-between gap-2 px-2.5 py-1.5 border border-[#1d5663] bg-[#040c10] font-mono-tech text-[10px] text-[#7df9ff]">
+              <span class="truncate">${escapeHtml(url)}</span>
+              <button
+                type="button"
+                data-remove-img="${idx}"
+                class="shrink-0 px-1.5 py-0.5 border border-[#7a2028] text-[#e05a65] hover:border-[#ff4d5a]"
+              >
+                [X]
+              </button>
+            </div>
+          `
+        )
+        .join('');
+
+      createImagePreviewWrap.querySelectorAll('[data-remove-img]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.removeImg);
+          pendingImages.splice(idx, 1);
+          renderPendingImagesPreview();
+        });
+      });
+    }
+
+    function openCreateModal(existingShard = null) {
+      createForm.reset();
+      pendingImages = [];
+
+      if (hasStaffPrivileges()) {
+        createClassificationWrap.classList.remove('hidden');
+      } else {
+        createClassificationWrap.classList.add('hidden');
+      }
+
+      if (existingShard) {
+        editingShardId = existingShard.id;
+        createModalMeta.textContent = 'WRITE_PROTOCOL // MODIFY_RECORD';
+        createModalTitle.textContent = 'EDIT ARCHIVE SHARD';
+        createSubmitBtn.textContent = 'SAVE CHANGES';
+        createTitleInput.value = existingShard.title || '';
+        createContentInput.value = existingShard.content || '';
+        pendingImages = [...getShardImages(existingShard)];
+        const radio = createForm.querySelector(
+          `input[name="shard-classification"][value="${existingShard.secret ? 'SECRET' : 'STANDARD'}"]`
+        );
+        if (radio) radio.checked = true;
+      } else {
+        editingShardId = null;
+        createModalMeta.textContent = 'WRITE_PROTOCOL // NEW_RECORD';
+        createModalTitle.textContent = 'ARCHIVE NEW SHARD';
+        createSubmitBtn.textContent = 'COMMIT TO ARCHIVE';
+        const stdRadio = createForm.querySelector('input[name="shard-classification"][value="STANDARD"]');
+        if (stdRadio) stdRadio.checked = true;
+      }
+
+      renderPendingImagesPreview();
+      createModal.classList.remove('hidden');
+      createTitleInput.focus();
+    }
+
+    function closeCreateModal() {
+      editingShardId = null;
+      pendingImages = [];
+      createModal.classList.add('hidden');
+    }
+
+    newEntryBtn.addEventListener('click', () => openCreateModal(null));
+    modalEditBtn.addEventListener('click', () => {
+      if (!hasStaffPrivileges() || !activeShardId) return;
+      const shard = records.find((r) => r.id === activeShardId);
+      closeReaderModal();
+      if (shard) openCreateModal(shard);
+    });
+
+    closeCreateBtn.addEventListener('click', closeCreateModal);
+    cancelCreateBtn.addEventListener('click', closeCreateModal);
+    createModal.addEventListener('click', (e) => {
+      if (e.target === createModal) closeCreateModal();
+    });
+
+    addImageUrlBtn.addEventListener('click', () => {
+      const rawUrl = createImageUrlInput.value.trim();
+      if (!rawUrl) return;
+      if (pendingImages.length >= MAX_IMAGES) {
+        uploadImageStatus.textContent = `MAX ${MAX_IMAGES} IMAGE URLS REACHED`;
+        return;
+      }
+      if (!/^https?:\/\//i.test(rawUrl)) {
+        uploadImageStatus.textContent = 'URL MUST START WITH HTTP:// OR HTTPS://';
+        return;
+      }
+      pendingImages.push(rawUrl);
+      createImageUrlInput.value = '';
+      renderPendingImagesPreview();
+    });
+
+    createForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = createTitleInput.value.trim().toUpperCase();
+      const content = createContentInput.value.trim();
+      if (!title || !content) return;
+
+      const selectedClass = createForm.querySelector('input[name="shard-classification"]:checked')?.value;
+      const isSecret = hasStaffPrivileges() && selectedClass === 'SECRET';
+
+      const now = new Date();
+      const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+      const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
+      const byteSize = new Blob([content]).size;
+      const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
+
+      const existing = editingShardId ? records.find((r) => r.id === editingShardId) : null;
+      const shardObj = {
+        id: existing ? existing.id : `shard-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        tab: 'FILES',
+        secret: isSecret,
+        title,
+        subtitle: isSecret ? 'CLASSIFIED_SUBNET // RESTRICTED' : 'ARCHIVE_SHARD // VERIFIED',
+        date: existing ? existing.date : dateStr,
+        author: existing ? existing.author : currentUser.toUpperCase(),
+        size: sizeStr,
+        hash: existing ? existing.hash : `0x${randHex()}...${randHex()}`,
+        content,
+        images: [...pendingImages],
+        image: pendingImages[0] || null,
+        createdAt: existing ? existing.createdAt : Date.now(),
+        updatedAt: Date.now()
+      };
+
+      if (existing) {
+        records = records.map((r) => (r.id === existing.id ? shardObj : r));
+      } else {
+        records = [shardObj, ...records];
+      }
+      selectedId = shardObj.id;
+
+      closeCreateModal();
+      renderWorkspace();
+      await saveShardToCloud(shardObj);
+    });
+
+    /**
+     * 8. NAVIGATION TABS, ADMIN SETTINGS, REQUESTS & NOTIFICATIONS MODALS
+     */
+    navModules.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.locked === 'true' || btn.disabled) return;
+        navModules.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTab = btn.dataset.tab;
+        activeSectorLabel.textContent = `SECTOR_01 // ${activeTab}`;
+        renderWorkspace();
+      });
+    });
+
+    if (adminSettingsBtn) {
+      adminSettingsBtn.addEventListener('click', () => {
+        if (!isAdminAccount()) return;
+        navModules.forEach((b) => b.classList.remove('active'));
+        activeTab = 'SETTINGS';
+        activeSectorLabel.textContent = 'SECTOR_01 // ADMIN_SETTINGS';
+        renderWorkspace();
+      });
+    }
+
+    async function persistBackgroundImageUrl(rawBg) {
+      if (!isAdminAccount()) return;
+      const trimmedBg = String(rawBg || '').trim();
+      if (trimmedBg && !/^https?:\/\//i.test(trimmedBg)) {
+        if (adminSettingsStatus) {
+          adminSettingsStatus.textContent = 'BACKGROUND URL MUST START WITH HTTP:// OR HTTPS://';
+        }
+        return;
+      }
+
+      const nextSettings = {
+        ...globalSiteSettings,
+        id: 'global',
+        backgroundUrl: trimmedBg,
+        updatedBy: currentUser.toUpperCase(),
+        updatedAt: Date.now()
+      };
+
+      globalSiteSettings = nextSettings;
+      applyGlobalSiteSettings(nextSettings);
+      if (adminSettingsStatus) {
+        adminSettingsStatus.textContent = trimmedBg
+          ? 'UPDATING BACKGROUND IMAGE...'
+          : 'REMOVING BACKGROUND IMAGE...';
+      }
+
+      const ok = await saveSiteSettingsToCloud(nextSettings);
+      if (adminSettingsStatus) {
+        adminSettingsStatus.textContent = ok
+          ? (trimmedBg ? 'BACKGROUND IMAGE APPLIED FOR ALL USERS' : 'ORIGINAL BACKGROUND RESTORED FOR ALL USERS')
+          : 'APPLIED LOCALLY // CLOUD SAVE FAILED';
+      }
+      setTimeout(() => {
+        if (adminSettingsStatus) adminSettingsStatus.textContent = '';
+      }, 2500);
+    }
+
+    if (adminSubmitBgBtn) {
+      adminSubmitBgBtn.addEventListener('click', async () => {
+        await persistBackgroundImageUrl(adminBgUrlInput ? adminBgUrlInput.value : '');
+      });
+    }
+
+    if (adminUiColorInput) {
+      adminUiColorInput.addEventListener('input', () => {
+        const hex = normalizeHexColor(adminUiColorInput.value);
+        if (adminUiColorHex) adminUiColorHex.textContent = hex.toUpperCase();
+        applyGlobalSiteSettings({
+          ...globalSiteSettings,
+          uiAccentColor: hex
+        });
+      });
+    }
+
+    if (adminRemoveBgBtn) {
+      adminRemoveBgBtn.addEventListener('click', async () => {
+        if (!isAdminAccount()) return;
+        if (adminBgUrlInput) adminBgUrlInput.value = '';
+        await persistBackgroundImageUrl('');
+      });
+    }
+
+    if (adminRemoveBgBtn) {
+      adminRemoveBgBtn.addEventListener('click', async () => {
+        if (!isAdminAccount()) return;
+        if (adminBgUrlInput) adminBgUrlInput.value = '';
+        const nextSettings = {
+          ...globalSiteSettings,
+          id: 'global',
+          backgroundUrl: '',
+          updatedBy: currentUser.toUpperCase(),
+          updatedAt: Date.now()
+        };
+        globalSiteSettings = nextSettings;
+        applyGlobalSiteSettings(nextSettings);
+        if (adminSettingsStatus) adminSettingsStatus.textContent = 'REMOVING BACKGROUND IMAGE...';
+        const ok = await saveSiteSettingsToCloud(nextSettings);
+        if (adminSettingsStatus) {
+          adminSettingsStatus.textContent = ok
+            ? 'ORIGINAL BACKGROUND RESTORED FOR ALL USERS'
+            : 'RESTORED LOCALLY // CLOUD SAVE FAILED';
+        }
+        setTimeout(() => {
+          if (adminSettingsStatus) adminSettingsStatus.textContent = '';
+        }, 2500);
+      });
+    }
+
+    if (adminResetColorBtn) {
+      adminResetColorBtn.addEventListener('click', () => {
+        const defHex = '#48d1e8';
+        if (adminUiColorInput) adminUiColorInput.value = defHex;
+        if (adminUiColorHex) adminUiColorHex.textContent = defHex.toUpperCase();
+        applyGlobalSiteSettings({
+          ...globalSiteSettings,
+          uiAccentColor: defHex
+        });
+      });
+    }
+
+    if (adminSettingsForm) {
+      adminSettingsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!isAdminAccount()) return;
+
+        const rawBg = (adminBgUrlInput ? adminBgUrlInput.value : '').trim();
+        if (rawBg && !/^https?:\/\//i.test(rawBg)) {
+          if (adminSettingsStatus) {
+            adminSettingsStatus.textContent = 'BACKGROUND URL MUST START WITH HTTP:// OR HTTPS://';
+          }
+          return;
+        }
+
+        const chosenColor = normalizeHexColor(adminUiColorInput ? adminUiColorInput.value : '#48d1e8');
+        const nextSettings = {
+          id: 'global',
+          backgroundUrl: rawBg,
+          uiAccentColor: chosenColor,
+          updatedBy: currentUser.toUpperCase(),
+          updatedAt: Date.now()
+        };
+
+        globalSiteSettings = nextSettings;
+        applyGlobalSiteSettings(nextSettings);
+        if (adminSettingsStatus) adminSettingsStatus.textContent = 'SAVING GLOBAL SETTINGS...';
+
+        const ok = await saveSiteSettingsToCloud(nextSettings);
+        if (adminSettingsStatus) {
+          adminSettingsStatus.textContent = ok
+            ? 'SETTINGS APPLIED FOR ALL USERS'
+            : 'APPLIED LOCALLY // CLOUD SAVE FAILED';
+        }
+        setTimeout(() => {
+          if (adminSettingsStatus) adminSettingsStatus.textContent = '';
+        }, 2500);
+      });
+    }
+
+    searchInput.addEventListener('input', () => {
+      if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        renderWorkspace();
+      }, 90);
+    });
+
+    notificationsBtn.addEventListener('click', () => {
+      renderNotificationsModal();
+      notificationsModal.classList.remove('hidden');
+    });
+
+    closeNotificationsBtn.addEventListener('click', () => {
+      notificationsModal.classList.add('hidden');
+    });
+
+    notificationsModal.addEventListener('click', (e) => {
+      if (e.target === notificationsModal) notificationsModal.classList.add('hidden');
+    });
+
+    function renderRequestsModal() {
+      if (!hasStaffPrivileges()) {
+        requestsList.innerHTML = '';
+        return;
+      }
+
+      const activeUserRequests = userRequests.filter((r) => !r.archived);
+
+      if (accountRequests.length === 0 && activeUserRequests.length === 0) {
+        requestsList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            NO PENDING REQUESTS.
+          </div>
+        `;
+        return;
+      }
+
+      const userReqCardsHtml = activeUserRequests
+        .map((req) => {
+          const isAccepted = String(req.status || '').toUpperCase() === 'ACCEPTED';
+          return `
+            <div
+              data-open-user-req="${escapeHtml(req.id)}"
+              class="p-3.5 border border-[#1d5663] hover:border-[#48d1e8] bg-[#040c10] flex flex-wrap items-center justify-between gap-3 cursor-pointer transition-colors"
+            >
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="font-hud font-bold text-base tracking-wider text-[#7df9ff] truncate">
+                    ${escapeHtml(req.title || 'UNTITLED REQUEST')}
+                  </span>
+                  ${
+                    isAccepted
+                      ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff] uppercase">Accepted</span>'
+                      : '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#236978] bg-[#071820] text-[#48d1e8] uppercase">Open</span>'
+                  }
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                  FROM: ${escapeHtml(req.sender || 'OPERATIVE')}
+                </div>
+              </div>
+              <div class="flex items-center gap-2" data-req-actions>
+                ${
+                  isAccepted
+                    ? ''
+                    : `<button
+                         type="button"
+                         data-accept-user-req="${escapeHtml(req.id)}"
+                         class="font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#0e2e38]/80 text-[#7df9ff] hover:bg-[#184c5c] transition-colors tracking-wider uppercase"
+                       >
+                         ACCEPT
+                       </button>
+                       <button
+                         type="button"
+                         data-deny-user-req="${escapeHtml(req.id)}"
+                         class="font-mono-tech text-xs px-3 py-1 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors tracking-wider uppercase"
+                       >
+                         DENY
+                       </button>`
+                }
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      const accReqCardsHtml = accountRequests
+        .map(
+          (req) => `
+            <div data-req-id="${escapeHtml(req.id)}" class="p-3.5 border border-[#1d5663] bg-[#040c10] flex flex-wrap items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="font-hud font-bold text-base tracking-wider text-[#7df9ff] truncate">
+                  ${escapeHtml(req.username)}
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                  ACCOUNT REQUEST // ROLE: ${escapeHtml(req.role || 'OPERATIVE')}
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  data-confirm-req="${escapeHtml(req.id)}"
+                  class="font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#0e2e38]/80 text-[#7df9ff] hover:bg-[#184c5c] transition-colors tracking-wider uppercase"
+                >
+                  CONFIRM
+                </button>
+                <button
+                  type="button"
+                  data-deny-req="${escapeHtml(req.id)}"
+                  class="font-mono-tech text-xs px-3 py-1 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors tracking-wider uppercase"
+                >
+                  DENY
+                </button>
+              </div>
+            </div>
+          `
+        )
+        .join('');
+
+      requestsList.innerHTML = `${userReqCardsHtml}${accReqCardsHtml}`;
+
+      requestsList.querySelectorAll('[data-open-user-req]').forEach((card) => {
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('[data-req-actions]')) return;
+          const reqObj = userRequests.find((r) => r.id === card.dataset.openUserReq);
+          if (reqObj) {
+            openRequestReaderModal(reqObj);
+          }
+        });
+      });
+
+      requestsList.querySelectorAll('[data-accept-user-req]').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await acceptUserRequestById(btn.dataset.acceptUserReq);
+        });
+      });
+
+      requestsList.querySelectorAll('[data-deny-user-req]').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await denyUserRequestById(btn.dataset.denyUserReq);
+        });
+      });
+
+      requestsList.querySelectorAll('[data-confirm-req]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const reqId = btn.dataset.confirmReq;
+          const reqObj = accountRequests.find((r) => r.id === reqId);
+          if (!reqObj) return;
+
+          const accId = `acc-${reqObj.username.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+          const approvedAcc = {
+            id: accId,
+            username: reqObj.username.toUpperCase(),
+            role: reqObj.role || 'ACTIVE_OPERATIVE',
+            password: reqObj.password,
+            isModerator: false,
+            isLeadership: false,
+            approvedAt: Date.now()
+          };
+
+          const memberId = `mbr-${accId}`;
+          const newMember = {
+            id: memberId,
+            username: approvedAcc.username,
+            name: approvedAcc.username,
+            role: approvedAcc.role,
+            isModerator: false,
+            isLeadership: false,
+            createdAt: approvedAcc.approvedAt
+          };
+
+          accountRequests = accountRequests.filter((r) => r.id !== reqId);
+          approvedAccounts = [
+            approvedAcc,
+            ...approvedAccounts.filter((a) => a.id !== accId)
+          ];
+          rosterMembers = [
+            ...rosterMembers.filter((m) => m.id !== memberId),
+            newMember
+          ];
+
+          updateRequestsBadge();
+          updateNotificationsBadge();
+          renderRequestsModal();
+          if (activeTab === 'ROSTER') renderWorkspace();
+
+          await saveApprovedAccountToCloud(approvedAcc);
+          await saveMemberToCloud(newMember);
+          await deleteAccountRequestFromCloud(reqId);
+        });
+      });
+
+      requestsList.querySelectorAll('[data-deny-req]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const reqId = btn.dataset.denyReq;
+          accountRequests = accountRequests.filter((r) => r.id !== reqId);
+          updateRequestsBadge();
+          updateNotificationsBadge();
+          renderRequestsModal();
+          await deleteAccountRequestFromCloud(reqId);
+        });
+      });
+    }
+
+    function openRequestsModal() {
+      if (!hasStaffPrivileges()) return;
+      renderRequestsModal();
+      requestsModal.classList.remove('hidden');
+    }
+
+    function closeRequestsModal() {
+      requestsModal.classList.add('hidden');
+    }
+
+    if (requestsBtn) {
+      requestsBtn.addEventListener('click', openRequestsModal);
+    }
+    if (closeRequestsBtn) {
+      closeRequestsBtn.addEventListener('click', closeRequestsModal);
+    }
+    if (requestsModal) {
+      requestsModal.addEventListener('click', (e) => {
+        if (e.target === requestsModal) closeRequestsModal();
+      });
+    }
+
+    function openMakeRequestModal() {
+      if (hasStaffPrivileges()) return;
+      makeRequestForm.reset();
+      makeRequestModal.classList.remove('hidden');
+      userRequestTitleInput.focus();
+    }
+
+    function closeMakeRequestModal() {
+      makeRequestModal.classList.add('hidden');
+    }
+
+    if (makeRequestBtn) {
+      makeRequestBtn.addEventListener('click', openMakeRequestModal);
+    }
+    closeMakeRequestBtn.addEventListener('click', closeMakeRequestModal);
+    cancelMakeRequestBtn.addEventListener('click', closeMakeRequestModal);
+    makeRequestModal.addEventListener('click', (e) => {
+      if (e.target === makeRequestModal) closeMakeRequestModal();
+    });
+
+    makeRequestForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (hasStaffPrivileges()) return;
+      const title = userRequestTitleInput.value.trim();
+      const body = userRequestBodyInput.value.trim();
+      if (!title || !body) return;
+
+      const reqObj = {
+        id: `ureq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        sender: currentUser.toUpperCase(),
+        title,
+        body,
+        status: 'OPEN',
+        archived: false,
+        createdAt: Date.now()
+      };
+
+      userRequests = [reqObj, ...userRequests];
+      makeRequestForm.reset();
+      closeMakeRequestModal();
+      updateRequestsBadge();
+      await saveUserRequestToCloud(reqObj);
+    });
+
+    function setRequestReaderMaxed(maxed) {
+      isRequestReaderMaxed = Boolean(maxed);
+      if (isRequestReaderMaxed) {
+        requestReaderModal.className = 'fixed inset-0 z-40 bg-black/90 backdrop-blur-xs flex items-center justify-center p-0';
+        requestReaderBox.className = 'w-full h-full max-w-none max-h-none border border-[#48d1e8] bg-[#061319] flex flex-col';
+        requestReaderExpandBtn.textContent = '[MIN]';
+      } else {
+        requestReaderModal.className = 'fixed inset-0 z-40 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6';
+        requestReaderBox.className = 'w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_45px_rgba(72,209,232,0.32)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        requestReaderExpandBtn.textContent = '[MAX]';
+      }
+    }
+
+    function renderRequestReaderModal(reqObj) {
+      if (!reqObj) return;
+      const isAccepted = String(reqObj.status || '').toUpperCase() === 'ACCEPTED';
+      requestReaderMeta.textContent = `REQUEST_INSPECTION // ${reqObj.id.slice(-6).toUpperCase()}`;
+      requestReaderTitle.textContent = reqObj.title || 'UNTITLED REQUEST';
+      requestReaderSender.textContent = reqObj.sender || 'OPERATIVE';
+      requestReaderBody.textContent = reqObj.body || '';
+
+      if (isAccepted) {
+        requestReaderStatusBadge.textContent = 'Accepted';
+        requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff] text-[10px] tracking-widest uppercase';
+        requestReaderAcceptBtn.classList.add('hidden');
+        requestReaderDenyBtn.classList.add('hidden');
+        requestReaderArchiveBtn.classList.remove('hidden');
+      } else {
+        requestReaderStatusBadge.textContent = 'OPEN';
+        requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#236978] bg-[#071820] text-[#48d1e8] text-[10px] tracking-widest uppercase';
+        requestReaderAcceptBtn.classList.remove('hidden');
+        requestReaderDenyBtn.classList.remove('hidden');
+        requestReaderArchiveBtn.classList.add('hidden');
+      }
+    }
+
+    function openRequestReaderModal(reqObj) {
+      if (!hasStaffPrivileges() || !reqObj) return;
+      activeStaffRequestId = reqObj.id;
+      setRequestReaderMaxed(false);
+      renderRequestReaderModal(reqObj);
+      requestReaderModal.classList.remove('hidden');
+    }
+
+    function closeRequestReaderModal() {
+      activeStaffRequestId = null;
+      setRequestReaderMaxed(false);
+      requestReaderModal.classList.add('hidden');
+    }
+
+    requestReaderExpandBtn.addEventListener('click', () => {
+      setRequestReaderMaxed(!isRequestReaderMaxed);
+    });
+
+    closeRequestReaderBtn.addEventListener('click', closeRequestReaderModal);
+    requestReaderModal.addEventListener('click', (e) => {
+      if (e.target === requestReaderModal) closeRequestReaderModal();
+    });
+
+    async function sendRequestDecisionNotification(reqObj, decisionStatus) {
+      if (!reqObj || !reqObj.sender) return;
+      const notifObj = {
+        id: `unotif-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        recipient: String(reqObj.sender).toUpperCase(),
+        actor: currentUser.toUpperCase(),
+        requestId: reqObj.id,
+        requestTitle: reqObj.title || 'UNTITLED REQUEST',
+        status: decisionStatus,
+        createdAt: Date.now()
+      };
+      userNotifications = [notifObj, ...userNotifications];
+      updateNotificationsBadge();
+      await saveUserNotificationToCloud(notifObj);
+    }
+
+    async function acceptUserRequestById(reqId) {
+      if (!hasStaffPrivileges() || !reqId) return;
+      const target = userRequests.find((r) => r.id === reqId);
+      if (!target) return;
+
+      const updatedReq = {
+        ...target,
+        status: 'ACCEPTED',
+        archived: false,
+        acceptedBy: currentUser.toUpperCase(),
+        acceptedAt: Date.now()
+      };
+
+      userRequests = userRequests.map((r) => (r.id === reqId ? updatedReq : r));
+      updateRequestsBadge();
+      renderRequestsModal();
+      if (activeStaffRequestId === reqId) {
+        renderRequestReaderModal(updatedReq);
+      }
+
+      await saveUserRequestToCloud(updatedReq);
+      await sendRequestDecisionNotification(updatedReq, 'ACCEPTED');
+    }
+
+    async function denyUserRequestById(reqId) {
+      if (!hasStaffPrivileges() || !reqId) return;
+      const target = userRequests.find((r) => r.id === reqId);
+      if (!target) return;
+
+      userRequests = userRequests.filter((r) => r.id !== reqId);
+      if (activeStaffRequestId === reqId) {
+        closeRequestReaderModal();
+      }
+      updateRequestsBadge();
+      renderRequestsModal();
+
+      await deleteUserRequestFromCloud(reqId);
+      await sendRequestDecisionNotification(target, 'DENIED');
+    }
+
+    requestReaderAcceptBtn.addEventListener('click', async () => {
+      if (!activeStaffRequestId) return;
+      await acceptUserRequestById(activeStaffRequestId);
+    });
+
+    requestReaderDenyBtn.addEventListener('click', async () => {
+      if (!activeStaffRequestId) return;
+      await denyUserRequestById(activeStaffRequestId);
+    });
+
+    requestReaderArchiveBtn.addEventListener('click', async () => {
+      if (!hasStaffPrivileges() || !activeStaffRequestId) return;
+      const target = userRequests.find((r) => r.id === activeStaffRequestId);
+      if (!target || String(target.status || '').toUpperCase() !== 'ACCEPTED') return;
+
+      const now = new Date();
+      const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+      const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
+      const rawContent = target.body || '';
+      const byteSize = new Blob([rawContent]).size;
+      const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
+      const formattedTitle = String(target.title || 'ARCHIVED_REQUEST').trim().toUpperCase().replace(/\s+/g, '_');
+
+      const newShard = {
+        id: `reqshard-${Date.now()}`,
+        tab: 'FILES',
+        secret: false,
+        title: formattedTitle,
+        subtitle: `REQ_ARCHIVE // FROM_${String(target.sender || 'OPERATIVE').toUpperCase()}`,
+        date: dateStr,
+        author: String(target.sender || currentUser).toUpperCase(),
+        size: sizeStr,
+        hash: `0x${randHex()}...${randHex()}`,
+        content: rawContent,
+        images: [],
+        image: null,
+        createdAt: Date.now()
+      };
+
+      userRequests = userRequests.filter((r) => r.id !== target.id);
+      records = [newShard, ...records];
+      selectedId = newShard.id;
+
+      closeRequestReaderModal();
+      updateRequestsBadge();
+      renderRequestsModal();
+      if (activeTab === 'FILES') {
+        renderWorkspace();
+      }
+
+      await deleteUserRequestFromCloud(target.id);
+      await saveShardToCloud(newShard);
+    });
+
+    /**
+     * 10C. MANAGE MEMBER MODAL (ADMIN & MODERATOR)
+     */
+    function openManageMemberModal(member) {
+      if (!hasStaffPrivileges() || !member) return;
+      managingMemberId = member.id;
+      const isTargetMod = Boolean(member.isModerator || member.isLeadership);
+
+      manageMemberName.textContent = member.name || 'OPERATIVE';
+      manageMemberTier.textContent = isTargetMod ? 'MODERATOR // LEADERSHIP' : 'MEMBER // STANDARD';
+      manageMemberRoleInput.value = member.role || '';
+      manageMemberStatus.textContent = '';
+
+      if (isAdminAccount()) {
+        manageModeratorWrap.classList.remove('hidden');
+        manageModeratorInput.checked = isTargetMod;
+      } else {
+        manageModeratorWrap.classList.add('hidden');
+        manageModeratorInput.checked = isTargetMod;
+      }
+
+      if (isTargetMod && !isAdminAccount()) {
+        manageDeleteUserBtn.classList.add('hidden');
+      } else {
+        manageDeleteUserBtn.classList.remove('hidden');
+      }
+
+      manageMemberModal.classList.remove('hidden');
+      manageMemberRoleInput.focus();
+    }
+
+    function closeManageMemberModal() {
+      managingMemberId = null;
+      manageMemberModal.classList.add('hidden');
+      manageMemberStatus.textContent = '';
+    }
+
+    closeManageMemberBtn.addEventListener('click', closeManageMemberModal);
+    cancelManageMemberBtn.addEventListener('click', closeManageMemberModal);
+    manageMemberModal.addEventListener('click', (e) => {
+      if (e.target === manageMemberModal) closeManageMemberModal();
+    });
+
+    manageMemberForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!hasStaffPrivileges() || !managingMemberId) return;
+
+      const member = rosterMembers.find((m) => m.id === managingMemberId);
+      if (!member) return;
+
+      const nextRole = manageMemberRoleInput.value.trim().toUpperCase() || 'ACTIVE_OPERATIVE';
+      const nextMod =
+        isAdminAccount()
+          ? Boolean(manageModeratorInput.checked)
+          : Boolean(member.isModerator || member.isLeadership);
+
+      const updatedMember = {
+        ...member,
+        role: nextRole,
+        isModerator: nextMod,
+        isLeadership: nextMod,
+        updatedAt: Date.now()
+      };
+
+      rosterMembers = rosterMembers.map((m) => (m.id === member.id ? updatedMember : m));
+
+      const linkedAccId = member.id.startsWith('mbr-') ? member.id.slice(4) : `acc-${(member.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+      const matchedAcc = approvedAccounts.find(
+        (a) => a.id === linkedAccId || (a.username || '').toUpperCase() === (member.name || '').toUpperCase()
+      );
+      if (matchedAcc) {
+        const updatedAcc = {
+          ...matchedAcc,
+          role: nextRole,
+          isModerator: nextMod,
+          isLeadership: nextMod,
+          updatedAt: Date.now()
+        };
+        approvedAccounts = approvedAccounts.map((a) => (a.id === matchedAcc.id ? updatedAcc : a));
+        await saveApprovedAccountToCloud(updatedAcc);
+      }
+
+      closeManageMemberModal();
+      renderWorkspace();
+      await saveMemberToCloud(updatedMember);
+    });
+
+    manageDeleteUserBtn.addEventListener('click', async () => {
+      if (!hasStaffPrivileges() || !managingMemberId) return;
+      const member = rosterMembers.find((m) => m.id === managingMemberId);
+      if (!member) return;
+
+      const isTargetMod = Boolean(member.isModerator || member.isLeadership);
+      if (isTargetMod && !isAdminAccount()) {
+        manageMemberStatus.textContent = 'ONLY ADMIN CAN REMOVE MODERATOR ACCOUNTS';
+        return;
+      }
+
+      const targetMemberId = member.id;
+      const targetNameUpper = (member.name || '').toUpperCase();
+      const linkedAccId = targetMemberId.startsWith('mbr-')
+        ? targetMemberId.slice(4)
+        : `acc-${targetNameUpper.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+
+      rosterMembers = rosterMembers.filter((m) => m.id !== targetMemberId);
+      if (selectedId === targetMemberId) selectedId = null;
+
+      const matchedAcc = approvedAccounts.find(
+        (a) => a.id === linkedAccId || (a.username || '').toUpperCase() === targetNameUpper
+      );
+      if (matchedAcc) {
+        approvedAccounts = approvedAccounts.filter((a) => a.id !== matchedAcc.id);
+        await deleteApprovedAccountFromCloud(matchedAcc.id);
+      }
+
+      closeManageMemberModal();
+      renderWorkspace();
+      await deleteMemberFromCloud(targetMemberId);
+    });
+
+    /**
+     * 11. FULL-SIZE IMAGE LIGHTBOX
+     */
+    function openLightbox(src, title) {
+      lightboxImg.src = src;
+      lightboxTitle.textContent = `${title || 'OPTIC_CAPTURE'} // FULL_RESOLUTION`;
+      lightboxModal.classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      lightboxModal.classList.add('hidden');
+      lightboxImg.src = '';
+    }
+
+    closeLightboxBtn.addEventListener('click', closeLightbox);
+    lightboxModal.addEventListener('click', (e) => {
+      if (e.target === lightboxModal) closeLightbox();
+    });
+
+    /**
+     * 12. GLOBAL ESCAPE KEY HANDLER
+     */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (!lightboxModal.classList.contains('hidden')) {
+          closeLightbox();
+        } else if (!pmReaderModal.classList.contains('hidden')) {
+          closePmReaderModal();
+        } else if (!sendPmModal.classList.contains('hidden')) {
+          closeSendPmModal();
+        } else if (!notificationsModal.classList.contains('hidden')) {
+          notificationsModal.classList.add('hidden');
+        } else if (!requestReaderModal.classList.contains('hidden')) {
+          closeRequestReaderModal();
+        } else if (!makeRequestModal.classList.contains('hidden')) {
+          closeMakeRequestModal();
+        } else if (!requestsModal.classList.contains('hidden')) {
+          requestsModal.classList.add('hidden');
+        } else if (!manageMemberModal.classList.contains('hidden')) {
+          closeManageMemberModal();
+        } else if (!createModal.classList.contains('hidden')) {
+          closeCreateModal();
+        } else if (!readerModal.classList.contains('hidden')) {
+          closeReaderModal();
+        }
+      }
+    });
+
+    // Apply default/cached settings immediately and listen for global settings even before login
+    applyGlobalSiteSettings(globalSiteSettings);
+    startGlobalSettingsListener();
+  </script>
+</body>
+</html>
