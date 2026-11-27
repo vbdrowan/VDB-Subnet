@@ -705,6 +705,48 @@
                 </div>
               </div>
 
+              <!-- Global UI Fill Opacity Slider (0% - 100%) -->
+              <div class="p-4 border border-[#17454f] bg-[#040c10]/85 flex flex-col gap-2.5">
+                <div class="flex items-center justify-between gap-2">
+                  <label for="admin-fill-opacity-input" class="font-mono-tech text-xs tracking-widest text-[#7df9ff] uppercase">
+                    UI Fill Opacity:
+                  </label>
+                  <span id="admin-fill-opacity-val" class="font-mono-tech text-xs tracking-widest text-[#7df9ff]">75%</span>
+                </div>
+                <input
+                  id="admin-fill-opacity-input"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="75"
+                  class="w-full accent-[#48d1e8] cursor-pointer"
+                />
+                <div class="font-mono-tech text-[10px] tracking-wider text-[#397c8a]">
+                  CONTROLS PANEL, CARD, AND BUTTON BACKGROUND FILL OPACITY (0% TO 100%).
+                </div>
+              </div>
+
+              <!-- Global UI Outlines Opacity Slider (0% - 100%) -->
+              <div class="p-4 border border-[#17454f] bg-[#040c10]/85 flex flex-col gap-2.5">
+                <div class="flex items-center justify-between gap-2">
+                  <label for="admin-outline-opacity-input" class="font-mono-tech text-xs tracking-widest text-[#7df9ff] uppercase">
+                    UI Outlines Opacity:
+                  </label>
+                  <span id="admin-outline-opacity-val" class="font-mono-tech text-xs tracking-widest text-[#7df9ff]">100%</span>
+                </div>
+                <input
+                  id="admin-outline-opacity-input"
+                  type="range"
+                  min="0"
+                  max="100"
+                  value="100"
+                  class="w-full accent-[#48d1e8] cursor-pointer"
+                />
+                <div class="font-mono-tech text-[10px] tracking-wider text-[#397c8a]">
+                  CONTROLS BORDER AND FRAME OUTLINE OPACITY ACROSS THE INTERFACE (0% TO 100%).
+                </div>
+              </div>
+
               <div class="flex items-center justify-between gap-3 pt-1">
                 <span id="admin-settings-status" class="font-mono-tech text-[11px] tracking-widest text-[#7df9ff] min-h-4"></span>
                 <button type="submit" class="cp-btn text-xs py-2 px-5">
@@ -1480,7 +1522,9 @@
     let userNotifications = [];
     let globalSiteSettings = {
       backgroundUrl: '',
-      uiAccentColor: '#48d1e8'
+      uiAccentColor: '#48d1e8',
+      uiFillOpacity: 75,
+      uiOutlineOpacity: 100
     };
     let activeTab = 'FILES';
     let messageSubTab = 'PRIVATE';
@@ -1595,6 +1639,10 @@
     const adminUiColorInput = document.getElementById('admin-ui-color-input');
     const adminUiColorHex = document.getElementById('admin-ui-color-hex');
     const adminResetColorBtn = document.getElementById('admin-reset-color-btn');
+    const adminFillOpacityInput = document.getElementById('admin-fill-opacity-input');
+    const adminFillOpacityVal = document.getElementById('admin-fill-opacity-val');
+    const adminOutlineOpacityInput = document.getElementById('admin-outline-opacity-input');
+    const adminOutlineOpacityVal = document.getElementById('admin-outline-opacity-val');
     const adminSettingsStatus = document.getElementById('admin-settings-status');
     const requestsModal = document.getElementById('requests-modal');
     const closeRequestsBtn = document.getElementById('close-requests-btn');
@@ -1779,30 +1827,46 @@
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
+    function clampPercent(val, fallback = 100) {
+      const n = Number(val);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.max(0, Math.min(100, Math.round(n)));
+    }
+
     function applyGlobalSiteSettings(settings) {
       const bgUrl = String(settings?.backgroundUrl || '').trim();
       const accentHex = normalizeHexColor(settings?.uiAccentColor || '#48d1e8');
+      const fillPct = clampPercent(settings?.uiFillOpacity, 75);
+      const outlinePct = clampPercent(settings?.uiOutlineOpacity, 100);
+      const fillScale = fillPct / 100;
+      const outlineScale = outlinePct / 100;
+      const fmtAlpha = (base) => Number((base * fillScale).toFixed(4));
+      const fmtOutline = (base) => Number((base * outlineScale).toFixed(4));
+
       const glowHex = mixHex(accentHex, '#ffffff', 0.42);
       const midBorderHex = mixHex('#071922', accentHex, 0.52);
       const dimBorderHex = mixHex('#040d12', accentHex, 0.34);
+      const midBorderRgba = hexToRgba(midBorderHex, fmtOutline(1));
+      const dimBorderRgba = hexToRgba(dimBorderHex, fmtOutline(1));
+      const accentBorderRgba = hexToRgba(accentHex, fmtOutline(1));
       const mutedTextHex = mixHex('#0b2933', accentHex, 0.52);
       const softTextHex = mixHex(accentHex, '#ffffff', 0.58);
-      const panelRgba = hexToRgba(mixHex('#04090c', accentHex, 0.08), 0.72);
-      const darkSurfaceRgba = hexToRgba(mixHex('#04090c', accentHex, 0.1), 0.76);
-      const cardRgba = hexToRgba(mixHex('#050d12', accentHex, 0.14), 0.68);
-      const activeCardRgba = hexToRgba(mixHex('#081c24', accentHex, 0.24), 0.72);
-      const activeTabTopRgba = hexToRgba(mixHex('#0a2832', accentHex, 0.34), 0.52);
-      const activeTabBotRgba = hexToRgba(mixHex('#050f14', accentHex, 0.14), 0.82);
-      const glowRingRgba = hexToRgba(accentHex, 0.22);
-      const glowInsetRgba = hexToRgba(accentHex, 0.12);
-      const hoverTintRgba = hexToRgba(accentHex, 0.22);
+      const panelRgba = hexToRgba(mixHex('#04090c', accentHex, 0.08), fmtAlpha(0.92));
+      const darkSurfaceRgba = hexToRgba(mixHex('#04090c', accentHex, 0.1), fmtAlpha(0.96));
+      const cardRgba = hexToRgba(mixHex('#050d12', accentHex, 0.14), fmtAlpha(0.88));
+      const activeCardRgba = hexToRgba(mixHex('#081c24', accentHex, 0.24), fmtAlpha(0.92));
+      const activeTabTopRgba = hexToRgba(mixHex('#0a2832', accentHex, 0.34), fmtAlpha(0.68));
+      const activeTabBotRgba = hexToRgba(mixHex('#050f14', accentHex, 0.14), fmtAlpha(0.98));
+      const glowRingRgba = hexToRgba(accentHex, fmtOutline(0.22));
+      const glowInsetRgba = hexToRgba(accentHex, fmtAlpha(0.16));
+      const hoverTintRgba = hexToRgba(accentHex, fmtAlpha(0.28));
       const uiScopes = '#desktop-screen, #login-screen, #reader-modal:not(.secret-reader), #create-modal, #manage-member-modal, #requests-modal, #make-request-modal, #request-reader-modal, #send-pm-modal, #pm-reader-modal, #notifications-modal, #lightbox-modal';
 
       const rootStyle = document.documentElement.style;
       rootStyle.setProperty('--cyan-bright', accentHex);
       rootStyle.setProperty('--cyan-glow', glowHex);
-      rootStyle.setProperty('--border-mid', midBorderHex);
-      rootStyle.setProperty('--border-dim', dimBorderHex);
+      rootStyle.setProperty('--border-mid', midBorderRgba);
+      rootStyle.setProperty('--border-dim', dimBorderRgba);
       rootStyle.setProperty('--bg-panel', panelRgba);
       rootStyle.setProperty('--bg-card', cardRgba);
       rootStyle.setProperty('--bg-card-active', activeCardRgba);
@@ -1833,26 +1897,30 @@
         }
         .nav-module {
           background: ${panelRgba} !important;
+          border-color: ${dimBorderRgba} !important;
         }
         .nav-module:hover {
           background: ${activeCardRgba} !important;
+          border-color: ${midBorderRgba} !important;
         }
         .nav-module.active {
-          border-color: ${accentHex} !important;
+          border-color: ${accentBorderRgba} !important;
           background: linear-gradient(180deg, ${activeTabTopRgba} 0%, ${activeTabBotRgba} 100%) !important;
           box-shadow: 0 0 18px ${glowRingRgba}, inset 0 0 14px ${glowInsetRgba} !important;
         }
         .archive-card:not(.secret-card) {
           background: ${cardRgba} !important;
+          border-color: ${dimBorderRgba} !important;
         }
         .archive-card:not(.secret-card):hover,
         .archive-card:not(.secret-card).selected {
           background: ${activeCardRgba} !important;
+          border-color: ${accentBorderRgba} !important;
           box-shadow: 0 0 16px ${glowRingRgba}, inset 0 0 18px ${glowInsetRgba} !important;
         }
         .cp-btn {
           background: ${activeCardRgba} !important;
-          border-color: ${accentHex} !important;
+          border-color: ${accentBorderRgba} !important;
           color: ${glowHex} !important;
           box-shadow: 0 0 12px ${glowInsetRgba} !important;
         }
@@ -1866,7 +1934,7 @@
         #login-screen .cp-input-wrap,
         #login-screen .cp-input-wrap::before,
         #login-screen .cp-input-wrap::after {
-          border-color: ${accentHex} !important;
+          border-color: ${accentBorderRgba} !important;
         }
         #login-screen .cp-input {
           color: ${glowHex} !important;
@@ -1876,7 +1944,7 @@
         :is(${uiScopes}) .border-\\[\\#2a7585\\],
         :is(${uiScopes}) .border-\\[\\#236978\\],
         :is(${uiScopes}) .border-\\[\\#226675\\] {
-          border-color: ${accentHex} !important;
+          border-color: ${accentBorderRgba} !important;
         }
         :is(${uiScopes}) .border-\\[\\#1d5663\\],
         :is(${uiScopes}) .border-\\[\\#1d5360\\],
@@ -1887,7 +1955,7 @@
         :is(${uiScopes}) .border-\\[\\#143d47\\],
         :is(${uiScopes}) .border-\\[\\#133b45\\],
         :is(${uiScopes}) .border-\\[\\#13363e\\] {
-          border-color: ${dimBorderHex} !important;
+          border-color: ${dimBorderRgba} !important;
         }
         :is(${uiScopes}) .text-\\[\\#7df9ff\\],
         :is(${uiScopes}) .hover\\:text-\\[\\#7df9ff\\]:hover {
@@ -1915,7 +1983,8 @@
         :is(${uiScopes}) .bg-\\[\\#07151c\\]\\/80,
         :is(${uiScopes}) .bg-\\[\\#061218\\]\\/90,
         :is(${uiScopes}) .bg-\\[\\#061319\\]\\/90,
-        :is(${uiScopes}) .bg-\\[\\#040c10\\] {
+        :is(${uiScopes}) .bg-\\[\\#040c10\\],
+        :is(${uiScopes}) .bg-\\[\\#040c10\\]\\/85 {
           background-color: ${darkSurfaceRgba} !important;
         }
       `;
@@ -1946,6 +2015,18 @@
       }
       if (adminUiColorHex) {
         adminUiColorHex.textContent = accentHex.toUpperCase();
+      }
+      if (adminFillOpacityInput && document.activeElement !== adminFillOpacityInput) {
+        adminFillOpacityInput.value = String(fillPct);
+      }
+      if (adminFillOpacityVal) {
+        adminFillOpacityVal.textContent = `${fillPct}%`;
+      }
+      if (adminOutlineOpacityInput && document.activeElement !== adminOutlineOpacityInput) {
+        adminOutlineOpacityInput.value = String(outlinePct);
+      }
+      if (adminOutlineOpacityVal) {
+        adminOutlineOpacityVal.textContent = `${outlinePct}%`;
       }
     }
 
@@ -2932,6 +3013,16 @@
           adminUiColorInput.value = hex;
           if (adminUiColorHex) adminUiColorHex.textContent = hex.toUpperCase();
         }
+        if (adminFillOpacityInput) {
+          const fillPct = clampPercent(globalSiteSettings.uiFillOpacity, 75);
+          adminFillOpacityInput.value = String(fillPct);
+          if (adminFillOpacityVal) adminFillOpacityVal.textContent = `${fillPct}%`;
+        }
+        if (adminOutlineOpacityInput) {
+          const outlinePct = clampPercent(globalSiteSettings.uiOutlineOpacity, 100);
+          adminOutlineOpacityInput.value = String(outlinePct);
+          if (adminOutlineOpacityVal) adminOutlineOpacityVal.textContent = `${outlinePct}%`;
+        }
         return;
       }
 
@@ -3476,17 +3567,38 @@
         if (adminUiColorHex) adminUiColorHex.textContent = hex.toUpperCase();
         applyGlobalSiteSettings({
           ...globalSiteSettings,
-          uiAccentColor: hex
+          uiAccentColor: hex,
+          uiFillOpacity: clampPercent(adminFillOpacityInput ? adminFillOpacityInput.value : globalSiteSettings.uiFillOpacity, 75),
+          uiOutlineOpacity: clampPercent(adminOutlineOpacityInput ? adminOutlineOpacityInput.value : globalSiteSettings.uiOutlineOpacity, 100)
         });
       });
     }
 
-    if (adminRemoveBgBtn) {
-      adminRemoveBgBtn.addEventListener('click', async () => {
-        if (!isAdminAccount()) return;
-        if (adminBgUrlInput) adminBgUrlInput.value = '';
-        await persistBackgroundImageUrl('');
+    function syncLiveOpacityPreview() {
+      const fillPct = clampPercent(
+        adminFillOpacityInput ? adminFillOpacityInput.value : globalSiteSettings.uiFillOpacity,
+        75
+      );
+      const outlinePct = clampPercent(
+        adminOutlineOpacityInput ? adminOutlineOpacityInput.value : globalSiteSettings.uiOutlineOpacity,
+        100
+      );
+      if (adminFillOpacityVal) adminFillOpacityVal.textContent = `${fillPct}%`;
+      if (adminOutlineOpacityVal) adminOutlineOpacityVal.textContent = `${outlinePct}%`;
+      applyGlobalSiteSettings({
+        ...globalSiteSettings,
+        uiAccentColor: normalizeHexColor(adminUiColorInput ? adminUiColorInput.value : globalSiteSettings.uiAccentColor),
+        uiFillOpacity: fillPct,
+        uiOutlineOpacity: outlinePct
       });
+    }
+
+    if (adminFillOpacityInput) {
+      adminFillOpacityInput.addEventListener('input', syncLiveOpacityPreview);
+    }
+
+    if (adminOutlineOpacityInput) {
+      adminOutlineOpacityInput.addEventListener('input', syncLiveOpacityPreview);
     }
 
     if (adminRemoveBgBtn) {
@@ -3541,10 +3653,14 @@
         }
 
         const chosenColor = normalizeHexColor(adminUiColorInput ? adminUiColorInput.value : '#48d1e8');
+        const chosenFillOpacity = clampPercent(adminFillOpacityInput ? adminFillOpacityInput.value : 75, 75);
+        const chosenOutlineOpacity = clampPercent(adminOutlineOpacityInput ? adminOutlineOpacityInput.value : 100, 100);
         const nextSettings = {
           id: 'global',
           backgroundUrl: rawBg,
           uiAccentColor: chosenColor,
+          uiFillOpacity: chosenFillOpacity,
+          uiOutlineOpacity: chosenOutlineOpacity,
           updatedBy: currentUser.toUpperCase(),
           updatedAt: Date.now()
         };
