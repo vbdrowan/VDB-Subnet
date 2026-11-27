@@ -609,15 +609,12 @@
       <!-- Modal Body -->
       <div class="p-5 overflow-y-auto cp-scroll flex-1">
         <pre id="modal-body" class="font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed"></pre>
-        <!-- Attached Image Thumbnail Container -->
+        <!-- Attached Images Thumbnail Container -->
         <div id="modal-image-wrap" class="hidden mt-4 pt-3 border-t border-[#143d47]">
-          <div class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8] mb-2">ATTACHED_OPTIC_CAPTURE // CLICK TO ENLARGE</div>
-          <button id="modal-image-btn" type="button" class="group relative inline-block border border-[#236978] hover:border-[#7df9ff] bg-[#040c10] p-1 transition-all cursor-zoom-in focus:outline-none">
-            <img id="modal-image-thumb" src="" alt="Attached shard capture" class="max-h-36 w-auto object-contain block" />
-            <span class="absolute bottom-1 right-1 font-mono-tech text-[9px] px-1.5 py-0.5 bg-[#050f14]/90 border border-[#48d1e8] text-[#7df9ff] opacity-85 group-hover:opacity-100">
-              [+ ENLARGE]
-            </span>
-          </button>
+          <div class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8] mb-2">ATTACHED_OPTIC_CAPTURES // CLICK TO ENLARGE</div>
+          <div id="modal-images-list" class="flex flex-wrap gap-2.5">
+            <!-- Populated dynamically -->
+          </div>
         </div>
       </div>
 
@@ -700,7 +697,7 @@
 
         <!-- Upload Image Control & Live Preview -->
         <div>
-          <input id="create-image-input" type="file" accept="image/*" class="hidden" />
+          <input id="create-image-input" type="file" accept=".jpg,.jpeg,image/jpeg" multiple class="hidden" />
           <div class="flex items-center justify-between gap-3">
             <button
               id="upload-image-btn"
@@ -712,29 +709,19 @@
                 <circle cx="8.5" cy="9.5" r="1.5" />
                 <polyline points="21,16 15,10 5,20" />
               </svg>
-              UPLOAD IMAGE
+              UPLOAD IMAGES
             </button>
             <span id="upload-image-status" class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] truncate">
-              NO OPTIC FILE ATTACHED
+              0 / 4 OPTIC FILES ATTACHED
             </span>
           </div>
+          <div class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] mt-1">
+            MAX 4 IMAGES // .JPG ONLY // EACH FILE MUST BE UNDER 200KB
+          </div>
 
-          <!-- Thumbnail Preview Box -->
-          <div id="create-image-preview-wrap" class="hidden mt-2.5 p-2 border border-[#1d5663] bg-[#040c10] flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
-              <img id="create-image-preview" src="" alt="Preview" class="w-12 h-12 object-cover border border-[#48d1e8] shrink-0" />
-              <div class="min-w-0">
-                <div id="create-image-name" class="font-mono-tech text-[11px] text-[#7df9ff] truncate">CAPTURE.PNG</div>
-                <div class="font-mono-tech text-[9px] text-[#397c8a] tracking-widest">READY FOR ARCHIVE ENCRYPTION</div>
-              </div>
-            </div>
-            <button
-              id="remove-image-btn"
-              type="button"
-              class="font-mono-tech text-[10px] px-2 py-1 border border-[#7a2028] text-[#e05a65] hover:border-[#ff4d5a] hover:bg-[#5c1118]/40 shrink-0"
-            >
-              REMOVE
-            </button>
+          <!-- Thumbnails Preview List -->
+          <div id="create-image-preview-wrap" class="hidden mt-2.5 flex flex-col gap-2">
+            <!-- Populated dynamically -->
           </div>
         </div>
       </div>
@@ -926,7 +913,10 @@
     let editingShardId = null;
     let editingMemberId = null;
     let currentUser = 'ADMIN';
-    let pendingImageDataUrl = null;
+    let pendingImages = [];
+
+    const MAX_IMAGES = 4;
+    const MAX_IMAGE_BYTES = 200 * 1024;
 
     /**
      * 3. DOM ELEMENT REFERENCES
@@ -973,8 +963,7 @@
     const modalMetaStrip = document.getElementById('modal-meta-strip');
     const modalBody = document.getElementById('modal-body');
     const modalImageWrap = document.getElementById('modal-image-wrap');
-    const modalImageBtn = document.getElementById('modal-image-btn');
-    const modalImageThumb = document.getElementById('modal-image-thumb');
+    const modalImagesList = document.getElementById('modal-images-list');
     const closeReaderBtn = document.getElementById('close-reader-btn');
     const modalDeleteBtn = document.getElementById('modal-delete-btn');
     const modalEditBtn = document.getElementById('modal-edit-btn');
@@ -993,9 +982,6 @@
     const createImageInput = document.getElementById('create-image-input');
     const uploadImageStatus = document.getElementById('upload-image-status');
     const createImagePreviewWrap = document.getElementById('create-image-preview-wrap');
-    const createImagePreview = document.getElementById('create-image-preview');
-    const createImageName = document.getElementById('create-image-name');
-    const removeImageBtn = document.getElementById('remove-image-btn');
 
     const lightboxModal = document.getElementById('lightbox-modal');
     const lightboxTitle = document.getElementById('lightbox-title');
@@ -1191,6 +1177,16 @@
       });
     }
 
+    function getShardImages(shard) {
+      if (Array.isArray(shard.images)) {
+        return shard.images.filter(Boolean);
+      }
+      if (shard.image) {
+        return [shard.image];
+      }
+      return [];
+    }
+
     function renderWorkspace() {
       const isAdmin = currentUser === 'ADMIN';
 
@@ -1230,10 +1226,12 @@
           const iconFill = isSecret ? 'rgba(255, 77, 90, 0.22)' : 'rgba(72, 209, 232, 0.16)';
           const subtitleColor = isSecret ? 'text-[#c94a53]' : 'text-[#397c8a]';
           const thumbBorder = isSecret ? 'border-[#8f1d24] hover:border-[#ff4d5a]' : 'border-[#236978] hover:border-[#7df9ff]';
+          const shardImages = getShardImages(item);
 
-          const thumbHtml = item.image
-            ? `<button type="button" data-enlarge-id="${escapeHtml(item.id)}" title="Click to enlarge image" class="shrink-0 w-10 h-10 border ${thumbBorder} bg-[#040c10] overflow-hidden cursor-zoom-in">
-                 <img src="${item.image}" alt="" class="w-full h-full object-cover block" />
+          const thumbHtml = shardImages.length > 0
+            ? `<button type="button" data-enlarge-id="${escapeHtml(item.id)}" data-enlarge-index="0" title="Click to enlarge image" class="relative shrink-0 w-10 h-10 border ${thumbBorder} bg-[#040c10] overflow-hidden cursor-zoom-in">
+                 <img src="${shardImages[0]}" alt="" class="w-full h-full object-cover block" />
+                 ${shardImages.length > 1 ? `<span class="absolute bottom-0 right-0 font-mono-tech text-[8px] px-1 bg-[#050f14]/90 text-[#7df9ff]">+${shardImages.length - 1}</span>` : ''}
                </button>`
             : '';
 
@@ -1270,8 +1268,10 @@
           if (enlargeBtn) {
             e.stopPropagation();
             const target = records.find((r) => r.id === enlargeBtn.dataset.enlargeId);
-            if (target && target.image) {
-              openLightbox(target.image, target.title);
+            const shardImages = target ? getShardImages(target) : [];
+            const idx = Number(enlargeBtn.dataset.enlargeIndex || 0);
+            if (shardImages[idx]) {
+              openLightbox(shardImages[idx], `${target.title} [${idx + 1}/${shardImages.length}]`);
             }
             return;
           }
@@ -1443,7 +1443,7 @@
         readerModalBox.className = 'w-full max-w-2xl border border-[#ff4d5a] bg-[#120507] shadow-[0_0_40px_rgba(255,77,90,0.32)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
         readerModalHeader.className = 'flex items-center justify-between px-5 py-3 border-b border-[#5e171d] bg-[#24090d]';
         modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#ff4d5a]';
-        modalMetaTop.textContent = `CLASSIFIED // SECRET_SHARD`;
+        modalMetaTop.textContent = 'CLASSIFIED // SECRET_SHARD';
         modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#ff7a84] mt-0.5';
         modalBody.className = 'font-mono-tech text-xs sm:text-sm text-[#ffb3b8] whitespace-pre-wrap leading-relaxed';
       } else {
@@ -1467,11 +1467,31 @@
         <div><span class="${labelColor} block text-[9px]">CLEARANCE</span><span class="${valColor}">${isSecret ? 'SECRET // LVL_5' : 'STANDARD'}</span></div>
       `;
 
-      if (shard.image) {
-        modalImageThumb.src = shard.image;
+      const shardImages = getShardImages(shard);
+      if (shardImages.length > 0) {
+        modalImagesList.innerHTML = shardImages
+          .map(
+            (imgSrc, idx) => `
+              <button type="button" data-reader-enlarge-idx="${idx}" class="group relative inline-block border border-[#236978] hover:border-[#7df9ff] bg-[#040c10] p-1 transition-all cursor-zoom-in focus:outline-none">
+                <img src="${imgSrc}" alt="Attached shard capture ${idx + 1}" class="max-h-32 w-auto object-contain block" />
+                <span class="absolute bottom-1 right-1 font-mono-tech text-[9px] px-1.5 py-0.5 bg-[#050f14]/90 border border-[#48d1e8] text-[#7df9ff] opacity-85 group-hover:opacity-100">
+                  [+ ${idx + 1}/${shardImages.length}]
+                </span>
+              </button>
+            `
+          )
+          .join('');
+        modalImagesList.querySelectorAll('[data-reader-enlarge-idx]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const idx = Number(btn.dataset.readerEnlargeIdx || 0);
+            if (shardImages[idx]) {
+              openLightbox(shardImages[idx], `${shard.title} [${idx + 1}/${shardImages.length}]`);
+            }
+          });
+        });
         modalImageWrap.classList.remove('hidden');
       } else {
-        modalImageThumb.src = '';
+        modalImagesList.innerHTML = '';
         modalImageWrap.classList.add('hidden');
       }
 
@@ -1486,13 +1506,6 @@
     closeReaderBtn.addEventListener('click', closeReaderModal);
     readerModal.addEventListener('click', (e) => {
       if (e.target === readerModal) closeReaderModal();
-    });
-
-    modalImageBtn.addEventListener('click', () => {
-      const shard = records.find((r) => r.id === selectedId);
-      if (shard && shard.image) {
-        openLightbox(shard.image, shard.title);
-      }
     });
 
     modalCopyBtn.addEventListener('click', async () => {
@@ -1527,14 +1540,54 @@
     });
 
     /**
-     * 10. IMAGE UPLOAD COMPRESSION & CREATE / EDIT SHARD MODAL
+     * 10. IMAGE UPLOAD VALIDATION & CREATE / EDIT SHARD MODAL
      */
+    function renderPendingImages() {
+      uploadImageStatus.textContent = `${pendingImages.length} / ${MAX_IMAGES} OPTIC FILES ATTACHED`;
+
+      if (pendingImages.length === 0) {
+        createImagePreviewWrap.innerHTML = '';
+        createImagePreviewWrap.classList.add('hidden');
+        return;
+      }
+
+      createImagePreviewWrap.classList.remove('hidden');
+      createImagePreviewWrap.innerHTML = pendingImages
+        .map(
+          (imgItem, idx) => `
+            <div class="p-2 border border-[#1d5663] bg-[#040c10] flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <img src="${imgItem.dataUrl}" alt="Preview" class="w-11 h-11 object-cover border border-[#48d1e8] shrink-0" />
+                <div class="min-w-0">
+                  <div class="font-mono-tech text-[11px] text-[#7df9ff] truncate">${escapeHtml(imgItem.name)}</div>
+                  <div class="font-mono-tech text-[9px] text-[#397c8a] tracking-widest">${(imgItem.size / 1024).toFixed(1)} KB // READY</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                data-remove-img-idx="${idx}"
+                class="font-mono-tech text-[10px] px-2 py-1 border border-[#7a2028] text-[#e05a65] hover:border-[#ff4d5a] hover:bg-[#5c1118]/40 shrink-0"
+              >
+                REMOVE
+              </button>
+            </div>
+          `
+        )
+        .join('');
+
+      createImagePreviewWrap.querySelectorAll('[data-remove-img-idx]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.removeImgIdx);
+          pendingImages.splice(idx, 1);
+          renderPendingImages();
+        });
+      });
+    }
+
     function resetCreateImage() {
-      pendingImageDataUrl = null;
+      pendingImages = [];
       createImageInput.value = '';
-      uploadImageStatus.textContent = 'NO OPTIC FILE ATTACHED';
-      createImagePreview.src = '';
-      createImagePreviewWrap.classList.add('hidden');
+      renderPendingImages();
     }
 
     function openCreateModal() {
@@ -1574,16 +1627,14 @@
         createClassificationWrap.classList.add('hidden');
       }
 
-      if (shard.image) {
-        pendingImageDataUrl = shard.image;
-        createImageInput.value = '';
-        createImagePreview.src = shard.image;
-        createImageName.textContent = 'EXISTING_OPTIC_CAPTURE.JPG';
-        uploadImageStatus.textContent = 'OPTIC CAPTURE ATTACHED';
-        createImagePreviewWrap.classList.remove('hidden');
-      } else {
-        resetCreateImage();
-      }
+      const existingImages = getShardImages(shard);
+      pendingImages = existingImages.slice(0, MAX_IMAGES).map((dataUrl, idx) => ({
+        name: `EXISTING_OPTIC_${idx + 1}.JPG`,
+        size: Math.round(dataUrl.length * 0.75),
+        dataUrl
+      }));
+      createImageInput.value = '';
+      renderPendingImages();
 
       createModal.classList.remove('hidden');
       document.getElementById('create-title').focus();
@@ -1606,44 +1657,63 @@
       createImageInput.click();
     });
 
-    removeImageBtn.addEventListener('click', resetCreateImage);
-
     createImageInput.addEventListener('change', (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
+      const files = Array.from(e.target.files || []);
+      createImageInput.value = '';
+      if (files.length === 0) return;
 
-      uploadImageStatus.textContent = 'ENCODING OPTIC CAPTURE...';
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const img = new Image();
-        img.onload = () => {
-          const maxDim = 960;
-          let w = img.width;
-          let h = img.height;
-          if (w > maxDim || h > maxDim) {
-            if (w > h) {
-              h = Math.round((h * maxDim) / w);
-              w = maxDim;
-            } else {
-              w = Math.round((w * maxDim) / h);
-              h = maxDim;
-            }
+      const availableSlots = MAX_IMAGES - pendingImages.length;
+      if (availableSlots <= 0) {
+        uploadImageStatus.textContent = `MAX ${MAX_IMAGES} IMAGES REACHED`;
+        return;
+      }
+
+      const filesToProcess = files.slice(0, availableSlots);
+      let skippedNonJpg = 0;
+      let skippedOversize = 0;
+      let skippedLimit = Math.max(0, files.length - availableSlots);
+
+      const readFileAsDataUrl = (file) =>
+        new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(ev.target.result);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(file);
+        });
+
+      (async () => {
+        uploadImageStatus.textContent = 'VALIDATING .JPG CAPTURES...';
+        for (const file of filesToProcess) {
+          const lowerName = (file.name || '').toLowerCase();
+          const isJpg = file.type === 'image/jpeg' || lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg');
+          if (!isJpg) {
+            skippedNonJpg += 1;
+            continue;
           }
-          const offscreen = document.createElement('canvas');
-          offscreen.width = w;
-          offscreen.height = h;
-          const octx = offscreen.getContext('2d');
-          octx.drawImage(img, 0, 0, w, h);
+          if (file.size >= MAX_IMAGE_BYTES) {
+            skippedOversize += 1;
+            continue;
+          }
+          const dataUrl = await readFileAsDataUrl(file);
+          if (dataUrl) {
+            pendingImages.push({
+              name: file.name.toUpperCase(),
+              size: file.size,
+              dataUrl
+            });
+          }
+        }
 
-          pendingImageDataUrl = offscreen.toDataURL('image/jpeg', 0.78);
-          createImagePreview.src = pendingImageDataUrl;
-          createImageName.textContent = file.name.toUpperCase();
-          uploadImageStatus.textContent = `${w}x${h} OPTIC ENCODED`;
-          createImagePreviewWrap.classList.remove('hidden');
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
+        renderPendingImages();
+
+        const warnings = [];
+        if (skippedNonJpg > 0) warnings.push(`${skippedNonJpg} NON-.JPG SKIPPED`);
+        if (skippedOversize > 0) warnings.push(`${skippedOversize} >=200KB SKIPPED`);
+        if (skippedLimit > 0) warnings.push(`${skippedLimit} OVER MAX 4 SKIPPED`);
+        if (warnings.length > 0) {
+          uploadImageStatus.textContent = warnings.join(' // ');
+        }
+      })();
     });
 
     createForm.addEventListener('submit', async (e) => {
@@ -1656,7 +1726,9 @@
       const isSecret = currentUser === 'ADMIN' && selectedClassification === 'SECRET';
 
       const formattedTitle = rawTitle.toUpperCase().replace(/\s+/g, '_');
-      const byteSize = new Blob([rawContent]).size + (pendingImageDataUrl ? Math.round(pendingImageDataUrl.length * 0.75) : 0);
+      const finalImages = pendingImages.slice(0, MAX_IMAGES).map((img) => img.dataUrl);
+      const imagesByteSize = pendingImages.slice(0, MAX_IMAGES).reduce((acc, img) => acc + (img.size || 0), 0);
+      const byteSize = new Blob([rawContent]).size + imagesByteSize;
       const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
 
       if (editingShardId) {
@@ -1673,7 +1745,8 @@
             : `USR_UPLOAD // ${existing.author || currentUser.toUpperCase()}`,
           size: sizeStr,
           content: rawContent,
-          image: pendingImageDataUrl || null,
+          images: finalImages,
+          image: finalImages[0] || null,
           updatedAt: Date.now()
         };
 
@@ -1700,7 +1773,8 @@
         size: sizeStr,
         hash: `0x${randHex()}...${randHex()}`,
         content: rawContent,
-        image: pendingImageDataUrl || null,
+        images: finalImages,
+        image: finalImages[0] || null,
         createdAt: Date.now()
       };
 
