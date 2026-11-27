@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NETWATCH // ARCHIVE TERMINAL v2.31</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-obsidian: #040709;
+      --bg-panel: rgba(7, 19, 24, 0.78);
+      --bg-card: rgba(8, 22, 28, 0.72);
+      --bg-card-active: rgba(18, 56, 68, 0.78);
+      --border-dim: #17454f;
+      --border-mid: #236978;
+      --cyan-bright: #48d1e8;
+      --cyan-glow: #7df9ff;
+      --crimson-deep: #4a0d13;
+      --crimson-glow: #8f1d24;
+      --text-primary: #7be2f4;
+      --text-muted: #397c8a;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    input, textarea {
+      user-select: text;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-obsidian);
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .font-mono-tech {
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .font-hud {
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    /* Atmospheric Background Canvas + Scanlines */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.22) 50%
+      );
+      background-size: 100% 4px;
+      opacity: 0.45;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(circle at center, transparent 40%, rgba(2, 4, 6, 0.85) 100%);
+    }
+
+    /* Chamfered Cyberpunk Geometry */
+    .chamfer-sm {
+      clip-path: polygon(
+        8px 0, 100% 0, 100% calc(100% - 8px),
+        calc(100% - 8px) 100%, 0 100%, 0 8px
+      );
+    }
+
+    .chamfer-md {
+      clip-path: polygon(
+        14px 0, 100% 0, 100% calc(100% - 14px),
+        calc(100% - 14px) 100%, 0 100%, 0 14px
+      );
+    }
+
+    .chamfer-card {
+      clip-path: polygon(
+        0 0, calc(100% - 10px) 0, 100% 10px,
+        100% 100%, 10px 100%, 0 calc(100% - 10px)
+      );
+    }
+
+    /* Tactical Input & Button Styling */
+    .cp-input-wrap {
+      position: relative;
+      background: rgba(6, 17, 22, 0.85);
+      border: 1px solid var(--border-mid);
+      transition: all 0.2s ease;
+    }
+
+    .cp-input-wrap::before,
+    .cp-input-wrap::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-color: var(--cyan-bright);
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+
+    .cp-input-wrap::before {
+      top: -1px;
+      left: -1px;
+      border-top: 2px solid var(--cyan-bright);
+      border-left: 2px solid var(--cyan-bright);
+    }
+
+    .cp-input-wrap::after {
+      bottom: -1px;
+      right: -1px;
+      border-bottom: 2px solid var(--cyan-bright);
+      border-right: 2px solid var(--cyan-bright);
+    }
+
+    .cp-input-wrap:focus-within {
+      border-color: var(--cyan-bright);
+      box-shadow: 0 0 16px rgba(72, 209, 232, 0.24), inset 0 0 10px rgba(72, 209, 232, 0.1);
+      background: rgba(10, 28, 36, 0.92);
+    }
+
+    .cp-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--cyan-glow);
+      font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 0.12em;
+    }
+
+    .cp-input::placeholder {
+      color: #2f6c79;
+      text-transform: uppercase;
+    }
+
+    .cp-btn {
+      position: relative;
+      background: rgba(14, 46, 56, 0.72);
+      border: 1px solid var(--cyan-bright);
+      color: var(--cyan-glow);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      box-shadow: 0 0 12px rgba(72, 209, 232, 0.15);
+    }
+
+    .cp-btn:hover:not(:disabled) {
+      background: rgba(72, 209, 232, 0.22);
+      box-shadow: 0 0 22px rgba(72, 209, 232, 0.42), inset 0 0 12px rgba(125, 249, 255, 0.25);
+      color: #ffffff;
+    }
+
+    .cp-btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .cp-btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    /* Top Navigation Tabs Matching Reference */
+    .nav-module {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.55rem 0.9rem;
+      background: rgba(6, 16, 20, 0.72);
+      border: 1px solid var(--border-dim);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-module:hover {
+      border-color: var(--border-mid);
+      background: rgba(11, 30, 38, 0.85);
+    }
+
+    .nav-module.locked,
+    .nav-module:disabled {
+      cursor: not-allowed;
+      opacity: 0.62;
+      border-color: #13363e;
+      background: rgba(5, 13, 17, 0.65);
+    }
+
+    .nav-module.locked:hover,
+    .nav-module:disabled:hover {
+      border-color: #13363e;
+      background: rgba(5, 13, 17, 0.65);
+    }
+
+    .nav-module.active {
+      border-color: var(--cyan-bright);
+      background: linear-gradient(180deg, rgba(20, 62, 74, 0.65) 0%, rgba(8, 24, 30, 0.92) 100%);
+      box-shadow: 0 0 18px rgba(72, 209, 232, 0.22), inset 0 0 14px rgba(72, 209, 232, 0.12);
+    }
+
+    /* Corner bracket ticks around module icons */
+    .icon-bracket {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-bracket span {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-color: var(--border-mid);
+      transition: border-color 0.2s ease;
+    }
+
+    .nav-module.active .icon-bracket span {
+      border-color: var(--cyan-bright);
+    }
+
+    .icon-bracket .tl { top: 0; left: 0; border-top: 1.5px solid; border-left: 1.5px solid; }
+    .icon-bracket .tr { top: 0; right: 0; border-top: 1.5px solid; border-right: 1.5px solid; }
+    .icon-bracket .bl { bottom: 0; left: 0; border-bottom: 1.5px solid; border-left: 1.5px solid; }
+    .icon-bracket .br { bottom: 0; right: 0; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+
+    /* Archive Item Card */
+    .archive-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .archive-card:hover {
+      border-color: var(--border-mid);
+      background: rgba(13, 36, 45, 0.82);
+    }
+
+    .archive-card.selected {
+      background: var(--bg-card-active);
+      border-color: var(--cyan-bright);
+      box-shadow: 0 0 16px rgba(72, 209, 232, 0.22), inset 0 0 18px rgba(72, 209, 232, 0.14);
+    }
+
+    .archive-card.selected .card-title {
+      color: var(--cyan-glow);
+      text-shadow: 0 0 8px rgba(125, 249, 255, 0.45);
+    }
+
+    /* Custom Terminal Scrollbar */
+    .cp-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .cp-scroll::-webkit-scrollbar-track {
+      background: rgba(5, 14, 18, 0.85);
+      border-left: 1px solid var(--border-dim);
+    }
+    .cp-scroll::-webkit-scrollbar-thumb {
+      background: var(--border-mid);
+      border: 1px solid var(--cyan-bright);
+    }
+    .cp-scroll::-webkit-scrollbar-thumb:hover {
+      background: var(--cyan-bright);
+    }
+
+    /* Subtle Boot / Reveal Transition */
+    @keyframes hudFadeIn {
+      0% { opacity: 0; transform: scale(0.985); filter: brightness(1.3); }
+      100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+    }
+
+    .hud-enter {
+      animation: hudFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pulseRed {
+      0%, 100% { opacity: 0.65; }
+      50% { opacity: 1; }
+    }
+    .pulse-red {
+      animation: pulseRed 2.4s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Organic Crimson Smoke / Energy Wisp Canvas -->
+  <canvas id="bg-canvas"></canvas>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+
+  <!-- =========================================================
+       1. STRICT INITIAL LOGIN SCREEN (NOTHING ELSE VISIBLE)
+       ========================================================= -->
+  <main id="login-screen" class="relative z-10 min-h-screen w-full flex items-center justify-center p-4">
+    <form id="login-form" class="w-full max-w-xs flex flex-col gap-3.5" autocomplete="off" novalidate>
+      <!-- 1. Username Box -->
+      <div class="cp-input-wrap">
+        <input
+          id="login-username"
+          type="text"
+          placeholder="USERNAME"
+          aria-label="Username"
+          class="cp-input px-4 py-3 text-sm"
+          spellcheck="false"
+        />
+      </div>
+
+      <!-- 2. Password Box Directly Below -->
+      <div class="cp-input-wrap">
+        <input
+          id="login-password"
+          type="password"
+          placeholder="PASSWORD"
+          aria-label="Password"
+          class="cp-input px-4 py-3 text-sm"
+        />
+      </div>
+
+      <!-- 3. Login Button Directly Below -->
+      <button id="login-submit" type="submit" class="cp-btn py-2.5 px-6 text-base">
+        LOGIN
+      </button>
+
+      <!-- Subtle Inline Terminal Feedback -->
+      <div id="login-status" class="font-mono-tech text-[11px] tracking-widest text-center h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
+    </form>
+  </main>
+
+  <!-- =========================================================
+       2. MAIN ARCHIVE DESKTOP (POST-LOGIN)
+       ========================================================= -->
+  <div id="desktop-screen" class="hidden relative z-10 min-h-screen w-full flex flex-col justify-between py-4 md:py-7 px-2 sm:px-5 md:px-8">
+
+    <!-- Top Terminal Header + Tab Modules -->
+    <header class="w-full max-w-[1380px] mx-auto">
+      <!-- Navigation Tabs Container -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 px-1 sm:px-6 md:px-14">
+        <!-- TAB: FILES -->
+        <button data-tab="FILES" class="nav-module active text-left" type="button">
+          <div class="icon-bracket">
+            <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polygon points="7,3 17,5 17,21 7,19" fill="rgba(72,209,232,0.18)" />
+              <polyline points="10,2 20,4 20,20" />
+              <line x1="10" y1="8" x2="14" y2="8.8" />
+              <line x1="10" y1="11.5" x2="14" y2="12.3" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#7df9ff] leading-none">FILES</div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">SYS.ARCHIVE // DB_01</div>
+          </div>
+        </button>
+
+        <!-- TAB: NET -->
+        <button data-tab="NET" data-locked="true" disabled aria-disabled="true" class="nav-module locked text-left" type="button">
+          <div class="icon-bracket">
+            <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+              <circle cx="12" cy="12" r="8.5" />
+              <ellipse cx="12" cy="12" rx="4" ry="8.5" />
+              <line x1="3.5" y1="12" x2="20.5" y2="12" />
+              <path d="M5 7.5 Q12 9.5 19 7.5" />
+              <path d="M5 16.5 Q12 14.5 19 16.5" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#58b9cc] leading-none">NET</div>
+              <span class="font-mono-tech text-[9px] tracking-wider uppercase px-1.5 py-0.5 border border-[#7a2028] bg-[#3a0d12]/60 text-[#e05a65] leading-none">Under Development</span>
+            </div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">NETWATCH // RELAYS</div>
+          </div>
+        </button>
+
+        <!-- TAB: MESSAGES -->
+        <button data-tab="MESSAGES" data-locked="true" disabled aria-disabled="true" class="nav-module locked text-left" type="button">
+          <div class="icon-bracket">
+            <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <polygon points="5,5 19,3 19,17 5,19" fill="rgba(72,209,232,0.12)" />
+              <polyline points="5,6 12,11.5 19,4" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <div class="font-hud font-bold text-base sm:text-lg tracking-[0.14em] text-[#58b9cc] leading-none">MESSAGES</div>
+              <span class="font-mono-tech text-[9px] tracking-wider uppercase px-1.5 py-0.5 border border-[#7a2028] bg-[#3a0d12]/60 text-[#e05a65] leading-none">Under Development</span>
+            </div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">ENC.COMMS // LOGS</div>
+          </div>
+        </button>
+
+        <!-- TAB: LOCAL NETWORK -->
+        <button data-tab="LOCAL NETWORK" data-locked="true" disabled aria-disabled="true" class="nav-module locked text-left" type="button">
+          <div class="icon-bracket">
+            <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+            <svg class="w-6 h-6 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+              <rect x="9.5" y="3" width="5" height="3.5" />
+              <line x1="12" y1="6.5" x2="12" y2="10" />
+              <line x1="5" y1="10" x2="19" y2="10" />
+              <line x1="5" y1="10" x2="5" y2="13" />
+              <line x1="12" y1="10" x2="12" y2="13" />
+              <line x1="19" y1="10" x2="19" y2="13" />
+              <rect x="3" y="13" width="4" height="3" />
+              <rect x="10" y="13" width="4" height="3" />
+              <rect x="17" y="13" width="4" height="3" />
+              <circle cx="12" cy="19.5" r="1.5" />
+              <line x1="12" y1="16" x2="12" y2="18" />
+            </svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <div class="font-hud font-bold text-sm sm:text-base xl:text-lg tracking-[0.12em] text-[#58b9cc] leading-none truncate">LOCAL NETWORK</div>
+              <span class="font-mono-tech text-[9px] tracking-wider uppercase px-1.5 py-0.5 border border-[#7a2028] bg-[#3a0d12]/60 text-[#e05a65] leading-none">Under Development</span>
+            </div>
+            <div class="font-mono-tech text-[9px] tracking-widest text-[#397c8a] mt-1 truncate">SUBNET // NODES</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Horizontal Tactical Divider Line with Outer Edge Metadata -->
+      <div class="relative mt-2.5 flex items-center justify-between border-b border-[#1c5461] pb-1.5">
+        <div class="flex items-center gap-3">
+          <div class="font-mono-tech text-[10px] leading-tight tracking-wider">
+            <div id="hud-date" class="text-[#c94a53]">14 April 2077</div>
+            <div id="hud-user" class="text-[#397c8a] uppercase">USR // ADMIN</div>
+          </div>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-2 font-mono-tech text-[10px] tracking-[0.25em] text-[#286370]">
+          <span>[</span>
+          <span id="active-sector-label" class="text-[#48d1e8]">SECTOR_01 // ARCHIVE_ROOT</span>
+          <span>]</span>
+        </div>
+
+        <div class="flex items-center gap-3 text-right">
+          <div class="font-mono-tech text-[10px] leading-tight tracking-wider">
+            <div id="hud-clock" class="text-[#c94a53]">03:41</div>
+            <div id="cloud-sync-badge" class="text-[#397c8a]">CLOUD // SYNCING</div>
+          </div>
+          <button
+            id="logout-btn"
+            type="button"
+            title="Disconnect Terminal"
+            class="font-mono-tech text-[10px] px-2 py-1 border border-[#1d5360] text-[#48d1e8] hover:border-[#ff4d5a] hover:text-[#ff6b76] hover:bg-[#3a0d12]/40 transition-colors tracking-widest uppercase"
+          >
+            EXIT
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Bordered Terminal Window -->
+    <section class="w-full max-w-[1220px] mx-auto my-3 flex-1 flex flex-col min-h-[500px] max-h-[74vh]">
+      <div class="relative flex-1 flex border border-[#1d5663] bg-[#050e13]/80 backdrop-blur-[2px] shadow-[0_0_35px_rgba(0,0,0,0.75)] overflow-hidden">
+
+        <!-- Main Workspace Column -->
+        <div class="flex-1 flex flex-col min-w-0">
+
+          <!-- Subtle Terminal Action & Search Toolbar -->
+          <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 border-b border-[#143d47] bg-[#07151c]/80">
+            <div class="flex items-center gap-2 flex-1 min-w-[200px] max-w-md">
+              <span class="font-mono-tech text-xs text-[#397c8a]">QUERY&gt;</span>
+              <input
+                id="search-input"
+                type="text"
+                placeholder="FILTER ARCHIVE RECORDS..."
+                class="w-full bg-[#040c10] border border-[#184854] focus:border-[#48d1e8] outline-none px-2.5 py-1 font-mono-tech text-xs text-[#7df9ff] placeholder-[#295c68] tracking-wider"
+              />
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span id="record-count" class="font-mono-tech text-[11px] text-[#397c8a] hidden sm:inline mr-2">10 RECORDS</span>
+              <button
+                id="new-entry-btn"
+                type="button"
+                class="font-mono-tech text-xs px-3 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider"
+              >
+                + ARCHIVE_ENTRY
+              </button>
+            </div>
+          </div>
+
+          <!-- Content Area: 2-Column Grid -->
+          <div class="flex-1 flex overflow-hidden">
+            <div id="grid-container" class="flex-1 overflow-y-auto cp-scroll p-3 sm:p-4">
+              <div id="items-grid" class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
+                <!-- Cards injected dynamically -->
+              </div>
+              <div id="empty-state" class="hidden py-16 text-center font-mono-tech text-sm text-[#397c8a] tracking-widest">
+                NO MATCHING DATA SHARDS FOUND IN CURRENT SECTOR.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Decorative Vertical Terminal Track -->
+        <div class="w-7 sm:w-8 border-l border-[#17454f] bg-[#061319]/90 flex flex-col items-center justify-between py-3 shrink-0">
+          <div class="w-1.5 h-16 bg-[#133b45] border border-[#256b7a]"></div>
+          <div class="w-[1px] flex-1 my-3 bg-gradient-to-b from-transparent via-[#1c5461] to-transparent"></div>
+          <div class="flex flex-col items-center gap-2.5 text-[#397c8a]">
+            <span class="w-2.5 h-2.5 rotate-45 border border-[#b8323c] bg-[#6e171e]/60 pulse-red" title="NETWATCH MONITOR ACTIVE"></span>
+            <svg class="w-3.5 h-3.5 text-[#3c8391]" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3">
+              <circle cx="8" cy="8" r="5" />
+              <line x1="8" y1="1" x2="8" y2="15" />
+              <line x1="1" y1="8" x2="15" y2="8" />
+            </svg>
+            <svg class="w-3.5 h-3.5 text-[#3c8391]" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3">
+              <polygon points="8,1.5 14,5 14,11 8,14.5 2,11 2,5" />
+              <circle cx="8" cy="8" r="2" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Subtle Footer Coordinates -->
+    <footer class="w-full max-w-[1220px] mx-auto flex items-center justify-between font-mono-tech text-[10px] tracking-[0.2em] text-[#285d69] px-1">
+      <span>NC_SUBNET // ENCRYPTION: AES-4096-Q</span>
+      <span class="hidden sm:inline">CLICK CARD TO OPEN SHARD // CLICK IMAGE TO ENLARGE</span>
+      <span>MEM_ALLOC: 98.4%</span>
+    </footer>
+  </div>
+
+  <!-- =========================================================
+       3. SHARD READER / DECRYPTION MODAL
+       ========================================================= -->
+  <div id="reader-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter">
+      <!-- Modal Top Bar -->
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div id="modal-meta-top" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DATASHARD // DECRYPTED</div>
+          <h2 id="modal-title" class="font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5">TITLE</h2>
+        </div>
+        <button id="close-reader-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76] transition-colors">
+          [X] CLOSE
+        </button>
+      </div>
+
+      <!-- Metadata Strip -->
+      <div id="modal-meta-strip" class="grid grid-cols-2 sm:grid-cols-4 gap-2 px-5 py-2.5 border-b border-[#133b45] bg-[#050f14] font-mono-tech text-[11px]">
+        <!-- Populated dynamically -->
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto cp-scroll flex-1">
+        <pre id="modal-body" class="font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed"></pre>
+        <!-- Attached Image Thumbnail Container -->
+        <div id="modal-image-wrap" class="hidden mt-4 pt-3 border-t border-[#143d47]">
+          <div class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8] mb-2">ATTACHED_OPTIC_CAPTURE // CLICK TO ENLARGE</div>
+          <button id="modal-image-btn" type="button" class="group relative inline-block border border-[#236978] hover:border-[#7df9ff] bg-[#040c10] p-1 transition-all cursor-zoom-in focus:outline-none">
+            <img id="modal-image-thumb" src="" alt="Attached shard capture" class="max-h-36 w-auto object-contain block" />
+            <span class="absolute bottom-1 right-1 font-mono-tech text-[9px] px-1.5 py-0.5 bg-[#050f14]/90 border border-[#48d1e8] text-[#7df9ff] opacity-85 group-hover:opacity-100">
+              [+ ENLARGE]
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Footer Actions -->
+      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button id="modal-delete-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors">
+          PURGE_SHARD
+        </button>
+        <div class="flex items-center gap-2">
+          <span id="copy-feedback" class="font-mono-tech text-[11px] text-[#7df9ff] opacity-0 transition-opacity">COPIED TO BUFFER</span>
+          <button id="modal-copy-btn" type="button" class="cp-btn text-xs py-1.5 px-4">
+            COPY DATA
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       4. NEW ARCHIVE ENTRY MODAL
+       ========================================================= -->
+  <div id="create-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="create-form" class="w-full max-w-lg border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">WRITE_PROTOCOL // NEW_RECORD</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">ARCHIVE NEW SHARD</h2>
+        </div>
+        <button id="close-create-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-3.5">
+        <div>
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">TITLE</label>
+          <input
+            id="create-title"
+            type="text"
+            required
+            placeholder="E.G. ARASAKA_SUBNET_DUMP_04"
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
+          />
+        </div>
+
+        <div>
+          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ARCHIVE CONTENTS</label>
+          <textarea
+            id="create-content"
+            rows="6"
+            required
+            placeholder="ENTER ENCRYPTED LOGS, NOTES, OR DATASHARD CONTENTS..."
+            class="w-full bg-[#040c10] border border-[#236978] p-3 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
+          ></textarea>
+        </div>
+
+        <!-- Upload Image Control & Live Preview -->
+        <div>
+          <input id="create-image-input" type="file" accept="image/*" class="hidden" />
+          <div class="flex items-center justify-between gap-3">
+            <button
+              id="upload-image-btn"
+              type="button"
+              class="font-mono-tech text-xs px-3.5 py-1.5 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider flex items-center gap-2"
+            >
+              <svg class="w-3.5 h-3.5 text-[#48d1e8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="4" width="18" height="16" rx="1" />
+                <circle cx="8.5" cy="9.5" r="1.5" />
+                <polyline points="21,16 15,10 5,20" />
+              </svg>
+              UPLOAD IMAGE
+            </button>
+            <span id="upload-image-status" class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] truncate">
+              NO OPTIC FILE ATTACHED
+            </span>
+          </div>
+
+          <!-- Thumbnail Preview Box -->
+          <div id="create-image-preview-wrap" class="hidden mt-2.5 p-2 border border-[#1d5663] bg-[#040c10] flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <img id="create-image-preview" src="" alt="Preview" class="w-12 h-12 object-cover border border-[#48d1e8] shrink-0" />
+              <div class="min-w-0">
+                <div id="create-image-name" class="font-mono-tech text-[11px] text-[#7df9ff] truncate">CAPTURE.PNG</div>
+                <div class="font-mono-tech text-[9px] text-[#397c8a] tracking-widest">READY FOR ARCHIVE ENCRYPTION</div>
+              </div>
+            </div>
+            <button
+              id="remove-image-btn"
+              type="button"
+              class="font-mono-tech text-[10px] px-2 py-1 border border-[#7a2028] text-[#e05a65] hover:border-[#ff4d5a] hover:bg-[#5c1118]/40 shrink-0"
+            >
+              REMOVE
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button id="cancel-create-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+          CANCEL
+        </button>
+        <button type="submit" class="cp-btn text-xs py-1.5 px-5">
+          COMMIT TO ARCHIVE
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================================================
+       5. FULL-SIZE ENLARGED IMAGE LIGHTBOX MODAL
+       ========================================================= -->
+  <div id="lightbox-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8">
+    <div class="relative max-w-5xl max-h-[92vh] flex flex-col border border-[#48d1e8] bg-[#051015] shadow-[0_0_50px_rgba(72,209,232,0.35)] hud-enter">
+      <div class="flex items-center justify-between gap-4 px-4 py-2.5 border-b border-[#1b525e] bg-[#0a212b]">
+        <span id="lightbox-title" class="font-mono-tech text-xs tracking-widest text-[#7df9ff] truncate">OPTIC_CAPTURE // FULL_RESOLUTION</span>
+        <button id="close-lightbox-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76] shrink-0">
+          [X] CLOSE
+        </button>
+      </div>
+      <div class="p-3 overflow-auto flex items-center justify-center bg-[#03080b]">
+        <img id="lightbox-img" src="" alt="Enlarged shard image" class="max-w-full max-h-[78vh] object-contain border border-[#17454f]" />
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    /**
+     * 0. FIREBASE CLOUD FIRESTORE CONFIGURATION (VDB-Database)
+     */
+    const firebaseConfig = {
+      apiKey: "AIzaSyCoa87CgsnJlua6Pz3Lrq8W5tm4ouXR1FU",
+      authDomain: "vdb-database.firebaseapp.com",
+      projectId: "vdb-database",
+      storageBucket: "vdb-database.firebasestorage.app",
+      messagingSenderId: "977064596342",
+      appId: "1:977064596342:web:80f734ebbad33d2a9ee057",
+      measurementId: "G-GSZ2JPR1F1"
+    };
+
+    let db = null;
+    let shardsCollection = null;
+    try {
+      const firebaseApp = initializeApp(firebaseConfig);
+      db = getFirestore(firebaseApp);
+      shardsCollection = collection(db, "archive_shards");
+    } catch (initErr) {
+      console.error("Firebase initialization warning:", initErr);
+    }
+
+    /**
+     * 1. ATMOSPHERIC BACKGROUND CANVAS (CRIMSON WISPS)
+     */
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const wisps = Array.from({ length: 7 }, (_, i) => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: 220 + Math.random() * 280,
+      vx: (Math.random() - 0.5) * 0.22,
+      vy: (Math.random() - 0.5) * 0.18,
+      alpha: 0.09 + (i % 3) * 0.035
+    }));
+
+    function renderBackdrop() {
+      ctx.fillStyle = '#040709';
+      ctx.fillRect(0, 0, width, height);
+
+      for (const w of wisps) {
+        w.x += w.vx;
+        w.y += w.vy;
+        if (w.x < -w.r) w.x = width + w.r;
+        if (w.x > width + w.r) w.x = -w.r;
+        if (w.y < -w.r) w.y = height + w.r;
+        if (w.y > height + w.r) w.y = -w.r;
+
+        const grad = ctx.createRadialGradient(w.x, w.y, 10, w.x, w.y, w.r);
+        grad.addColorStop(0, `rgba(148, 24, 34, ${w.alpha})`);
+        grad.addColorStop(0.55, `rgba(82, 12, 18, ${w.alpha * 0.45})`);
+        grad.addColorStop(1, 'rgba(4, 7, 9, 0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(renderBackdrop);
+    }
+    renderBackdrop();
+
+    /**
+     * 2. ARCHIVE DATA & CLOUD FIRESTORE SYNC
+     */
+    const SAMPLE_IDS = new Set([
+      'cp-2077-231',
+      'marmoset-tb',
+      'steam-apex',
+      'figma-ui',
+      'riot-league',
+      'cursor-ide',
+      'zbrush-sculpt',
+      'aseprite-px',
+      'autodesk-maya',
+      'appdata-roaming'
+    ]);
+
+    let records = [];
+    let activeTab = 'FILES';
+    let selectedId = null;
+    let currentUser = 'ADMIN';
+    let pendingImageDataUrl = null;
+
+    /**
+     * 3. DOM ELEMENT REFERENCES
+     */
+    const loginScreen = document.getElementById('login-screen');
+    const loginForm = document.getElementById('login-form');
+    const loginUsername = document.getElementById('login-username');
+    const loginPassword = document.getElementById('login-password');
+    const loginSubmit = document.getElementById('login-submit');
+    const loginStatus = document.getElementById('login-status');
+
+    const desktopScreen = document.getElementById('desktop-screen');
+    const hudUser = document.getElementById('hud-user');
+    const hudClock = document.getElementById('hud-clock');
+    const cloudSyncBadge = document.getElementById('cloud-sync-badge');
+    const activeSectorLabel = document.getElementById('active-sector-label');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    const navModules = document.querySelectorAll('.nav-module');
+    const searchInput = document.getElementById('search-input');
+    const recordCount = document.getElementById('record-count');
+    const itemsGrid = document.getElementById('items-grid');
+    const emptyState = document.getElementById('empty-state');
+    const newEntryBtn = document.getElementById('new-entry-btn');
+
+    const readerModal = document.getElementById('reader-modal');
+    const modalMetaTop = document.getElementById('modal-meta-top');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMetaStrip = document.getElementById('modal-meta-strip');
+    const modalBody = document.getElementById('modal-body');
+    const modalImageWrap = document.getElementById('modal-image-wrap');
+    const modalImageBtn = document.getElementById('modal-image-btn');
+    const modalImageThumb = document.getElementById('modal-image-thumb');
+    const closeReaderBtn = document.getElementById('close-reader-btn');
+    const modalDeleteBtn = document.getElementById('modal-delete-btn');
+    const modalCopyBtn = document.getElementById('modal-copy-btn');
+    const copyFeedback = document.getElementById('copy-feedback');
+
+    const createModal = document.getElementById('create-modal');
+    const createForm = document.getElementById('create-form');
+    const closeCreateBtn = document.getElementById('close-create-btn');
+    const cancelCreateBtn = document.getElementById('cancel-create-btn');
+    const uploadImageBtn = document.getElementById('upload-image-btn');
+    const createImageInput = document.getElementById('create-image-input');
+    const uploadImageStatus = document.getElementById('upload-image-status');
+    const createImagePreviewWrap = document.getElementById('create-image-preview-wrap');
+    const createImagePreview = document.getElementById('create-image-preview');
+    const createImageName = document.getElementById('create-image-name');
+    const removeImageBtn = document.getElementById('remove-image-btn');
+
+    const lightboxModal = document.getElementById('lightbox-modal');
+    const lightboxTitle = document.getElementById('lightbox-title');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const closeLightboxBtn = document.getElementById('close-lightbox-btn');
+
+    /**
+     * 4. CLOUD FIRESTORE SYNC HANDLERS
+     */
+    async function saveShardToCloud(shard) {
+      if (!db) return;
+      try {
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SAVING...';
+        await setDoc(doc(db, "archive_shards", shard.id), shard);
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
+      } catch (err) {
+        console.error("Firestore write error:", err);
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_WRITE';
+      }
+    }
+
+    async function deleteShardFromCloud(id) {
+      if (!db) return;
+      try {
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // PURGING...';
+        await deleteDoc(doc(db, "archive_shards", id));
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // SYNCED';
+      } catch (err) {
+        console.error("Firestore delete error:", err);
+        if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ERR_DEL';
+      }
+    }
+
+    if (shardsCollection) {
+      onSnapshot(
+        shardsCollection,
+        async (snapshot) => {
+          const cloudList = [];
+          for (const docSnap of snapshot.docs) {
+            const data = docSnap.data();
+            if (SAMPLE_IDS.has(docSnap.id) || SAMPLE_IDS.has(data.id)) {
+              deleteDoc(doc(db, "archive_shards", docSnap.id)).catch(() => {});
+              continue;
+            }
+            cloudList.push(data);
+          }
+
+          cloudList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          records = cloudList;
+          if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ONLINE';
+          renderWorkspace();
+        },
+        (error) => {
+          console.error("Firestore sync error:", error);
+          if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // OFFLINE';
+        }
+      );
+    }
+
+    /**
+     * 5. LOGIN GATE LOGIC
+     */
+    function showLoginMessage(msg, isSuccess = false) {
+      loginStatus.textContent = msg;
+      loginStatus.style.color = isSuccess ? '#7df9ff' : '#ff4d5a';
+      loginStatus.classList.remove('opacity-0');
+      loginStatus.classList.add('opacity-100');
+    }
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = loginUsername.value.trim();
+      const pass = loginPassword.value;
+
+      if (!user || !pass) {
+        showLoginMessage('ACCESS DENIED // CREDENTIALS REQUIRED');
+        return;
+      }
+
+      if (user !== 'Admin' || pass !== 'VDBForever') {
+        showLoginMessage('ACCESS DENIED // INVALID CREDENTIALS');
+        return;
+      }
+
+      currentUser = user.toUpperCase();
+      loginSubmit.disabled = true;
+      showLoginMessage('HANDSHAKE VERIFIED // DECRYPTING...', true);
+
+      setTimeout(() => {
+        hudUser.textContent = `USR // ${currentUser}`;
+        loginScreen.classList.add('hidden');
+        desktopScreen.classList.remove('hidden');
+        desktopScreen.classList.add('hud-enter');
+        loginSubmit.disabled = false;
+        loginStatus.classList.add('opacity-0');
+        renderWorkspace();
+      }, 420);
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      desktopScreen.classList.add('hidden');
+      loginScreen.classList.remove('hidden');
+      loginPassword.value = '';
+      loginStatus.classList.add('opacity-0');
+      loginUsername.focus();
+    });
+
+    /**
+     * 6. CLOCK & HUD METADATA UPDATER
+     */
+    function updateClock() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      hudClock.textContent = `${hh}:${mm}`;
+    }
+    updateClock();
+    setInterval(updateClock, 15000);
+
+    /**
+     * 7. RENDER WORKSPACE & CARDS
+     */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function getFilteredRecords() {
+      const q = searchInput.value.trim().toLowerCase();
+      return records.filter((item) => {
+        if (item.tab !== activeTab) return false;
+        if (!q) return true;
+        return (
+          (item.title && item.title.toLowerCase().includes(q)) ||
+          (item.subtitle && item.subtitle.toLowerCase().includes(q)) ||
+          (item.content && item.content.toLowerCase().includes(q))
+        );
+      });
+    }
+
+    function renderWorkspace() {
+      const list = getFilteredRecords();
+      recordCount.textContent = `${list.length} RECORD${list.length === 1 ? '' : 'S'}`;
+
+      if (list.length === 0) {
+        itemsGrid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      itemsGrid.innerHTML = list
+        .map((item) => {
+          const isSelected = item.id === selectedId;
+          const thumbHtml = item.image
+            ? `<button type="button" data-enlarge-id="${escapeHtml(item.id)}" title="Click to enlarge image" class="shrink-0 w-10 h-10 border border-[#236978] hover:border-[#7df9ff] bg-[#040c10] overflow-hidden cursor-zoom-in">
+                 <img src="${item.image}" alt="" class="w-full h-full object-cover block" />
+               </button>`
+            : '';
+
+          return `
+            <div data-id="${escapeHtml(item.id)}" class="archive-card chamfer-card ${isSelected ? 'selected' : ''}">
+              <div class="shrink-0 text-[#48d1e8]">
+                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <polygon points="6,3 16,5 16,21 6,19" fill="rgba(72,209,232,0.16)" />
+                  <polyline points="9,2 19,4 19,20" />
+                  <line x1="9" y1="8.5" x2="13" y2="9.3" />
+                  <line x1="9" y1="12" x2="13" y2="12.8" />
+                </svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="card-title font-hud font-bold text-base sm:text-lg tracking-[0.08em] text-[#6cd9ed] truncate">
+                  ${escapeHtml(item.title)}
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                  ${escapeHtml(item.subtitle || 'SYS.ARCHIVE // SHARD')}
+                </div>
+              </div>
+              ${thumbHtml}
+            </div>
+          `;
+        })
+        .join('');
+
+      // Card single-click -> open reader modal immediately
+      itemsGrid.querySelectorAll('.archive-card').forEach((cardEl) => {
+        cardEl.addEventListener('click', (e) => {
+          const enlargeBtn = e.target.closest('[data-enlarge-id]');
+          if (enlargeBtn) {
+            e.stopPropagation();
+            const target = records.find((r) => r.id === enlargeBtn.dataset.enlargeId);
+            if (target && target.image) {
+              openLightbox(target.image, target.title);
+            }
+            return;
+          }
+
+          const id = cardEl.dataset.id;
+          selectedId = id;
+          renderWorkspace();
+          openReaderModal(id);
+        });
+      });
+    }
+
+    /**
+     * 8. NAVIGATION TABS & SEARCH
+     */
+    navModules.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.locked === 'true' || btn.disabled) return;
+        navModules.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTab = btn.dataset.tab;
+        activeSectorLabel.textContent = `SECTOR_01 // ${activeTab}`;
+        renderWorkspace();
+      });
+    });
+
+    searchInput.addEventListener('input', () => {
+      renderWorkspace();
+    });
+
+    /**
+     * 9. SHARD READER MODAL
+     */
+    function openReaderModal(id) {
+      const shard = records.find((r) => r.id === id);
+      if (!shard) return;
+
+      selectedId = shard.id;
+      modalMetaTop.textContent = `DATASHARD // ${shard.tab || 'FILES'}`;
+      modalTitle.textContent = shard.title;
+      modalBody.textContent = shard.content || '';
+
+      modalMetaStrip.innerHTML = `
+        <div><span class="text-[#397c8a] block text-[9px]">DATE</span><span class="text-[#7df9ff]">${escapeHtml(shard.date || '2077.04.14')}</span></div>
+        <div><span class="text-[#397c8a] block text-[9px]">AUTHOR</span><span class="text-[#7df9ff]">${escapeHtml(shard.author || 'ADMIN')}</span></div>
+        <div><span class="text-[#397c8a] block text-[9px]">SIZE</span><span class="text-[#7df9ff]">${escapeHtml(shard.size || '1.0 KB')}</span></div>
+        <div><span class="text-[#397c8a] block text-[9px]">HASH</span><span class="text-[#7df9ff]">${escapeHtml(shard.hash || '0x0000...FFFF')}</span></div>
+      `;
+
+      if (shard.image) {
+        modalImageThumb.src = shard.image;
+        modalImageWrap.classList.remove('hidden');
+      } else {
+        modalImageThumb.src = '';
+        modalImageWrap.classList.add('hidden');
+      }
+
+      copyFeedback.classList.add('opacity-0');
+      readerModal.classList.remove('hidden');
+    }
+
+    function closeReaderModal() {
+      readerModal.classList.add('hidden');
+    }
+
+    closeReaderBtn.addEventListener('click', closeReaderModal);
+    readerModal.addEventListener('click', (e) => {
+      if (e.target === readerModal) closeReaderModal();
+    });
+
+    modalImageBtn.addEventListener('click', () => {
+      const shard = records.find((r) => r.id === selectedId);
+      if (shard && shard.image) {
+        openLightbox(shard.image, shard.title);
+      }
+    });
+
+    modalCopyBtn.addEventListener('click', async () => {
+      const shard = records.find((r) => r.id === selectedId);
+      if (!shard) return;
+      try {
+        await navigator.clipboard.writeText(`${shard.title}\n\n${shard.content}`);
+        copyFeedback.classList.remove('opacity-0');
+        setTimeout(() => copyFeedback.classList.add('opacity-0'), 1800);
+      } catch (_) {
+        // Fallback ignore
+      }
+    });
+
+    modalDeleteBtn.addEventListener('click', async () => {
+      if (!selectedId) return;
+      const targetId = selectedId;
+      records = records.filter((r) => r.id !== targetId);
+      selectedId = records[0]?.id || null;
+      closeReaderModal();
+      renderWorkspace();
+      await deleteShardFromCloud(targetId);
+    });
+
+    /**
+     * 10. IMAGE UPLOAD COMPRESSION & CREATE SHARD MODAL
+     */
+    function resetCreateImage() {
+      pendingImageDataUrl = null;
+      createImageInput.value = '';
+      uploadImageStatus.textContent = 'NO OPTIC FILE ATTACHED';
+      createImagePreview.src = '';
+      createImagePreviewWrap.classList.add('hidden');
+    }
+
+    function openCreateModal() {
+      createForm.reset();
+      resetCreateImage();
+      createModal.classList.remove('hidden');
+      document.getElementById('create-title').focus();
+    }
+
+    function closeCreateModal() {
+      createModal.classList.add('hidden');
+      resetCreateImage();
+    }
+
+    newEntryBtn.addEventListener('click', openCreateModal);
+    closeCreateBtn.addEventListener('click', closeCreateModal);
+    cancelCreateBtn.addEventListener('click', closeCreateModal);
+    createModal.addEventListener('click', (e) => {
+      if (e.target === createModal) closeCreateModal();
+    });
+
+    uploadImageBtn.addEventListener('click', () => {
+      createImageInput.click();
+    });
+
+    removeImageBtn.addEventListener('click', resetCreateImage);
+
+    createImageInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      uploadImageStatus.textContent = 'ENCODING OPTIC CAPTURE...';
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          // Resize and compress so Firestore 1MB document limit is safely respected
+          const maxDim = 960;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const offscreen = document.createElement('canvas');
+          offscreen.width = w;
+          offscreen.height = h;
+          const octx = offscreen.getContext('2d');
+          octx.drawImage(img, 0, 0, w, h);
+
+          pendingImageDataUrl = offscreen.toDataURL('image/jpeg', 0.78);
+          createImagePreview.src = pendingImageDataUrl;
+          createImageName.textContent = file.name.toUpperCase();
+          uploadImageStatus.textContent = `${w}x${h} OPTIC ENCODED`;
+          createImagePreviewWrap.classList.remove('hidden');
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    createForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const rawTitle = document.getElementById('create-title').value.trim();
+      const rawContent = document.getElementById('create-content').value.trim();
+      if (!rawTitle || !rawContent) return;
+
+      const formattedTitle = rawTitle.toUpperCase().replace(/\s+/g, '_');
+      const now = new Date();
+      const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+      const byteSize = new Blob([rawContent]).size + (pendingImageDataUrl ? Math.round(pendingImageDataUrl.length * 0.75) : 0);
+      const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
+      const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
+
+      const newShard = {
+        id: `usr-${Date.now()}`,
+        tab: 'FILES',
+        title: formattedTitle,
+        subtitle: `USR_UPLOAD // ${currentUser.toUpperCase()}`,
+        date: dateStr,
+        author: currentUser.toUpperCase(),
+        size: sizeStr,
+        hash: `0x${randHex()}...${randHex()}`,
+        content: rawContent,
+        image: pendingImageDataUrl || null,
+        createdAt: Date.now()
+      };
+
+      records.unshift(newShard);
+      selectedId = newShard.id;
+      closeCreateModal();
+      renderWorkspace();
+      await saveShardToCloud(newShard);
+    });
+
+    /**
+     * 11. FULL-SIZE IMAGE LIGHTBOX
+     */
+    function openLightbox(src, title) {
+      lightboxImg.src = src;
+      lightboxTitle.textContent = `${title || 'OPTIC_CAPTURE'} // FULL_RESOLUTION`;
+      lightboxModal.classList.remove('hidden');
+    }
+
+    function closeLightbox() {
+      lightboxModal.classList.add('hidden');
+      lightboxImg.src = '';
+    }
+
+    closeLightboxBtn.addEventListener('click', closeLightbox);
+    lightboxModal.addEventListener('click', (e) => {
+      if (e.target === lightboxModal) closeLightbox();
+    });
+
+    /**
+     * 12. GLOBAL ESCAPE KEY HANDLER
+     */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (!lightboxModal.classList.contains('hidden')) {
+          closeLightbox();
+        } else if (!createModal.classList.contains('hidden')) {
+          closeCreateModal();
+        } else if (!readerModal.classList.contains('hidden')) {
+          closeReaderModal();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
