@@ -566,6 +566,14 @@
             <span id="requests-badge" class="hidden px-1 py-0.2 bg-[#6e171e] border border-[#ff4d5a] text-[#ff9aa2] text-[9px] leading-tight">0</span>
           </button>
           <button
+            id="make-request-btn"
+            type="button"
+            title="Submit a Request to Staff"
+            class="hidden font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase"
+          >
+            MAKE REQUEST
+          </button>
+          <button
             id="notifications-btn"
             type="button"
             title="Notifications"
@@ -573,6 +581,18 @@
           >
             <span>NOTIFICATIONS</span>
             <span id="notifications-badge" class="hidden px-1 py-0.2 bg-[#6e171e] border border-[#ff4d5a] text-[#ff9aa2] text-[9px] leading-tight">0</span>
+          </button>
+          <button
+            id="admin-settings-btn"
+            type="button"
+            title="Admin Settings"
+            aria-label="Admin Settings"
+            class="hidden font-mono-tech text-[10px] px-2 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors flex items-center justify-center"
+          >
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
           </button>
           <button
             id="logout-btn"
@@ -615,6 +635,83 @@
                 + ARCHIVE_ENTRY
               </button>
             </div>
+          </div>
+
+          <!-- Admin Settings View (Hidden unless SETTINGS tab active for Admin) -->
+          <div id="admin-settings-view" class="hidden flex-1 overflow-y-auto cp-scroll p-4 sm:p-6">
+            <form id="admin-settings-form" class="max-w-2xl flex flex-col gap-5">
+              <div class="border-b border-[#143d47] pb-3 flex items-center justify-between gap-3">
+                <div>
+                  <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8]">ROOT_CONFIG // GLOBAL_SUBNET_PREFS</div>
+                  <h2 class="font-hud font-bold text-xl tracking-[0.14em] text-[#7df9ff] mt-0.5">ADMIN SETTINGS</h2>
+                </div>
+                <span class="font-mono-tech text-[10px] tracking-widest px-2 py-0.5 border border-[#236978] bg-[#040c10] text-[#48d1e8] uppercase">
+                  ADMIN ONLY
+                </span>
+              </div>
+
+              <!-- Global Background Image Setting -->
+              <div class="p-4 border border-[#17454f] bg-[#040c10]/85 flex flex-col gap-2.5">
+                <label for="admin-bg-url-input" class="font-mono-tech text-xs tracking-widest text-[#7df9ff] uppercase">
+                  Background Image:
+                </label>
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <input
+                    id="admin-bg-url-input"
+                    type="url"
+                    placeholder="HTTPS://EXAMPLE.COM/BACKGROUND.JPG"
+                    class="flex-1 bg-[#061319] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+                  />
+                  <button
+                    id="admin-submit-bg-btn"
+                    type="button"
+                    class="cp-btn text-xs px-4 py-2 shrink-0"
+                  >
+                    Submit
+                  </button>
+                  <button
+                    id="admin-remove-bg-btn"
+                    type="button"
+                    class="font-mono-tech text-xs px-3 py-2 border border-[#7a2028] bg-[#26080c]/80 text-[#e05a65] hover:text-white hover:border-[#ff4d5a] transition-colors tracking-wider uppercase shrink-0"
+                  >
+                    Remove Background Image
+                  </button>
+                </div>
+              </div>
+
+              <!-- Global UI Accent Color Picker (Blue/Cyan UI Elements Only) -->
+              <div class="p-4 border border-[#17454f] bg-[#040c10]/85 flex flex-col gap-2.5">
+                <label for="admin-ui-color-input" class="font-mono-tech text-xs tracking-widest text-[#7df9ff] uppercase">
+                  UI Color:
+                </label>
+                <div class="flex flex-wrap items-center gap-3">
+                  <input
+                    id="admin-ui-color-input"
+                    type="color"
+                    value="#48d1e8"
+                    class="w-12 h-9 bg-[#061319] border border-[#236978] cursor-pointer p-0.5"
+                  />
+                  <span id="admin-ui-color-hex" class="font-mono-tech text-xs tracking-widest text-[#7df9ff]">#48D1E8</span>
+                  <button
+                    id="admin-reset-color-btn"
+                    type="button"
+                    class="font-mono-tech text-xs px-3 py-1.5 border border-[#226675] bg-[#071820] text-[#48d1e8] hover:text-white hover:border-[#7df9ff] transition-colors tracking-wider uppercase"
+                  >
+                    RESET DEFAULT
+                  </button>
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-wider text-[#397c8a]">
+                  APPLIES ONLY TO THE BLUE/CYAN INTERFACE ELEMENTS FOR ALL USERS; SECRET CRIMSON ACCENTS REMAIN UNCHANGED.
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between gap-3 pt-1">
+                <span id="admin-settings-status" class="font-mono-tech text-[11px] tracking-widest text-[#7df9ff] min-h-4"></span>
+                <button type="submit" class="cp-btn text-xs py-2 px-5">
+                  SAVE SETTINGS
+                </button>
+              </div>
+            </form>
           </div>
 
           <!-- Messages Sub-Board View (Hidden unless MESSAGES tab active) -->
@@ -965,6 +1062,118 @@
   </div>
 
   <!-- =========================================================
+       4C-2. NORMAL USER MAKE REQUEST OVERLAY MODAL
+       ========================================================= -->
+  <div id="make-request-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="make-request-form" class="w-full max-w-md border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">SUBNET_UPLINK // STAFF_REQUEST</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">MAKE REQUEST</h2>
+        </div>
+        <button id="close-make-request-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-3.5">
+        <div>
+          <label for="user-request-title" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">REQUEST TITLE</label>
+          <input
+            id="user-request-title"
+            type="text"
+            required
+            placeholder="ENTER REQUEST TITLE..."
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+          />
+        </div>
+
+        <div>
+          <label for="user-request-body" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">REQUEST CONTENTS</label>
+          <textarea
+            id="user-request-body"
+            rows="5"
+            required
+            placeholder="DESCRIBE YOUR REQUEST FOR ADMINS AND MODERATORS..."
+            class="w-full bg-[#040c10] border border-[#236978] p-3 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button id="cancel-make-request-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+          CANCEL
+        </button>
+        <button type="submit" class="cp-btn text-xs py-1.5 px-5">
+          SUBMIT REQUEST
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================================================
+       4C-3. STAFF REQUEST READER & ACTION OVERLAY MODAL
+       ========================================================= -->
+  <div id="request-reader-modal" class="hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div id="request-reader-box" class="w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_45px_rgba(72,209,232,0.32)] chamfer-md flex flex-col max-h-[88vh] hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div class="min-w-0 pr-3">
+          <div id="request-reader-meta" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">REQUEST_INSPECTION // STAFF_QUEUE</div>
+          <h2 id="request-reader-title" class="font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5 truncate">REQUEST TITLE</h2>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button
+            id="request-reader-expand-btn"
+            type="button"
+            title="Toggle Max Window"
+            class="font-mono-tech text-xs px-2.5 py-1.5 border border-[#2a7585] text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#123844] transition-colors"
+          >
+            [MAX]
+          </button>
+          <button id="close-request-reader-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76] transition-colors">
+            [X] CLOSE
+          </button>
+        </div>
+      </div>
+
+      <div class="px-5 py-2.5 border-b border-[#133b45] bg-[#050f14] font-mono-tech text-[11px] flex flex-wrap items-center justify-between gap-2">
+        <span>SENDER: <strong id="request-reader-sender" class="text-[#7df9ff]"></strong></span>
+        <span id="request-reader-status-badge" class="px-2 py-0.5 border border-[#236978] text-[#48d1e8] text-[10px] tracking-widest uppercase">PENDING</span>
+      </div>
+
+      <div class="p-5 overflow-y-auto cp-scroll flex-1">
+        <pre id="request-reader-body" class="font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed"></pre>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button
+          id="request-reader-deny-btn"
+          type="button"
+          class="font-mono-tech text-xs px-4 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors uppercase tracking-wider"
+        >
+          DENY
+        </button>
+        <div class="flex items-center gap-2">
+          <button
+            id="request-reader-archive-btn"
+            type="button"
+            class="hidden font-mono-tech text-xs px-4 py-1.5 border border-[#7df9ff] bg-[#123844]/90 text-[#7df9ff] hover:bg-[#1b5263] hover:text-white transition-colors uppercase tracking-wider"
+          >
+            ARCHIVE
+          </button>
+          <button
+            id="request-reader-accept-btn"
+            type="button"
+            class="cp-btn text-xs py-1.5 px-4"
+          >
+            ACCEPT
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
        4D. SEND PRIVATE MESSAGE OVERLAY MODAL
        ========================================================= -->
   <div id="send-pm-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
@@ -1149,6 +1358,9 @@
     let approvedAccountsCollection = null;
     let privateMessagesCollection = null;
     let publicChatCollection = null;
+    let userRequestsCollection = null;
+    let userNotificationsCollection = null;
+    let siteSettingsDocRef = null;
     try {
       const firebaseApp = initializeApp(firebaseConfig);
       db = getFirestore(firebaseApp);
@@ -1158,6 +1370,9 @@
       approvedAccountsCollection = collection(db, "approved_accounts");
       privateMessagesCollection = collection(db, "private_messages");
       publicChatCollection = collection(db, "public_chat_messages");
+      userRequestsCollection = collection(db, "user_requests");
+      userNotificationsCollection = collection(db, "user_notifications");
+      siteSettingsDocRef = doc(db, "site_settings", "global");
     } catch (initErr) {
       console.error("Firebase initialization warning:", initErr);
     }
@@ -1261,10 +1476,18 @@
     let approvedAccounts = [];
     let privateMessages = [];
     let publicChatMessages = [];
+    let userRequests = [];
+    let userNotifications = [];
+    let globalSiteSettings = {
+      backgroundUrl: '',
+      uiAccentColor: '#48d1e8'
+    };
     let activeTab = 'FILES';
     let messageSubTab = 'PRIVATE';
     let selectedId = null;
     let activePmId = null;
+    let activeStaffRequestId = null;
+    let isRequestReaderMaxed = false;
     let editingShardId = null;
     let managingMemberId = null;
     let searchDebounceTimer = null;
@@ -1274,9 +1497,67 @@
     let pendingImages = [];
     let isSubmittingRequest = false;
     let firestoreUnsubscribers = [];
+    let globalSettingsUnsubscriber = null;
+    let activeShardId = null;
+    let clockIntervalId = null;
 
     const MAX_IMAGES = 4;
-    const MAX_IMAGE_BYTES = 200 * 1024;
+
+    function isAdminAccount(username = currentUser) {
+      return String(username || '').trim().toUpperCase() === 'ADMIN';
+    }
+
+    function setStatusMessage(el, message, isError = true) {
+      if (!el) return;
+      el.textContent = message || '';
+      el.className = `font-mono-tech text-[11px] tracking-widest text-center min-h-4 uppercase transition-opacity duration-200 ${
+        isError ? 'text-[#ff4d5a]' : 'text-[#7df9ff]'
+      } ${message ? 'opacity-100' : 'opacity-0'}`;
+    }
+
+    function updateHudDateAndClock() {
+      const dateEl = document.getElementById('hud-date');
+      if (dateEl) {
+        dateEl.textContent = '14 April 2077';
+      }
+      if (hudClock) {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        hudClock.textContent = `${hh}:${mm}`;
+      }
+    }
+
+    function enterDesktopSession(username, roleType = 'USER') {
+      currentUser = String(username || 'USER').trim().toUpperCase();
+      currentRoleType = String(roleType || (isAdminAccount(currentUser) ? 'ADMIN' : 'USER')).toUpperCase();
+      dismissedNotificationKeys = new Set();
+
+      if (hudUser) {
+        hudUser.textContent = `USR // ${currentUser} [${currentRoleType}]`;
+      }
+
+      updateHudDateAndClock();
+      if (clockIntervalId) clearInterval(clockIntervalId);
+      clockIntervalId = setInterval(updateHudDateAndClock, 15000);
+
+      activeTab = 'FILES';
+      messageSubTab = 'PRIVATE';
+      navModules.forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === 'FILES'));
+      if (activeSectorLabel) {
+        activeSectorLabel.textContent = 'SECTOR_01 // FILES';
+      }
+
+      loginScreen.classList.add('hidden');
+      desktopScreen.classList.remove('hidden');
+      desktopScreen.classList.add('hud-enter');
+
+      startFirestoreListeners();
+      applyGlobalSiteSettings(globalSiteSettings);
+      updateRequestsBadge();
+      updateNotificationsBadge();
+      renderWorkspace();
+    }
 
     // DOM Element References
     const loginScreen = document.getElementById('login-screen');
@@ -1296,34 +1577,56 @@
     const registerStatus = document.getElementById('register-status');
 
     const desktopScreen = document.getElementById('desktop-screen');
-    const hudClock = document.getElementById('hud-clock');
     const hudUser = document.getElementById('hud-user');
+    const hudClock = document.getElementById('hud-clock');
     const cloudSyncBadge = document.getElementById('cloud-sync-badge');
     const activeSectorLabel = document.getElementById('active-sector-label');
     const logoutBtn = document.getElementById('logout-btn');
 
     const requestsBtn = document.getElementById('requests-btn');
     const requestsBadge = document.getElementById('requests-badge');
+    const makeRequestBtn = document.getElementById('make-request-btn');
+    const adminSettingsBtn = document.getElementById('admin-settings-btn');
+    const adminSettingsView = document.getElementById('admin-settings-view');
+    const adminSettingsForm = document.getElementById('admin-settings-form');
+    const adminBgUrlInput = document.getElementById('admin-bg-url-input');
+    const adminSubmitBgBtn = document.getElementById('admin-submit-bg-btn');
+    const adminRemoveBgBtn = document.getElementById('admin-remove-bg-btn');
+    const adminUiColorInput = document.getElementById('admin-ui-color-input');
+    const adminUiColorHex = document.getElementById('admin-ui-color-hex');
+    const adminResetColorBtn = document.getElementById('admin-reset-color-btn');
+    const adminSettingsStatus = document.getElementById('admin-settings-status');
     const requestsModal = document.getElementById('requests-modal');
     const closeRequestsBtn = document.getElementById('close-requests-btn');
     const requestsList = document.getElementById('requests-list');
 
+    const makeRequestModal = document.getElementById('make-request-modal');
+    const makeRequestForm = document.getElementById('make-request-form');
+    const closeMakeRequestBtn = document.getElementById('close-make-request-btn');
+    const cancelMakeRequestBtn = document.getElementById('cancel-make-request-btn');
+    const userRequestTitleInput = document.getElementById('user-request-title');
+    const userRequestBodyInput = document.getElementById('user-request-body');
+
+    const requestReaderModal = document.getElementById('request-reader-modal');
+    const requestReaderBox = document.getElementById('request-reader-box');
+    const requestReaderMeta = document.getElementById('request-reader-meta');
+    const requestReaderTitle = document.getElementById('request-reader-title');
+    const requestReaderSender = document.getElementById('request-reader-sender');
+    const requestReaderStatusBadge = document.getElementById('request-reader-status-badge');
+    const requestReaderBody = document.getElementById('request-reader-body');
+    const requestReaderExpandBtn = document.getElementById('request-reader-expand-btn');
+    const closeRequestReaderBtn = document.getElementById('close-request-reader-btn');
+    const requestReaderDenyBtn = document.getElementById('request-reader-deny-btn');
+    const requestReaderAcceptBtn = document.getElementById('request-reader-accept-btn');
+    const requestReaderArchiveBtn = document.getElementById('request-reader-archive-btn');
+    const recordCount = document.getElementById('record-count');
+    const searchInput = document.getElementById('search-input');
+    const navModules = document.querySelectorAll('.nav-module[data-tab]');
     const notificationsBtn = document.getElementById('notifications-btn');
     const notificationsBadge = document.getElementById('notifications-badge');
     const notificationsModal = document.getElementById('notifications-modal');
     const closeNotificationsBtn = document.getElementById('close-notifications-btn');
     const notificationsList = document.getElementById('notifications-list');
-
-    const navModules = document.querySelectorAll('.nav-module[data-tab]');
-    const workspaceToolbar = document.getElementById('workspace-toolbar');
-    const searchInput = document.getElementById('search-input');
-    const recordCount = document.getElementById('record-count');
-    const newEntryBtn = document.getElementById('new-entry-btn');
-    const gridContainer = document.getElementById('grid-container');
-    const itemsGrid = document.getElementById('items-grid');
-    const emptyState = document.getElementById('empty-state');
-
-    const messagesBoard = document.getElementById('messages-board');
     const msgModePrivateBtn = document.getElementById('msg-mode-private-btn');
     const msgModePublicBtn = document.getElementById('msg-mode-public-btn');
     const privateMessagesView = document.getElementById('private-messages-view');
@@ -1435,140 +1738,188 @@
     const savePrivateMessageToCloud = (pmObj) => saveDocToCloud('private_messages', pmObj);
     const savePublicChatToCloud = (msgObj) => saveDocToCloud('public_chat_messages', msgObj);
     const deletePublicChatFromCloud = (msgId) => deleteDocFromCloud('public_chat_messages', msgId);
+    const saveUserRequestToCloud = (reqObj) => saveDocToCloud('user_requests', reqObj);
+    const deleteUserRequestFromCloud = (reqId) => deleteDocFromCloud('user_requests', reqId);
+    const saveUserNotificationToCloud = (notifObj) => saveDocToCloud('user_notifications', notifObj);
+    const deleteUserNotificationFromCloud = (notifId) => deleteDocFromCloud('user_notifications', notifId);
 
-    // Messaging View Helpers
-    function populatePmRecipientSelect() {
-      if (!pmToSelect) return;
-      const me = currentUser.toUpperCase();
-      const names = new Set(['ADMIN', 'USER']);
-      for (const m of rosterMembers) {
-        if (m?.name) names.add(String(m.name).toUpperCase());
+    async function saveSiteSettingsToCloud(settingsObj) {
+      if (!db || !siteSettingsDocRef) return false;
+      try {
+        await setDoc(siteSettingsDocRef, settingsObj, { merge: true });
+        return true;
+      } catch (err) {
+        console.error('saveSiteSettingsToCloud failed:', err);
+        return false;
       }
-      for (const a of approvedAccounts) {
-        if (a?.username) names.add(String(a.username).toUpperCase());
-      }
-      names.delete(me);
-
-      const sorted = Array.from(names).sort((a, b) => a.localeCompare(b));
-      pmToSelect.innerHTML =
-        '<option value="">SELECT MEMBER...</option>' +
-        sorted.map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
     }
 
-    function renderPmReaderContent(pm) {
-      if (!pm) return;
-      pmReaderSubject.textContent = pm.subject || 'NO SUBJECT';
-      pmReaderFrom.textContent = pm.from || 'UNKNOWN';
-      pmReaderTo.textContent = pm.to || 'UNKNOWN';
+    function normalizeHexColor(hex) {
+      const cleaned = String(hex || '').trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(cleaned)) return cleaned.toLowerCase();
+      if (/^#[0-9a-fA-F]{3}$/.test(cleaned)) {
+        const r = cleaned[1];
+        const g = cleaned[2];
+        const b = cleaned[3];
+        return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+      }
+      return '#48d1e8';
+    }
 
-      const replies = Array.isArray(pm.replies) ? [...pm.replies].reverse() : [];
-      const repliesHtml = replies
-        .map(
-          (rep) => `
-            <div class="p-3 border border-[#236978] bg-[#082029]">
-              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px] text-[#48d1e8] mb-1">
-                <span class="font-bold text-[#7df9ff]">REPLY // ${escapeHtml(rep.sender || 'OPERATIVE')}</span>
-                <span>${escapeHtml(formatMsgTimestamp(rep.createdAt))}</span>
-              </div>
-              <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(rep.text || '')}</pre>
-            </div>
-          `
-        )
-        .join('');
+    function mixHex(hexA, hexB, weightB) {
+      const a = normalizeHexColor(hexA);
+      const b = normalizeHexColor(hexB);
+      const w = Math.max(0, Math.min(1, weightB));
+      const ar = parseInt(a.slice(1, 3), 16);
+      const ag = parseInt(a.slice(3, 5), 16);
+      const ab = parseInt(a.slice(5, 7), 16);
+      const br = parseInt(b.slice(1, 3), 16);
+      const bg = parseInt(b.slice(3, 5), 16);
+      const bb = parseInt(b.slice(5, 7), 16);
+      const rr = Math.round(ar * (1 - w) + br * w).toString(16).padStart(2, '0');
+      const rg = Math.round(ag * (1 - w) + bg * w).toString(16).padStart(2, '0');
+      const rb = Math.round(ab * (1 - w) + bb * w).toString(16).padStart(2, '0');
+      return `#${rr}${rg}${rb}`;
+    }
 
-      const originalHtml = `
-        <div class="p-3 border border-[#17454f] bg-[#040c10]">
-          <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px] text-[#397c8a] mb-1">
-            <span>INITIAL // ${escapeHtml(pm.from || 'UNKNOWN')}</span>
-            <span>${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
-          </div>
-          <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(pm.body || '')}</pre>
-        </div>
+    function applyGlobalSiteSettings(settings) {
+      const bgUrl = String(settings?.backgroundUrl || '').trim();
+      const accentHex = normalizeHexColor(settings?.uiAccentColor || '#48d1e8');
+      const glowHex = mixHex(accentHex, '#ffffff', 0.42);
+      const midBorderHex = mixHex('#071922', accentHex, 0.52);
+      const dimBorderHex = mixHex('#040d12', accentHex, 0.34);
+      const mutedTextHex = mixHex('#0b2933', accentHex, 0.52);
+      const softTextHex = mixHex(accentHex, '#ffffff', 0.58);
+      const darkPanelHex = mixHex('#040d12', accentHex, 0.16);
+      const activeCardHex = mixHex('#06171e', accentHex, 0.24);
+      const uiScopes = '#desktop-screen, #login-screen, #reader-modal:not(.secret-reader), #create-modal, #manage-member-modal, #requests-modal, #make-request-modal, #request-reader-modal, #send-pm-modal, #pm-reader-modal, #notifications-modal, #lightbox-modal';
+
+      const rootStyle = document.documentElement.style;
+      rootStyle.setProperty('--cyan-bright', accentHex);
+      rootStyle.setProperty('--cyan-glow', glowHex);
+      rootStyle.setProperty('--border-mid', midBorderHex);
+      rootStyle.setProperty('--border-dim', dimBorderHex);
+      rootStyle.setProperty('--text-primary', mixHex(accentHex, '#ffffff', 0.25));
+      rootStyle.setProperty('--text-muted', mutedTextHex);
+
+      let dynamicStyleEl = document.getElementById('dynamic-ui-accent-style');
+      if (!dynamicStyleEl) {
+        dynamicStyleEl = document.createElement('style');
+        dynamicStyleEl.id = 'dynamic-ui-accent-style';
+        document.head.appendChild(dynamicStyleEl);
+      }
+
+      dynamicStyleEl.textContent = `
+        #desktop-screen :not(.secret-card):not(.secret-card *):not(.pulse-red):not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#c94a53"]):not([class*="#b8323c"]):not([class*="#7a2028"]):not([class*="#6e171e"]):not([class*="#5e171d"]),
+        #login-screen :not([class*="#ff4d5a"]):not([class*="#e05a65"]),
+        #reader-modal:not(.secret-reader) :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #create-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#b8323c"]):not([class*="#7a2028"]):not([class*="#6e171e"]):not([class*="#5e171d"]),
+        #manage-member-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #requests-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #make-request-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #request-reader-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #send-pm-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #pm-reader-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #notifications-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
+        #lightbox-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]) {
+          border-color: var(--border-mid);
+        }
+        #login-screen .cp-input-wrap,
+        #login-screen .cp-input-wrap::before,
+        #login-screen .cp-input-wrap::after {
+          border-color: ${accentHex} !important;
+        }
+        #login-screen .cp-input {
+          color: ${glowHex} !important;
+        }
+        #login-screen .cp-btn {
+          border-color: ${accentHex} !important;
+          color: ${glowHex} !important;
+        }
+        :is(${uiScopes}) .border-\\[\\#48d1e8\\],
+        :is(${uiScopes}) .border-\\[\\#2b7b8c\\],
+        :is(${uiScopes}) .border-\\[\\#2a7585\\],
+        :is(${uiScopes}) .border-\\[\\#236978\\],
+        :is(${uiScopes}) .border-\\[\\#226675\\] {
+          border-color: ${accentHex} !important;
+        }
+        :is(${uiScopes}) .border-\\[\\#1d5663\\],
+        :is(${uiScopes}) .border-\\[\\#1d5360\\],
+        :is(${uiScopes}) .border-\\[\\#1c5461\\],
+        :is(${uiScopes}) .border-\\[\\#1b525e\\],
+        :is(${uiScopes}) .border-\\[\\#184854\\],
+        :is(${uiScopes}) .border-\\[\\#17454f\\],
+        :is(${uiScopes}) .border-\\[\\#143d47\\],
+        :is(${uiScopes}) .border-\\[\\#133b45\\],
+        :is(${uiScopes}) .border-\\[\\#13363e\\] {
+          border-color: ${dimBorderHex} !important;
+        }
+        :is(${uiScopes}) .text-\\[\\#7df9ff\\],
+        :is(${uiScopes}) .hover\\:text-\\[\\#7df9ff\\]:hover {
+          color: ${glowHex} !important;
+        }
+        :is(${uiScopes}) .text-\\[\\#48d1e8\\] {
+          color: ${accentHex} !important;
+        }
+        :is(${uiScopes}) .text-\\[\\#9beaf7\\] {
+          color: ${softTextHex} !important;
+        }
+        :is(${uiScopes}) .text-\\[\\#397c8a\\],
+        :is(${uiScopes}) .text-\\[\\#286370\\],
+        :is(${uiScopes}) .text-\\[\\#285d69\\],
+        :is(${uiScopes}) .text-\\[\\#295c68\\],
+        .cp-input::placeholder {
+          color: ${mutedTextHex} !important;
+        }
+        :is(${uiScopes}) .bg-\\[\\#0c2933\\]\\/80,
+        :is(${uiScopes}) .bg-\\[\\#123844\\]\\/80,
+        :is(${uiScopes}) .hover\\:bg-\\[\\#164959\\]:hover {
+          background-color: ${activeCardHex} !important;
+        }
+        :is(${uiScopes}) .bg-\\[\\#07151c\\]\\/80,
+        :is(${uiScopes}) .bg-\\[\\#061218\\]\\/90,
+        :is(${uiScopes}) .bg-\\[\\#061319\\]\\/90,
+        :is(${uiScopes}) .bg-\\[\\#040c10\\] {
+          background-color: ${darkPanelHex} !important;
+        }
       `;
 
-      pmReaderThread.innerHTML = repliesHtml + originalHtml;
-    }
-
-    function renderPrivateMessages() {
-      if (!privateMessagesList) return;
-      const me = currentUser.toUpperCase();
-      const visible = privateMessages.filter((pm) => {
-        const deletedBy = Array.isArray(pm.deletedBy) ? pm.deletedBy.map((u) => String(u).toUpperCase()) : [];
-        if (deletedBy.includes(me)) return false;
-        return (pm.to || '').toUpperCase() === me || (pm.from || '').toUpperCase() === me;
-      });
-
-      if (recordCount) {
-        recordCount.textContent = `${visible.length} PM${visible.length === 1 ? '' : 'S'}`;
-      }
-
-      if (visible.length === 0) {
-        privateMessagesList.innerHTML = `
-          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
-            NO PRIVATE MESSAGES IN THREAD BUFFER.
-          </div>
-        `;
-        return;
-      }
-
-      privateMessagesList.innerHTML = visible
-        .map((pm) => {
-          const isIncoming = (pm.to || '').toUpperCase() === me && (pm.from || '').toUpperCase() !== me;
-          const peerLabel = isIncoming ? `FROM: ${pm.from || 'UNKNOWN'}` : `TO: ${pm.to || 'UNKNOWN'}`;
-          return `
-            <button
-              type="button"
-              data-open-pm-id="${escapeHtml(pm.id)}"
-              class="w-full text-left p-3 border border-[#17454f] bg-[#040c10] hover:border-[#48d1e8] hover:bg-[#081d26] flex items-center justify-between gap-3 transition-colors"
-            >
-              <div class="min-w-0">
-                <div class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8] truncate">${escapeHtml(peerLabel)}</div>
-                <div class="font-hud font-bold text-base tracking-wider text-[#7df9ff] truncate mt-0.5">${escapeHtml(pm.subject || 'NO SUBJECT')}</div>
-              </div>
-              <span class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] shrink-0">${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
-            </button>
-          `;
-        })
-        .join('');
-    }
-
-    privateMessagesList.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-open-pm-id]');
-      if (!btn) return;
-      const pm = privateMessages.find((item) => item.id === btn.dataset.openPmId);
-      if (pm) openPmReaderModal(pm);
-    });
-
-    function setMessageSubTabStyles() {
-      const isPublic = messageSubTab === 'PUBLIC';
-      const activeCls = 'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
-      const inactiveCls = 'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
-      msgModePublicBtn.className = isPublic ? activeCls : inactiveCls;
-      msgModePrivateBtn.className = isPublic ? inactiveCls : activeCls;
-    }
-
-    function renderMessagesBoard() {
-      setMessageSubTabStyles();
-      if (messageSubTab === 'PUBLIC') {
-        privateMessagesView.classList.add('hidden');
-        publicChatView.classList.remove('hidden');
-        renderPublicChat();
+      // Apply background image across the page for every user
+      const validBgUrl = /^https?:\/\//i.test(bgUrl) ? bgUrl : '';
+      if (validBgUrl) {
+        document.body.style.backgroundImage = `url("${validBgUrl.replace(/"/g, '%22')}")`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center center';
+        document.body.style.backgroundAttachment = 'fixed';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        if (canvas) canvas.style.opacity = '0.28';
       } else {
-        messageSubTab = 'PRIVATE';
-        publicChatView.classList.add('hidden');
-        privateMessagesView.classList.remove('hidden');
-        populatePmRecipientSelect();
-        renderPrivateMessages();
+        document.body.style.backgroundImage = '';
+        document.body.style.backgroundSize = '';
+        document.body.style.backgroundPosition = '';
+        document.body.style.backgroundAttachment = '';
+        document.body.style.backgroundRepeat = '';
+        if (canvas) canvas.style.opacity = '1';
       }
-    }
 
-    function isAdminAccount() {
-      return String(currentRoleType || '').toUpperCase() === 'ADMIN' || String(currentUser || '').toUpperCase() === 'ADMIN';
+      if (adminBgUrlInput && document.activeElement !== adminBgUrlInput) {
+        adminBgUrlInput.value = validBgUrl;
+      }
+      if (adminUiColorInput && document.activeElement !== adminUiColorInput) {
+        adminUiColorInput.value = accentHex;
+      }
+      if (adminUiColorHex) {
+        adminUiColorHex.textContent = accentHex.toUpperCase();
+      }
     }
 
     function hasStaffPrivileges() {
       const r = String(currentRoleType || '').toUpperCase();
       return isAdminAccount() || r === 'MODERATOR';
+    }
+
+    function hasModeratorRequestPrivileges() {
+      return String(currentRoleType || '').toUpperCase() === 'MODERATOR';
     }
 
     function escapeHtml(str) {
@@ -1592,20 +1943,35 @@
     }
 
     function updateRequestsBadge() {
+      if (adminSettingsBtn) {
+        adminSettingsBtn.classList.toggle('hidden', !isAdminAccount());
+      }
       if (!requestsBtn || !requestsBadge) return;
-      if (!hasStaffPrivileges()) {
+      const isStaff = hasStaffPrivileges();
+      if (makeRequestBtn) {
+        makeRequestBtn.classList.toggle('hidden', isStaff);
+      }
+      if (!isStaff) {
         requestsBtn.classList.add('hidden');
         requestsBadge.classList.add('hidden');
         return;
       }
       requestsBtn.classList.remove('hidden');
-      const count = accountRequests.length;
+      const openUserReqCount = userRequests.filter((r) => !r.archived).length;
+      const count = accountRequests.length + openUserReqCount;
       if (count > 0) {
         requestsBadge.textContent = String(count);
         requestsBadge.classList.remove('hidden');
       } else {
         requestsBadge.classList.add('hidden');
       }
+    }
+
+    function getMyUserNotifications() {
+      const me = currentUser.toUpperCase();
+      return userNotifications.filter(
+        (n) => String(n.recipient || '').toUpperCase() === me && !dismissedNotificationKeys.has(`unotif:${n.id}`)
+      );
     }
 
     function getIncomingUnreadPms() {
@@ -1627,8 +1993,9 @@
     function updateNotificationsBadge() {
       if (!notificationsBadge) return;
       const pmCount = getIncomingUnreadPms().length;
-      const reqCount = hasStaffPrivileges() ? accountRequests.length : 0;
-      const total = pmCount + reqCount;
+      const userNotifCount = getMyUserNotifications().length;
+      const reqCount = hasModeratorRequestPrivileges() ? accountRequests.length : 0;
+      const total = pmCount + userNotifCount + reqCount;
       if (total > 0) {
         notificationsBadge.textContent = String(total);
         notificationsBadge.classList.remove('hidden');
@@ -1641,7 +2008,7 @@
       if (!notificationsList) return;
       const items = [];
 
-      if (hasStaffPrivileges()) {
+      if (hasModeratorRequestPrivileges()) {
         for (const req of accountRequests) {
           items.push({
             type: 'REQ',
@@ -1653,6 +2020,22 @@
             }
           });
         }
+      }
+
+      for (const un of getMyUserNotifications()) {
+        const statusUpper = String(un.status || 'UPDATE').toUpperCase();
+        items.push({
+          type: statusUpper,
+          title: `REQUEST ${escapeHtml(statusUpper)} // ${escapeHtml(un.requestTitle || 'REQUEST')}`,
+          meta: `BY: ${escapeHtml(un.actor || 'STAFF')}`,
+          onClick: async () => {
+            dismissedNotificationKeys.add(`unotif:${un.id}`);
+            userNotifications = userNotifications.filter((x) => x.id !== un.id);
+            updateNotificationsBadge();
+            renderNotificationsModal();
+            await deleteUserNotificationFromCloud(un.id);
+          }
+        });
       }
 
       for (const pm of getIncomingUnreadPms()) {
@@ -1708,6 +2091,154 @@
         });
       });
     }
+
+    function populatePmRecipientSelect() {
+      if (!pmToSelect) return;
+      const me = currentUser.toUpperCase();
+      const namesSet = new Set(['ADMIN', 'USER']);
+      for (const m of rosterMembers) {
+        const n = String(m.name || m.username || '').trim().toUpperCase();
+        if (n) namesSet.add(n);
+      }
+      for (const a of approvedAccounts) {
+        const n = String(a.username || '').trim().toUpperCase();
+        if (n) namesSet.add(n);
+      }
+      const recipients = Array.from(namesSet)
+        .filter((n) => n !== me)
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+      pmToSelect.innerHTML =
+        `<option value="">SELECT MEMBER...</option>` +
+        recipients.map((r) => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+    }
+
+    function renderPmReaderContent(pm) {
+      if (!pm || !pmReaderThread) return;
+      pmReaderSubject.textContent = pm.subject || 'NO SUBJECT';
+      pmReaderFrom.textContent = pm.from || 'UNKNOWN';
+      pmReaderTo.textContent = pm.to || 'UNKNOWN';
+
+      const replies = Array.isArray(pm.replies) ? pm.replies : [];
+      const orderedReplies = [...replies].reverse();
+
+      const repliesHtml = orderedReplies
+        .map(
+          (rep) => `
+            <div class="p-3 border border-[#236978] bg-[#071922] flex flex-col gap-1">
+              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+                <span class="text-[#7df9ff] font-bold tracking-wider">REPLY // ${escapeHtml(rep.sender || 'OPERATIVE')}</span>
+                <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(rep.createdAt))}</span>
+              </div>
+              <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(rep.text || '')}</pre>
+            </div>
+          `
+        )
+        .join('');
+
+      const originalMsgHtml = `
+        <div class="p-3 border border-[#17454f] bg-[#040c10] flex flex-col gap-1">
+          <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+            <span class="text-[#48d1e8] font-bold tracking-wider">ORIGINAL // ${escapeHtml(pm.from || 'OPERATIVE')}</span>
+            <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
+          </div>
+          <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed">${escapeHtml(pm.body || '')}</pre>
+        </div>
+      `;
+
+      pmReaderThread.innerHTML = `${repliesHtml}${originalMsgHtml}`;
+    }
+
+    function renderPrivateMessages() {
+      const me = currentUser.toUpperCase();
+      const visiblePms = privateMessages.filter((pm) => {
+        const deletedBy = Array.isArray(pm.deletedBy) ? pm.deletedBy.map((u) => String(u).toUpperCase()) : [];
+        if (deletedBy.includes(me)) return false;
+        return (pm.from || '').toUpperCase() === me || (pm.to || '').toUpperCase() === me;
+      });
+
+      recordCount.textContent = `${visiblePms.length} PM${visiblePms.length === 1 ? '' : 'S'}`;
+
+      if (visiblePms.length === 0) {
+        privateMessagesList.innerHTML = `
+          <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
+            NO PRIVATE MESSAGES IN INBOX OR SENT LOGS.
+          </div>
+        `;
+        return;
+      }
+
+      privateMessagesList.innerHTML = visiblePms
+        .map((pm) => {
+          const isSentByMe = (pm.from || '').toUpperCase() === me;
+          const directionLabel = isSentByMe
+            ? `TO: ${escapeHtml(pm.to || 'UNKNOWN')}`
+            : `FROM: ${escapeHtml(pm.from || 'UNKNOWN')}`;
+          const repliesCount = Array.isArray(pm.replies) ? pm.replies.length : 0;
+          const hasUnreadBadge = !isSentByMe && !dismissedNotificationKeys.has(`pm:${pm.id}`);
+
+          return `
+            <button
+              type="button"
+              data-open-pm-id="${escapeHtml(pm.id)}"
+              class="w-full text-left p-3 border border-[#1d5663] hover:border-[#48d1e8] bg-[#040c10] transition-colors flex flex-col gap-1 cursor-pointer"
+            >
+              <div class="flex items-center justify-between gap-2 font-mono-tech text-[10px]">
+                <span class="text-[#48d1e8] tracking-widest">${directionLabel}</span>
+                <div class="flex items-center gap-2">
+                  ${
+                    hasUnreadBadge
+                      ? '<span class="px-1.5 py-0.2 bg-[#6e171e] border border-[#ff4d5a] text-[#ff9aa2] text-[9px] tracking-widest uppercase">NEW</span>'
+                      : ''
+                  }
+                  ${
+                    repliesCount > 0
+                      ? `<span class="text-[#7df9ff] tracking-wider">${repliesCount} REPL${repliesCount === 1 ? 'Y' : 'IES'}</span>`
+                      : ''
+                  }
+                  <span class="text-[#397c8a]">${escapeHtml(formatMsgTimestamp(pm.createdAt))}</span>
+                </div>
+              </div>
+              <div class="font-hud font-bold text-base tracking-wider text-[#7df9ff]">
+                ${escapeHtml(pm.subject || 'NO SUBJECT')}
+              </div>
+              <pre class="font-mono-tech text-xs text-[#9beaf7] whitespace-pre-wrap leading-relaxed line-clamp-2">${escapeHtml(pm.body || '')}</pre>
+            </button>
+          `;
+        })
+        .join('');
+
+      privateMessagesList.querySelectorAll('[data-open-pm-id]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const targetPm = privateMessages.find((p) => p.id === btn.dataset.openPmId);
+          if (targetPm) {
+            openPmReaderModal(targetPm);
+          }
+        });
+      });
+    }
+
+    function renderMessagesBoard() {
+      if (messageSubTab === 'PUBLIC') {
+        msgModePublicBtn.className =
+          'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
+        msgModePrivateBtn.className =
+          'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
+        privateMessagesView.classList.add('hidden');
+        publicChatView.classList.remove('hidden');
+        renderPublicChat();
+      } else {
+        msgModePrivateBtn.className =
+          'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
+        msgModePublicBtn.className =
+          'font-mono-tech text-xs px-3 py-1 border border-[#17454f] bg-[#040c10] text-[#397c8a] hover:border-[#2b7b8c] hover:text-[#7df9ff] tracking-widest uppercase transition-all';
+        publicChatView.classList.add('hidden');
+        privateMessagesView.classList.remove('hidden');
+        populatePmRecipientSelect();
+        renderPrivateMessages();
+      }
+    }
+
     async function syncApprovedAccountsToRoster(accountsList) {
       if (!db || !rosterCollection || !Array.isArray(accountsList) || accountsList.length === 0) return;
       const existingIds = new Set(rosterMembers.map((m) => m.id));
@@ -1738,8 +2269,26 @@
       firestoreUnsubscribers = [];
     }
 
+    function startGlobalSettingsListener() {
+      if (!db || !siteSettingsDocRef || globalSettingsUnsubscriber) return;
+      globalSettingsUnsubscriber = onSnapshot(
+        siteSettingsDocRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            globalSiteSettings = {
+              ...globalSiteSettings,
+              ...docSnap.data()
+            };
+            applyGlobalSiteSettings(globalSiteSettings);
+          }
+        },
+        (error) => console.error('Site settings sync error:', error)
+      );
+    }
+
     function startFirestoreListeners() {
       stopFirestoreListeners();
+      startGlobalSettingsListener();
       if (!db) return;
 
       if (shardsCollection) {
@@ -1864,454 +2413,69 @@
           )
         );
       }
-    }
 
-    // Light background sync for login verification & admin request badge
-    if (accountRequestsCollection) {
-      onSnapshot(
-        accountRequestsCollection,
-        (snapshot) => {
-          const list = [];
-          snapshot.forEach((docSnap) => list.push(docSnap.data()));
-          list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-          accountRequests = list;
-          updateRequestsBadge();
-          updateNotificationsBadge();
-          if (!requestsModal.classList.contains('hidden')) {
-            renderRequestsModal();
-          }
-        },
-        (error) => console.error('Account requests sync error:', error)
-      );
-    }
-
-    if (approvedAccountsCollection) {
-      onSnapshot(
-        approvedAccountsCollection,
-        (snapshot) => {
-          const list = [];
-          snapshot.forEach((docSnap) => list.push(docSnap.data()));
-          approvedAccounts = list;
-          if (!desktopScreen.classList.contains('hidden')) {
-            syncApprovedAccountsToRoster(list).catch(() => {});
-            if (activeTab === 'MESSAGES') populatePmRecipientSelect();
-          }
-        },
-        (error) => console.error('Approved accounts sync error:', error)
-      );
-    }
-
-    /**
-     * 5. LOGIN & REGISTRATION HANDLERS
-     */
-    function showLoginMessage(msg, isSuccess = false) {
-      if (!loginStatus) return;
-      loginStatus.textContent = msg;
-      loginStatus.style.color = isSuccess ? '#7df9ff' : '#ff4d5a';
-      loginStatus.classList.remove('opacity-0');
-      loginStatus.classList.add('opacity-100');
-    }
-
-    function showRegisterMessage(msg, isSuccess = false) {
-      if (!registerStatus) return;
-      registerStatus.textContent = msg;
-      registerStatus.style.color = isSuccess ? '#7df9ff' : '#ff4d5a';
-      registerStatus.classList.remove('opacity-0');
-      registerStatus.classList.add('opacity-100');
-    }
-
-    if (openRegisterLink) {
-      openRegisterLink.addEventListener('click', () => {
-        loginForm.classList.add('hidden');
-        registerForm.classList.remove('hidden');
-        loginStatus.classList.add('opacity-0');
-        registerStatus.classList.add('opacity-0');
-        registerUsername.focus();
-      });
-    }
-
-    if (backToLoginLink) {
-      backToLoginLink.addEventListener('click', () => {
-        registerForm.classList.add('hidden');
-        loginForm.classList.remove('hidden');
-        registerStatus.classList.add('opacity-0');
-        loginStatus.classList.add('opacity-0');
-        loginUsername.focus();
-      });
-    }
-
-    if (registerForm) {
-      registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (isSubmittingRequest) return;
-
-        const rawUser = registerUsername.value.trim();
-        const rawRole = registerRole.value.trim();
-        const rawPass = registerPassword.value;
-
-        if (!rawUser || !rawPass) {
-          showRegisterMessage('USERNAME AND PASSWORD REQUIRED');
-          return;
-        }
-
-        const normalizedUpper = rawUser.toUpperCase();
-        if (normalizedUpper === 'ADMIN' || normalizedUpper === 'USER') {
-          showRegisterMessage('RESERVED HANDLE // PICK ANOTHER NAME');
-          return;
-        }
-
-        const slug = rawUser.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
-        const reqId = `req-${slug}`;
-
-        const alreadyApproved = approvedAccounts.some(
-          (a) => String(a.username || '').toUpperCase() === normalizedUpper
+      if (userRequestsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            userRequestsCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              userRequests = list;
+              updateRequestsBadge();
+              if (!requestsModal.classList.contains('hidden')) {
+                renderRequestsModal();
+              }
+              if (!requestReaderModal.classList.contains('hidden') && activeStaffRequestId) {
+                const updatedActive = userRequests.find((r) => r.id === activeStaffRequestId);
+                if (updatedActive && !updatedActive.archived) {
+                  renderRequestReaderModal(updatedActive);
+                } else {
+                  closeRequestReaderModal();
+                }
+              }
+            },
+            (error) => console.error('User requests sync error:', error)
+          )
         );
-        if (alreadyApproved) {
-          showRegisterMessage('ACCOUNT ALREADY EXISTS // USE LOGIN');
-          return;
-        }
+      }
 
-        isSubmittingRequest = true;
-        registerSubmit.disabled = true;
-
-        const reqObj = {
-          id: reqId,
-          username: normalizedUpper,
-          role: rawRole ? rawRole.toUpperCase() : 'ACTIVE_OPERATIVE',
-          password: rawPass,
-          createdAt: Date.now()
-        };
-
-        accountRequests = [reqObj, ...accountRequests.filter((r) => r.id !== reqId)];
-        updateRequestsBadge();
-        updateNotificationsBadge();
-
-        await saveAccountRequestToCloud(reqObj);
-        showRegisterMessage('REQUEST SENT // AWAITING ADMIN APPROVAL', true);
-        registerForm.reset();
-
-        setTimeout(() => {
-          registerSubmit.disabled = false;
-          isSubmittingRequest = false;
-        }, 600);
-      });
-    }
-
-    if (loginForm) {
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const rawUser = loginUsername.value.trim();
-        const pass = loginPassword.value;
-
-        if (!rawUser || !pass) {
-          showLoginMessage('ACCESS DENIED // CREDENTIALS REQUIRED');
-          return;
-        }
-
-        const lowerUser = rawUser.toLowerCase();
-        let matchedUser = null;
-        let matchedRoleType = 'USER';
-
-        if (lowerUser === 'admin' && pass === 'VDBForever') {
-          matchedUser = 'ADMIN';
-          matchedRoleType = 'ADMIN';
-        } else if (lowerUser === 'user' && pass === 'Blackwall') {
-          matchedUser = 'USER';
-          matchedRoleType = 'USER';
-        } else {
-          const foundAcc = approvedAccounts.find(
-            (a) => String(a.username || '').toLowerCase() === lowerUser && a.password === pass
-          );
-          if (foundAcc) {
-            matchedUser = String(foundAcc.username || rawUser).toUpperCase();
-            matchedRoleType = foundAcc.isModerator || foundAcc.isLeadership ? 'MODERATOR' : 'USER';
-          }
-        }
-
-        if (!matchedUser) {
-          const isPending = accountRequests.some(
-            (r) => String(r.username || '').toLowerCase() === lowerUser
-          );
-          if (isPending) {
-            showLoginMessage('ACCOUNT PENDING // AWAITING ADMIN CONFIRMATION');
-          } else {
-            showLoginMessage('ACCESS DENIED // INVALID CREDENTIALS');
-          }
-          return;
-        }
-
-        currentUser = matchedUser;
-        currentRoleType = matchedRoleType;
-        loginSubmit.disabled = true;
-        showLoginMessage('HANDSHAKE VERIFIED // DECRYPTING...', true);
-
-        setTimeout(() => {
-          hudUser.textContent = `USR // ${currentUser}`;
-          startFirestoreListeners();
-          updateRequestsBadge();
-          updateNotificationsBadge();
-          loginScreen.classList.add('hidden');
-          desktopScreen.classList.remove('hidden');
-          desktopScreen.classList.add('hud-enter');
-          loginSubmit.disabled = false;
-          loginStatus.classList.add('opacity-0');
-          renderWorkspace();
-        }, 180);
-      });
-    }
-
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        stopFirestoreListeners();
-        desktopScreen.classList.add('hidden');
-        loginScreen.classList.remove('hidden');
-        registerForm.classList.add('hidden');
-        loginForm.classList.remove('hidden');
-        loginPassword.value = '';
-        loginStatus.classList.add('opacity-0');
-        loginUsername.focus();
-      });
-    }
-
-    /**
-     * 6. CLOCK & HUD METADATA UPDATER
-     */
-    function updateClock() {
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2, '0');
-      const mm = String(now.getMinutes()).padStart(2, '0');
-      if (hudClock) hudClock.textContent = `${hh}:${mm}`;
-    }
-    updateClock();
-    setInterval(updateClock, 15000);
-
-    /**
-     * 7. RENDER WORKSPACE, SHARDS & ROSTER
-     */
-    function getFilteredRecords() {
-      const q = searchInput.value.trim().toLowerCase();
-      const canSeeSecret = hasStaffPrivileges();
-      return records.filter((item) => {
-        if ((item.tab || 'FILES') !== activeTab) return false;
-        if (item.secret && !canSeeSecret) return false;
-        if (!q) return true;
-        return (
-          (item.title && item.title.toLowerCase().includes(q)) ||
-          (item.subtitle && item.subtitle.toLowerCase().includes(q)) ||
-          (item.content && item.content.toLowerCase().includes(q))
+      if (userNotificationsCollection) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            userNotificationsCollection,
+            (snapshot) => {
+              const list = [];
+              snapshot.forEach((docSnap) => list.push(docSnap.data()));
+              list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+              userNotifications = list;
+              updateNotificationsBadge();
+              if (!notificationsModal.classList.contains('hidden')) {
+                renderNotificationsModal();
+              }
+            },
+            (error) => console.error('User notifications sync error:', error)
+          )
         );
-      });
-    }
-
-    function renderWorkspace() {
-      if (activeTab === 'MESSAGES') {
-        workspaceToolbar.classList.add('hidden');
-        gridContainer.classList.add('hidden');
-        messagesBoard.classList.remove('hidden');
-        renderMessagesBoard();
-        return;
       }
 
-      messagesBoard.classList.add('hidden');
-      workspaceToolbar.classList.remove('hidden');
-      gridContainer.classList.remove('hidden');
-
-      if (activeTab === 'ROSTER') {
-        newEntryBtn.classList.add('hidden');
-        searchInput.placeholder = 'FILTER ROSTER MEMBERS...';
-        renderRoster();
-        return;
-      }
-
-      newEntryBtn.classList.remove('hidden');
-      searchInput.placeholder = 'FILTER ARCHIVE RECORDS...';
-
-      const list = getFilteredRecords();
-      recordCount.textContent = `${list.length} RECORD${list.length === 1 ? '' : 'S'}`;
-
-      if (list.length === 0) {
-        itemsGrid.innerHTML = '';
-        emptyState.textContent = 'NO MATCHING DATA SHARDS FOUND IN CURRENT SECTOR.';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-
-      itemsGrid.innerHTML = list
-        .map((item) => {
-          const isSelected = item.id === selectedId;
-          const isSecret = Boolean(item.secret);
-          const iconColor = isSecret ? 'text-[#ff4d5a]' : 'text-[#48d1e8]';
-          const iconFill = isSecret ? 'rgba(255, 77, 90, 0.22)' : 'rgba(72, 209, 232, 0.16)';
-          const subtitleColor = isSecret ? 'text-[#c94a53]' : 'text-[#397c8a]';
-          const thumbBorder = isSecret ? 'border-[#8f1d24] hover:border-[#ff4d5a]' : 'border-[#236978] hover:border-[#7df9ff]';
-          const shardImages = getShardImages(item);
-
-          const thumbHtml = shardImages.length > 0
-            ? `<button type="button" data-enlarge-id="${escapeHtml(item.id)}" data-enlarge-index="0" title="Click to enlarge image" class="relative shrink-0 w-10 h-10 border ${thumbBorder} bg-[#040c10] overflow-hidden cursor-zoom-in">
-                 <img src="${shardImages[0]}" alt="" class="w-full h-full object-cover block" />
-                 ${shardImages.length > 1 ? `<span class="absolute bottom-0 right-0 font-mono-tech text-[8px] px-1 bg-[#050f14]/90 text-[#7df9ff]">+${shardImages.length - 1}</span>` : ''}
-               </button>`
-            : '';
-
-          return `
-            <div data-id="${escapeHtml(item.id)}" class="archive-card chamfer-card ${isSecret ? 'secret-card' : ''} ${isSelected ? 'selected' : ''}">
-              <div class="shrink-0 ${iconColor}">
-                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                  <polygon points="6,3 16,5 16,21 6,19" fill="${iconFill}" />
-                  <polyline points="9,2 19,4 19,20" />
-                  <line x1="9" y1="8.5" x2="13" y2="9.3" />
-                  <line x1="9" y1="12" x2="13" y2="12.8" />
-                </svg>
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2 min-w-0">
-                  <div class="card-title font-hud font-bold text-base sm:text-lg tracking-[0.08em] text-[#6cd9ed] truncate">
-                    ${escapeHtml(item.title)}
-                  </div>
-                  ${isSecret ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#8f1d24] bg-[#3a0d12]/80 text-[#ff6b76]">SECRET</span>' : ''}
-                </div>
-                <div class="font-mono-tech text-[10px] tracking-widest ${subtitleColor} truncate mt-0.5">
-                  ${escapeHtml(item.subtitle || 'SYS.ARCHIVE // SHARD')}
-                </div>
-              </div>
-              ${thumbHtml}
-            </div>
-          `;
-        })
-        .join('');
-
-      itemsGrid.querySelectorAll('.archive-card').forEach((cardEl) => {
-        cardEl.addEventListener('click', (e) => {
-          const enlargeBtn = e.target.closest('[data-enlarge-id]');
-          if (enlargeBtn) {
-            e.stopPropagation();
-            const target = records.find((r) => r.id === enlargeBtn.dataset.enlargeId);
-            const shardImages = target ? getShardImages(target) : [];
-            const idx = Number(enlargeBtn.dataset.enlargeIndex || 0);
-            if (shardImages[idx]) {
-              openLightbox(shardImages[idx], `${target.title} [${idx + 1}/${shardImages.length}]`);
-            }
-            return;
-          }
-
-          const id = cardEl.dataset.id;
-          selectedId = id;
-          renderWorkspace();
-          openReaderModal(id);
-        });
-      });
-    }
-
-    function renderRoster() {
-      const q = searchInput.value.trim().toLowerCase();
-      const canManage = hasStaffPrivileges();
-      const filteredMembers = rosterMembers.filter((m) => {
-        if (!q) return true;
-        return (
-          (m.name && m.name.toLowerCase().includes(q)) ||
-          (m.role && m.role.toLowerCase().includes(q))
+      if (siteSettingsDocRef) {
+        firestoreUnsubscribers.push(
+          onSnapshot(
+            siteSettingsDocRef,
+            (docSnap) => {
+              if (docSnap.exists()) {
+                globalSiteSettings = {
+                  ...globalSiteSettings,
+                  ...docSnap.data()
+                };
+                applyGlobalSiteSettings(globalSiteSettings);
+              }
+            },
+            (error) => console.error('Site settings sync error:', error)
+          )
         );
-      });
-
-      const compareAlphabetical = (a, b) =>
-        String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' });
-
-      const leadershipList = filteredMembers.filter((m) => Boolean(m.isModerator || m.isLeadership)).sort(compareAlphabetical);
-      const standardMembersList = filteredMembers.filter((m) => !Boolean(m.isModerator || m.isLeadership)).sort(compareAlphabetical);
-
-      recordCount.textContent = `${filteredMembers.length} MEMBER${filteredMembers.length === 1 ? '' : 'S'}`;
-
-      if (filteredMembers.length === 0) {
-        itemsGrid.innerHTML = '';
-        emptyState.textContent = 'NO REGISTERED MEMBERS IN ROSTER.';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-
-      const buildMemberCardHtml = (member) => {
-        const isSelected = member.id === selectedId;
-        const isLeader = Boolean(member.isModerator || member.isLeadership);
-        const manageBtnHtml = canManage
-          ? `<button
-               type="button"
-               data-manage-member-id="${escapeHtml(member.id)}"
-               class="shrink-0 font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#09212a]/85 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#134252] hover:text-white transition-colors uppercase tracking-wider"
-             >
-               Manage
-             </button>`
-          : '';
-
-        return `
-          <div data-member-id="${escapeHtml(member.id)}" class="archive-card chamfer-card ${isSelected ? 'selected' : ''} cursor-default">
-            <div class="shrink-0 text-[#48d1e8]">
-              <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                <circle cx="12" cy="8.5" r="3.5" fill="rgba(72,209,232,0.16)" />
-                <path d="M5 19.5c0-3.5 3.1-6 7-6s7 2.5 7 6" />
-              </svg>
-            </div>
-            <div class="min-w-0 flex-1 flex items-center justify-between gap-2">
-              <div class="min-w-0">
-                <div class="flex items-center gap-2 min-w-0">
-                  <div class="card-title font-hud font-bold text-base sm:text-lg tracking-[0.08em] text-[#6cd9ed] truncate">
-                    ${escapeHtml(member.name)}
-                  </div>
-                  ${isLeader ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff]">LEADERSHIP</span>' : ''}
-                </div>
-                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
-                  ${escapeHtml(member.role || 'ACTIVE_OPERATIVE')}
-                </div>
-              </div>
-              ${manageBtnHtml}
-            </div>
-          </div>
-        `;
-      };
-
-      const sectionsHtml = [];
-
-      if (leadershipList.length > 0) {
-        sectionsHtml.push(`
-          <div class="col-span-1 md:col-span-2 flex flex-col gap-2">
-            <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#7df9ff] border-b border-[#1c5461] pb-1 uppercase">
-              LEADERSHIP // COMMAND_TIER (${leadershipList.length})
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
-              ${leadershipList.map(buildMemberCardHtml).join('')}
-            </div>
-          </div>
-        `);
-      }
-
-      if (standardMembersList.length > 0) {
-        sectionsHtml.push(`
-          <div class="col-span-1 md:col-span-2 flex flex-col gap-2 ${leadershipList.length > 0 ? 'mt-2' : ''}">
-            <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#397c8a] border-b border-[#143d47] pb-1 uppercase">
-              MEMBERS // OPERATIVE_POOL (${standardMembersList.length})
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3">
-              ${standardMembersList.map(buildMemberCardHtml).join('')}
-            </div>
-          </div>
-        `);
-      }
-
-      itemsGrid.innerHTML = sectionsHtml.join('');
-
-      if (canManage) {
-        itemsGrid.querySelectorAll('[data-manage-member-id]').forEach((btn) => {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const member = rosterMembers.find((m) => m.id === btn.dataset.manageMemberId);
-            if (member) {
-              selectedId = member.id;
-              openManageMemberModal(member);
-            }
-          });
-        });
       }
     }
 
@@ -2379,25 +2543,6 @@
           `
         )
         .join('');
-
-      if (isAdmin) {
-        publicChatList.querySelectorAll('[data-delete-pub-id]').forEach((btn) => {
-          btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const msgId = btn.dataset.deletePubId;
-            if (!msgId) return;
-            btn.disabled = true;
-            const prevMessages = [...publicChatMessages];
-            publicChatMessages = publicChatMessages.filter((m) => String(m.id) !== String(msgId));
-            renderPublicChat();
-            const ok = await deletePublicChatFromCloud(msgId);
-            if (!ok) {
-              publicChatMessages = prevMessages;
-              renderPublicChat();
-            }
-          });
-        });
-      }
 
       publicChatList.scrollTop = publicChatList.scrollHeight;
     }
@@ -2559,7 +2704,633 @@
     });
 
     /**
-     * 8. NAVIGATION TABS, REQUESTS & NOTIFICATIONS MODALS
+     * 7. LOGIN & ACCOUNT REGISTRATION HANDLERS
+     */
+    openRegisterLink.addEventListener('click', () => {
+      setStatusMessage(loginStatus, '');
+      setStatusMessage(registerStatus, '');
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+      registerUsername.focus();
+    });
+
+    backToLoginLink.addEventListener('click', () => {
+      setStatusMessage(registerStatus, '');
+      setStatusMessage(loginStatus, '');
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      loginUsername.focus();
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (loginSubmit.disabled) return;
+
+      const enteredUser = loginUsername.value.trim();
+      const enteredPass = loginPassword.value;
+
+      if (!enteredUser || !enteredPass) {
+        setStatusMessage(loginStatus, 'ENTER USERNAME AND PASSWORD', true);
+        return;
+      }
+
+      loginSubmit.disabled = true;
+      setStatusMessage(loginStatus, 'VERIFYING CREDENTIALS...', false);
+
+      try {
+        const upperUser = enteredUser.toUpperCase();
+
+        // Primary built-in Admin credential check
+        if (upperUser === 'ADMIN' && enteredPass === 'VDBForever') {
+          loginPassword.value = '';
+          setStatusMessage(loginStatus, '');
+          enterDesktopSession('ADMIN', 'ADMIN');
+          return;
+        }
+
+        // Check approved accounts in Firestore if available
+        let matchedAccount = null;
+        if (db && approvedAccountsCollection) {
+          const { getDocs, query, where } = await import(
+            'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js'
+          );
+          const q = query(approvedAccountsCollection, where('username', '==', upperUser));
+          const snap = await getDocs(q);
+          snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data && data.password === enteredPass) {
+              matchedAccount = data;
+            }
+          });
+        }
+
+        if (!matchedAccount) {
+          matchedAccount = approvedAccounts.find(
+            (acc) =>
+              String(acc.username || '').trim().toUpperCase() === upperUser &&
+              acc.password === enteredPass
+          );
+        }
+
+        if (matchedAccount) {
+          const isMod = Boolean(matchedAccount.isModerator || matchedAccount.isLeadership);
+          loginPassword.value = '';
+          setStatusMessage(loginStatus, '');
+          enterDesktopSession(matchedAccount.username, isMod ? 'MODERATOR' : 'USER');
+          return;
+        }
+
+        // Check if account is still pending approval
+        const pendingMatch = accountRequests.find(
+          (req) => String(req.username || '').trim().toUpperCase() === upperUser
+        );
+        if (pendingMatch) {
+          setStatusMessage(loginStatus, 'ACCOUNT PENDING STAFF APPROVAL', true);
+          return;
+        }
+
+        setStatusMessage(loginStatus, 'ACCESS DENIED // INVALID CREDENTIALS', true);
+      } catch (err) {
+        console.error('Login error:', err);
+        setStatusMessage(loginStatus, 'AUTH LINK ERROR // RETRY', true);
+      } finally {
+        loginSubmit.disabled = false;
+      }
+    });
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isSubmittingRequest || registerSubmit.disabled) return;
+
+      const username = registerUsername.value.trim().toUpperCase();
+      const role = registerRole.value.trim().toUpperCase();
+      const password = registerPassword.value;
+
+      if (!username || !role || !password) {
+        setStatusMessage(registerStatus, 'COMPLETE ALL FIELDS', true);
+        return;
+      }
+
+      if (username === 'ADMIN') {
+        setStatusMessage(registerStatus, 'RESERVED IDENTIFIER', true);
+        return;
+      }
+
+      isSubmittingRequest = true;
+      registerSubmit.disabled = true;
+      setStatusMessage(registerStatus, 'TRANSMITTING REQUEST...', false);
+
+      try {
+        const reqId = `req-${username.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+        const reqObj = {
+          id: reqId,
+          username,
+          role,
+          password,
+          createdAt: Date.now()
+        };
+
+        accountRequests = [reqObj, ...accountRequests.filter((r) => r.id !== reqId)];
+        await saveAccountRequestToCloud(reqObj);
+
+        registerForm.reset();
+        setStatusMessage(registerStatus, 'REQUEST SENT // AWAIT APPROVAL', false);
+        setTimeout(() => {
+          setStatusMessage(registerStatus, '');
+          registerForm.classList.add('hidden');
+          loginForm.classList.remove('hidden');
+        }, 1200);
+      } catch (err) {
+        console.error('Registration error:', err);
+        setStatusMessage(registerStatus, 'REQUEST FAILED // RETRY', true);
+      } finally {
+        isSubmittingRequest = false;
+        registerSubmit.disabled = false;
+      }
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      stopFirestoreListeners();
+      if (clockIntervalId) {
+        clearInterval(clockIntervalId);
+        clockIntervalId = null;
+      }
+      currentUser = 'ADMIN';
+      currentRoleType = 'ADMIN';
+      selectedId = null;
+      activeShardId = null;
+      activePmId = null;
+      activeStaffRequestId = null;
+      desktopScreen.classList.add('hidden');
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      loginPassword.value = '';
+      setStatusMessage(loginStatus, '');
+      loginScreen.classList.remove('hidden');
+    });
+
+    /**
+     * 7B. WORKSPACE RENDERER (FILES, ROSTER & ADMIN SETTINGS)
+     */
+    const itemsGrid = document.getElementById('items-grid');
+    const emptyState = document.getElementById('empty-state');
+    const gridContainer = document.getElementById('grid-container');
+    const messagesBoard = document.getElementById('messages-board');
+    const workspaceToolbar = document.getElementById('workspace-toolbar');
+    const searchBoxWrap = document.getElementById('search-box-wrap');
+    const newEntryBtn = document.getElementById('new-entry-btn');
+
+    function renderWorkspace() {
+      if (!itemsGrid || !emptyState) return;
+      const queryText = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
+      if (activeTab === 'SETTINGS' && isAdminAccount()) {
+        gridContainer.classList.add('hidden');
+        messagesBoard.classList.add('hidden');
+        if (workspaceToolbar) workspaceToolbar.classList.add('hidden');
+        if (adminSettingsView) adminSettingsView.classList.remove('hidden');
+        if (recordCount) recordCount.textContent = 'ADMIN // CONFIG';
+        if (adminBgUrlInput) adminBgUrlInput.value = globalSiteSettings.backgroundUrl || '';
+        if (adminUiColorInput) {
+          const hex = normalizeHexColor(globalSiteSettings.uiAccentColor || '#48d1e8');
+          adminUiColorInput.value = hex;
+          if (adminUiColorHex) adminUiColorHex.textContent = hex.toUpperCase();
+        }
+        return;
+      }
+
+      if (adminSettingsView) adminSettingsView.classList.add('hidden');
+
+      if (activeTab === 'MESSAGES') {
+        gridContainer.classList.add('hidden');
+        messagesBoard.classList.remove('hidden');
+        if (workspaceToolbar) workspaceToolbar.classList.add('hidden');
+        renderMessagesBoard();
+        return;
+      }
+
+      messagesBoard.classList.add('hidden');
+      gridContainer.classList.remove('hidden');
+      if (workspaceToolbar) workspaceToolbar.classList.remove('hidden');
+
+      if (activeTab === 'ROSTER') {
+        if (searchBoxWrap) searchBoxWrap.classList.add('hidden');
+        if (newEntryBtn) newEntryBtn.classList.add('hidden');
+
+        const canManage = hasStaffPrivileges();
+        recordCount.textContent = `${rosterMembers.length} OPERATIVE${rosterMembers.length === 1 ? '' : 'S'}`;
+
+        if (rosterMembers.length === 0) {
+          itemsGrid.innerHTML = '';
+          emptyState.textContent = 'NO OPERATIVES REGISTERED IN ROSTER.';
+          emptyState.classList.remove('hidden');
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+        itemsGrid.innerHTML = rosterMembers
+          .map((member) => {
+            const isMod = Boolean(member.isModerator || member.isLeadership);
+            const isSelected = selectedId === member.id;
+            return `
+              <div
+                data-member-id="${escapeHtml(member.id)}"
+                class="archive-card chamfer-card ${isSelected ? 'selected' : ''}"
+              >
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-2">
+                    <span class="card-title font-hud font-bold text-base tracking-wider truncate">
+                      ${escapeHtml(member.name || member.username || 'OPERATIVE')}
+                    </span>
+                    ${
+                      isMod
+                        ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0e2e38]/90 text-[#7df9ff] uppercase">MODERATOR</span>'
+                        : ''
+                    }
+                  </div>
+                  <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                    ROLE // ${escapeHtml(member.role || 'ACTIVE_OPERATIVE')}
+                  </div>
+                </div>
+                ${
+                  canManage
+                    ? `<button
+                         type="button"
+                         data-manage-member="${escapeHtml(member.id)}"
+                         class="shrink-0 font-mono-tech text-[10px] px-2.5 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors tracking-widest uppercase"
+                       >
+                         MANAGE
+                       </button>`
+                    : ''
+                }
+              </div>
+            `;
+          })
+          .join('');
+        return;
+      }
+
+      // Default: FILES tab
+      if (searchBoxWrap) searchBoxWrap.classList.remove('hidden');
+      if (newEntryBtn) newEntryBtn.classList.remove('hidden');
+
+      const visibleShards = records.filter((rec) => {
+        if (rec.tab && rec.tab !== 'FILES') return false;
+        if (rec.secret && !hasStaffPrivileges()) return false;
+        if (!queryText) return true;
+        const hay = `${rec.title || ''} ${rec.subtitle || ''} ${rec.author || ''} ${rec.content || ''}`.toLowerCase();
+        return hay.includes(queryText);
+      });
+
+      recordCount.textContent = `${visibleShards.length} SHARD${visibleShards.length === 1 ? '' : 'S'}`;
+
+      if (visibleShards.length === 0) {
+        itemsGrid.innerHTML = '';
+        emptyState.textContent = 'NO MATCHING DATA SHARDS FOUND IN CURRENT SECTOR.';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      itemsGrid.innerHTML = visibleShards
+        .map((rec) => {
+          const isSelected = selectedId === rec.id;
+          const isSecret = Boolean(rec.secret);
+          const imgs = getShardImages(rec);
+          return `
+            <div
+              data-shard-id="${escapeHtml(rec.id)}"
+              class="archive-card chamfer-card ${isSecret ? 'secret-card' : ''} ${isSelected ? 'selected' : ''}"
+            >
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="card-title font-hud font-bold text-base tracking-wider truncate">
+                    ${escapeHtml(rec.title || 'UNTITLED_SHARD')}
+                  </span>
+                  ${
+                    isSecret
+                      ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#ff4d5a] bg-[#4a0d13]/80 text-[#ff9aa2] uppercase">SECRET</span>'
+                      : ''
+                  }
+                  ${
+                    imgs.length > 0
+                      ? `<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#236978] text-[#48d1e8]">${imgs.length} IMG</span>`
+                      : ''
+                  }
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-widest ${isSecret ? 'text-[#b85a62]' : 'text-[#397c8a]'} truncate mt-0.5">
+                  ${escapeHtml(rec.subtitle || 'ENCRYPTED_RECORD')} // ${escapeHtml(rec.author || 'UNKNOWN')}
+                </div>
+              </div>
+              <div class="font-mono-tech text-[10px] ${isSecret ? 'text-[#b85a62]' : 'text-[#397c8a]'} shrink-0 text-right">
+                <div>${escapeHtml(rec.date || '2077.04.14')}</div>
+                <div>${escapeHtml(rec.size || '1.0 KB')}</div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    itemsGrid.addEventListener('click', (e) => {
+      const manageBtn = e.target.closest('[data-manage-member]');
+      if (manageBtn) {
+        e.stopPropagation();
+        const member = rosterMembers.find((m) => m.id === manageBtn.dataset.manageMember);
+        if (member) {
+          selectedId = member.id;
+          renderWorkspace();
+          openManageMemberModal(member);
+        }
+        return;
+      }
+
+      const memberCard = e.target.closest('[data-member-id]');
+      if (memberCard) {
+        selectedId = memberCard.dataset.memberId;
+        renderWorkspace();
+        return;
+      }
+
+      const shardCard = e.target.closest('[data-shard-id]');
+      if (shardCard) {
+        const shard = records.find((r) => r.id === shardCard.dataset.shardId);
+        if (shard) {
+          selectedId = shard.id;
+          renderWorkspace();
+          openReaderModal(shard);
+        }
+      }
+    });
+
+    /**
+     * 7C. SHARD READER & CREATE / EDIT MODAL HANDLERS
+     */
+    function openReaderModal(shard) {
+      if (!shard) return;
+      activeShardId = shard.id;
+      const isSecret = Boolean(shard.secret);
+
+      if (isSecret) {
+        readerModalBox.className =
+          'w-full max-w-2xl border border-[#ff4d5a] bg-[#120507] shadow-[0_0_45px_rgba(255,77,90,0.3)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        readerModalHeader.className =
+          'flex items-center justify-between px-5 py-3 border-b border-[#6e171e] bg-[#26080c]';
+        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#ff6b76]';
+        modalMetaTop.textContent = 'CLASSIFIED_SHARD // CRIMSON_CLEARANCE';
+        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#ff9aa2] mt-0.5';
+      } else {
+        readerModalBox.className =
+          'w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        readerModalHeader.className =
+          'flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]';
+        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]';
+        modalMetaTop.textContent = 'DATASHARD // DECRYPTED';
+        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5';
+      }
+
+      modalTitle.textContent = shard.title || 'UNTITLED_SHARD';
+      modalBody.textContent = shard.content || '';
+
+      modalMetaStrip.innerHTML = `
+        <div><span class="text-[#397c8a]">AUTHOR:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.author || 'UNKNOWN')}</span></div>
+        <div><span class="text-[#397c8a]">DATE:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.date || '2077.04.14')}</span></div>
+        <div><span class="text-[#397c8a]">SIZE:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.size || '1.0 KB')}</span></div>
+        <div><span class="text-[#397c8a]">HASH:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.hash || '0x0000')}</span></div>
+      `;
+
+      const imgs = getShardImages(shard);
+      if (imgs.length > 0) {
+        modalImageWrap.classList.remove('hidden');
+        modalImagesList.innerHTML = imgs
+          .map(
+            (url, idx) => `
+              <button
+                type="button"
+                data-lightbox-url="${escapeHtml(url)}"
+                class="group relative w-28 h-20 border border-[#236978] hover:border-[#7df9ff] bg-[#040c10] overflow-hidden cursor-pointer"
+              >
+                <img
+                  src="${escapeHtml(url)}"
+                  alt="Capture ${idx + 1}"
+                  onerror="this.src='https://placehold.co/224x160/061319/48d1e8?text=IMG_ERR'"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
+              </button>
+            `
+          )
+          .join('');
+
+        modalImagesList.querySelectorAll('[data-lightbox-url]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            openLightbox(btn.dataset.lightboxUrl, shard.title);
+          });
+        });
+      } else {
+        modalImageWrap.classList.add('hidden');
+        modalImagesList.innerHTML = '';
+      }
+
+      const canModify = hasStaffPrivileges();
+      modalDeleteBtn.classList.toggle('hidden', !canModify);
+      modalEditBtn.classList.toggle('hidden', !canModify);
+
+      readerModal.classList.remove('hidden');
+    }
+
+    function closeReaderModal() {
+      activeShardId = null;
+      readerModal.classList.add('hidden');
+    }
+
+    closeReaderBtn.addEventListener('click', closeReaderModal);
+    readerModal.addEventListener('click', (e) => {
+      if (e.target === readerModal) closeReaderModal();
+    });
+
+    modalCopyBtn.addEventListener('click', () => {
+      const text = modalBody.textContent || '';
+      const tempArea = document.createElement('textarea');
+      tempArea.value = text;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (_) {}
+      document.body.removeChild(tempArea);
+      copyFeedback.classList.remove('opacity-0');
+      setTimeout(() => copyFeedback.classList.add('opacity-0'), 1400);
+    });
+
+    modalDeleteBtn.addEventListener('click', async () => {
+      if (!hasStaffPrivileges() || !activeShardId) return;
+      const targetId = activeShardId;
+      records = records.filter((r) => r.id !== targetId);
+      if (selectedId === targetId) selectedId = null;
+      closeReaderModal();
+      renderWorkspace();
+      await deleteShardFromCloud(targetId);
+    });
+
+    const createTitleInput = document.getElementById('create-title');
+    const createContentInput = document.getElementById('create-content');
+
+    function renderPendingImagesPreview() {
+      if (uploadImageStatus) {
+        uploadImageStatus.textContent = `${pendingImages.length} / ${MAX_IMAGES} OPTIC LINKS ATTACHED`;
+      }
+      if (!createImagePreviewWrap) return;
+      if (pendingImages.length === 0) {
+        createImagePreviewWrap.classList.add('hidden');
+        createImagePreviewWrap.innerHTML = '';
+        return;
+      }
+      createImagePreviewWrap.classList.remove('hidden');
+      createImagePreviewWrap.innerHTML = pendingImages
+        .map(
+          (url, idx) => `
+            <div class="flex items-center justify-between gap-2 px-2.5 py-1.5 border border-[#1d5663] bg-[#040c10] font-mono-tech text-[10px] text-[#7df9ff]">
+              <span class="truncate">${escapeHtml(url)}</span>
+              <button
+                type="button"
+                data-remove-img="${idx}"
+                class="shrink-0 px-1.5 py-0.5 border border-[#7a2028] text-[#e05a65] hover:border-[#ff4d5a]"
+              >
+                [X]
+              </button>
+            </div>
+          `
+        )
+        .join('');
+
+      createImagePreviewWrap.querySelectorAll('[data-remove-img]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = Number(btn.dataset.removeImg);
+          pendingImages.splice(idx, 1);
+          renderPendingImagesPreview();
+        });
+      });
+    }
+
+    function openCreateModal(existingShard = null) {
+      createForm.reset();
+      pendingImages = [];
+
+      if (hasStaffPrivileges()) {
+        createClassificationWrap.classList.remove('hidden');
+      } else {
+        createClassificationWrap.classList.add('hidden');
+      }
+
+      if (existingShard) {
+        editingShardId = existingShard.id;
+        createModalMeta.textContent = 'WRITE_PROTOCOL // MODIFY_RECORD';
+        createModalTitle.textContent = 'EDIT ARCHIVE SHARD';
+        createSubmitBtn.textContent = 'SAVE CHANGES';
+        createTitleInput.value = existingShard.title || '';
+        createContentInput.value = existingShard.content || '';
+        pendingImages = [...getShardImages(existingShard)];
+        const radio = createForm.querySelector(
+          `input[name="shard-classification"][value="${existingShard.secret ? 'SECRET' : 'STANDARD'}"]`
+        );
+        if (radio) radio.checked = true;
+      } else {
+        editingShardId = null;
+        createModalMeta.textContent = 'WRITE_PROTOCOL // NEW_RECORD';
+        createModalTitle.textContent = 'ARCHIVE NEW SHARD';
+        createSubmitBtn.textContent = 'COMMIT TO ARCHIVE';
+        const stdRadio = createForm.querySelector('input[name="shard-classification"][value="STANDARD"]');
+        if (stdRadio) stdRadio.checked = true;
+      }
+
+      renderPendingImagesPreview();
+      createModal.classList.remove('hidden');
+      createTitleInput.focus();
+    }
+
+    function closeCreateModal() {
+      editingShardId = null;
+      pendingImages = [];
+      createModal.classList.add('hidden');
+    }
+
+    newEntryBtn.addEventListener('click', () => openCreateModal(null));
+    modalEditBtn.addEventListener('click', () => {
+      if (!hasStaffPrivileges() || !activeShardId) return;
+      const shard = records.find((r) => r.id === activeShardId);
+      closeReaderModal();
+      if (shard) openCreateModal(shard);
+    });
+
+    closeCreateBtn.addEventListener('click', closeCreateModal);
+    cancelCreateBtn.addEventListener('click', closeCreateModal);
+    createModal.addEventListener('click', (e) => {
+      if (e.target === createModal) closeCreateModal();
+    });
+
+    addImageUrlBtn.addEventListener('click', () => {
+      const rawUrl = createImageUrlInput.value.trim();
+      if (!rawUrl) return;
+      if (pendingImages.length >= MAX_IMAGES) {
+        uploadImageStatus.textContent = `MAX ${MAX_IMAGES} IMAGE URLS REACHED`;
+        return;
+      }
+      if (!/^https?:\/\//i.test(rawUrl)) {
+        uploadImageStatus.textContent = 'URL MUST START WITH HTTP:// OR HTTPS://';
+        return;
+      }
+      pendingImages.push(rawUrl);
+      createImageUrlInput.value = '';
+      renderPendingImagesPreview();
+    });
+
+    createForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = createTitleInput.value.trim().toUpperCase();
+      const content = createContentInput.value.trim();
+      if (!title || !content) return;
+
+      const selectedClass = createForm.querySelector('input[name="shard-classification"]:checked')?.value;
+      const isSecret = hasStaffPrivileges() && selectedClass === 'SECRET';
+
+      const now = new Date();
+      const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+      const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
+      const byteSize = new Blob([content]).size;
+      const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
+
+      const existing = editingShardId ? records.find((r) => r.id === editingShardId) : null;
+      const shardObj = {
+        id: existing ? existing.id : `shard-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        tab: 'FILES',
+        secret: isSecret,
+        title,
+        subtitle: isSecret ? 'CLASSIFIED_SUBNET // RESTRICTED' : 'ARCHIVE_SHARD // VERIFIED',
+        date: existing ? existing.date : dateStr,
+        author: existing ? existing.author : currentUser.toUpperCase(),
+        size: sizeStr,
+        hash: existing ? existing.hash : `0x${randHex()}...${randHex()}`,
+        content,
+        images: [...pendingImages],
+        image: pendingImages[0] || null,
+        createdAt: existing ? existing.createdAt : Date.now(),
+        updatedAt: Date.now()
+      };
+
+      if (existing) {
+        records = records.map((r) => (r.id === existing.id ? shardObj : r));
+      } else {
+        records = [shardObj, ...records];
+      }
+      selectedId = shardObj.id;
+
+      closeCreateModal();
+      renderWorkspace();
+      await saveShardToCloud(shardObj);
+    });
+
+    /**
+     * 8. NAVIGATION TABS, ADMIN SETTINGS, REQUESTS & NOTIFICATIONS MODALS
      */
     navModules.forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -2571,6 +3342,154 @@
         renderWorkspace();
       });
     });
+
+    if (adminSettingsBtn) {
+      adminSettingsBtn.addEventListener('click', () => {
+        if (!isAdminAccount()) return;
+        navModules.forEach((b) => b.classList.remove('active'));
+        activeTab = 'SETTINGS';
+        activeSectorLabel.textContent = 'SECTOR_01 // ADMIN_SETTINGS';
+        renderWorkspace();
+      });
+    }
+
+    async function persistBackgroundImageUrl(rawBg) {
+      if (!isAdminAccount()) return;
+      const trimmedBg = String(rawBg || '').trim();
+      if (trimmedBg && !/^https?:\/\//i.test(trimmedBg)) {
+        if (adminSettingsStatus) {
+          adminSettingsStatus.textContent = 'BACKGROUND URL MUST START WITH HTTP:// OR HTTPS://';
+        }
+        return;
+      }
+
+      const nextSettings = {
+        ...globalSiteSettings,
+        id: 'global',
+        backgroundUrl: trimmedBg,
+        updatedBy: currentUser.toUpperCase(),
+        updatedAt: Date.now()
+      };
+
+      globalSiteSettings = nextSettings;
+      applyGlobalSiteSettings(nextSettings);
+      if (adminSettingsStatus) {
+        adminSettingsStatus.textContent = trimmedBg
+          ? 'UPDATING BACKGROUND IMAGE...'
+          : 'REMOVING BACKGROUND IMAGE...';
+      }
+
+      const ok = await saveSiteSettingsToCloud(nextSettings);
+      if (adminSettingsStatus) {
+        adminSettingsStatus.textContent = ok
+          ? (trimmedBg ? 'BACKGROUND IMAGE APPLIED FOR ALL USERS' : 'ORIGINAL BACKGROUND RESTORED FOR ALL USERS')
+          : 'APPLIED LOCALLY // CLOUD SAVE FAILED';
+      }
+      setTimeout(() => {
+        if (adminSettingsStatus) adminSettingsStatus.textContent = '';
+      }, 2500);
+    }
+
+    if (adminSubmitBgBtn) {
+      adminSubmitBgBtn.addEventListener('click', async () => {
+        await persistBackgroundImageUrl(adminBgUrlInput ? adminBgUrlInput.value : '');
+      });
+    }
+
+    if (adminUiColorInput) {
+      adminUiColorInput.addEventListener('input', () => {
+        const hex = normalizeHexColor(adminUiColorInput.value);
+        if (adminUiColorHex) adminUiColorHex.textContent = hex.toUpperCase();
+        applyGlobalSiteSettings({
+          ...globalSiteSettings,
+          uiAccentColor: hex
+        });
+      });
+    }
+
+    if (adminRemoveBgBtn) {
+      adminRemoveBgBtn.addEventListener('click', async () => {
+        if (!isAdminAccount()) return;
+        if (adminBgUrlInput) adminBgUrlInput.value = '';
+        await persistBackgroundImageUrl('');
+      });
+    }
+
+    if (adminRemoveBgBtn) {
+      adminRemoveBgBtn.addEventListener('click', async () => {
+        if (!isAdminAccount()) return;
+        if (adminBgUrlInput) adminBgUrlInput.value = '';
+        const nextSettings = {
+          ...globalSiteSettings,
+          id: 'global',
+          backgroundUrl: '',
+          updatedBy: currentUser.toUpperCase(),
+          updatedAt: Date.now()
+        };
+        globalSiteSettings = nextSettings;
+        applyGlobalSiteSettings(nextSettings);
+        if (adminSettingsStatus) adminSettingsStatus.textContent = 'REMOVING BACKGROUND IMAGE...';
+        const ok = await saveSiteSettingsToCloud(nextSettings);
+        if (adminSettingsStatus) {
+          adminSettingsStatus.textContent = ok
+            ? 'ORIGINAL BACKGROUND RESTORED FOR ALL USERS'
+            : 'RESTORED LOCALLY // CLOUD SAVE FAILED';
+        }
+        setTimeout(() => {
+          if (adminSettingsStatus) adminSettingsStatus.textContent = '';
+        }, 2500);
+      });
+    }
+
+    if (adminResetColorBtn) {
+      adminResetColorBtn.addEventListener('click', () => {
+        const defHex = '#48d1e8';
+        if (adminUiColorInput) adminUiColorInput.value = defHex;
+        if (adminUiColorHex) adminUiColorHex.textContent = defHex.toUpperCase();
+        applyGlobalSiteSettings({
+          ...globalSiteSettings,
+          uiAccentColor: defHex
+        });
+      });
+    }
+
+    if (adminSettingsForm) {
+      adminSettingsForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!isAdminAccount()) return;
+
+        const rawBg = (adminBgUrlInput ? adminBgUrlInput.value : '').trim();
+        if (rawBg && !/^https?:\/\//i.test(rawBg)) {
+          if (adminSettingsStatus) {
+            adminSettingsStatus.textContent = 'BACKGROUND URL MUST START WITH HTTP:// OR HTTPS://';
+          }
+          return;
+        }
+
+        const chosenColor = normalizeHexColor(adminUiColorInput ? adminUiColorInput.value : '#48d1e8');
+        const nextSettings = {
+          id: 'global',
+          backgroundUrl: rawBg,
+          uiAccentColor: chosenColor,
+          updatedBy: currentUser.toUpperCase(),
+          updatedAt: Date.now()
+        };
+
+        globalSiteSettings = nextSettings;
+        applyGlobalSiteSettings(nextSettings);
+        if (adminSettingsStatus) adminSettingsStatus.textContent = 'SAVING GLOBAL SETTINGS...';
+
+        const ok = await saveSiteSettingsToCloud(nextSettings);
+        if (adminSettingsStatus) {
+          adminSettingsStatus.textContent = ok
+            ? 'SETTINGS APPLIED FOR ALL USERS'
+            : 'APPLIED LOCALLY // CLOUD SAVE FAILED';
+        }
+        setTimeout(() => {
+          if (adminSettingsStatus) adminSettingsStatus.textContent = '';
+        }, 2500);
+      });
+    }
 
     searchInput.addEventListener('input', () => {
       if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
@@ -2598,16 +3517,66 @@
         return;
       }
 
-      if (accountRequests.length === 0) {
+      const activeUserRequests = userRequests.filter((r) => !r.archived);
+
+      if (accountRequests.length === 0 && activeUserRequests.length === 0) {
         requestsList.innerHTML = `
           <div class="py-8 text-center font-mono-tech text-xs text-[#397c8a] tracking-widest">
-            NO PENDING ACCOUNT REQUESTS.
+            NO PENDING REQUESTS.
           </div>
         `;
         return;
       }
 
-      requestsList.innerHTML = accountRequests
+      const userReqCardsHtml = activeUserRequests
+        .map((req) => {
+          const isAccepted = String(req.status || '').toUpperCase() === 'ACCEPTED';
+          return `
+            <div
+              data-open-user-req="${escapeHtml(req.id)}"
+              class="p-3.5 border border-[#1d5663] hover:border-[#48d1e8] bg-[#040c10] flex flex-wrap items-center justify-between gap-3 cursor-pointer transition-colors"
+            >
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="font-hud font-bold text-base tracking-wider text-[#7df9ff] truncate">
+                    ${escapeHtml(req.title || 'UNTITLED REQUEST')}
+                  </span>
+                  ${
+                    isAccepted
+                      ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff] uppercase">Accepted</span>'
+                      : '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#236978] bg-[#071820] text-[#48d1e8] uppercase">Open</span>'
+                  }
+                </div>
+                <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
+                  FROM: ${escapeHtml(req.sender || 'OPERATIVE')}
+                </div>
+              </div>
+              <div class="flex items-center gap-2" data-req-actions>
+                ${
+                  isAccepted
+                    ? ''
+                    : `<button
+                         type="button"
+                         data-accept-user-req="${escapeHtml(req.id)}"
+                         class="font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#0e2e38]/80 text-[#7df9ff] hover:bg-[#184c5c] transition-colors tracking-wider uppercase"
+                       >
+                         ACCEPT
+                       </button>
+                       <button
+                         type="button"
+                         data-deny-user-req="${escapeHtml(req.id)}"
+                         class="font-mono-tech text-xs px-3 py-1 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors tracking-wider uppercase"
+                       >
+                         DENY
+                       </button>`
+                }
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      const accReqCardsHtml = accountRequests
         .map(
           (req) => `
             <div data-req-id="${escapeHtml(req.id)}" class="p-3.5 border border-[#1d5663] bg-[#040c10] flex flex-wrap items-center justify-between gap-3">
@@ -2616,7 +3585,7 @@
                   ${escapeHtml(req.username)}
                 </div>
                 <div class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] truncate mt-0.5">
-                  ROLE: ${escapeHtml(req.role || 'OPERATIVE')}
+                  ACCOUNT REQUEST // ROLE: ${escapeHtml(req.role || 'OPERATIVE')}
                 </div>
               </div>
               <div class="flex items-center gap-2">
@@ -2639,6 +3608,32 @@
           `
         )
         .join('');
+
+      requestsList.innerHTML = `${userReqCardsHtml}${accReqCardsHtml}`;
+
+      requestsList.querySelectorAll('[data-open-user-req]').forEach((card) => {
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('[data-req-actions]')) return;
+          const reqObj = userRequests.find((r) => r.id === card.dataset.openUserReq);
+          if (reqObj) {
+            openRequestReaderModal(reqObj);
+          }
+        });
+      });
+
+      requestsList.querySelectorAll('[data-accept-user-req]').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await acceptUserRequestById(btn.dataset.acceptUserReq);
+        });
+      });
+
+      requestsList.querySelectorAll('[data-deny-user-req]').forEach((btn) => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await denyUserRequestById(btn.dataset.denyUserReq);
+        });
+      });
 
       requestsList.querySelectorAll('[data-confirm-req]').forEach((btn) => {
         btn.addEventListener('click', async () => {
@@ -2707,353 +3702,232 @@
       requestsModal.classList.remove('hidden');
     }
 
-    requestsBtn.addEventListener('click', openRequestsModal);
-
-    closeRequestsBtn.addEventListener('click', () => {
+    function closeRequestsModal() {
       requestsModal.classList.add('hidden');
-    });
-
-    requestsModal.addEventListener('click', (e) => {
-      if (e.target === requestsModal) requestsModal.classList.add('hidden');
-    });
-
-    /**
-     * 9. SHARD READER MODAL
-     */
-    function openReaderModal(id) {
-      const shard = records.find((r) => r.id === id);
-      if (!shard) return;
-      if (shard.secret && !hasStaffPrivileges()) return;
-
-      const isSecret = Boolean(shard.secret);
-      selectedId = shard.id;
-
-      if (isSecret) {
-        readerModalBox.className = 'w-full max-w-2xl border border-[#ff4d5a] bg-[#120507] shadow-[0_0_40px_rgba(255,77,90,0.32)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
-        readerModalHeader.className = 'flex items-center justify-between px-5 py-3 border-b border-[#5e171d] bg-[#24090d]';
-        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#ff4d5a]';
-        modalMetaTop.textContent = 'CLASSIFIED // SECRET_SHARD';
-        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#ff7a84] mt-0.5';
-        modalBody.className = 'font-mono-tech text-xs sm:text-sm text-[#ffb3b8] whitespace-pre-wrap leading-relaxed';
-      } else {
-        readerModalBox.className = 'w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
-        readerModalHeader.className = 'flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]';
-        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]';
-        modalMetaTop.textContent = `DATASHARD // ${shard.tab || 'FILES'}`;
-        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5';
-        modalBody.className = 'font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed';
-      }
-
-      modalTitle.textContent = shard.title;
-      modalBody.textContent = shard.content || '';
-
-      const labelColor = isSecret ? 'text-[#a33840]' : 'text-[#397c8a]';
-      const valColor = isSecret ? 'text-[#ff7a84]' : 'text-[#7df9ff]';
-      modalMetaStrip.innerHTML = `
-        <div><span class="${labelColor} block text-[9px]">DATE</span><span class="${valColor}">${escapeHtml(shard.date || '2077.04.14')}</span></div>
-        <div><span class="${labelColor} block text-[9px]">AUTHOR</span><span class="${valColor}">${escapeHtml(shard.author || 'ADMIN')}</span></div>
-        <div><span class="${labelColor} block text-[9px]">SIZE</span><span class="${valColor}">${escapeHtml(shard.size || '1.0 KB')}</span></div>
-        <div><span class="${labelColor} block text-[9px]">CLEARANCE</span><span class="${valColor}">${isSecret ? 'SECRET // LVL_5' : 'STANDARD'}</span></div>
-      `;
-
-      const shardImages = getShardImages(shard);
-      if (shardImages.length > 0) {
-        modalImagesList.innerHTML = shardImages
-          .map(
-            (imgSrc, idx) => `
-              <button type="button" data-reader-enlarge-idx="${idx}" class="group relative inline-block border border-[#236978] hover:border-[#7df9ff] bg-[#040c10] p-1 transition-all cursor-zoom-in focus:outline-none">
-                <img src="${imgSrc}" alt="Attached shard capture ${idx + 1}" class="max-h-32 w-auto object-contain block" />
-                <span class="absolute bottom-1 right-1 font-mono-tech text-[9px] px-1.5 py-0.5 bg-[#050f14]/90 border border-[#48d1e8] text-[#7df9ff] opacity-85 group-hover:opacity-100">
-                  [+ ${idx + 1}/${shardImages.length}]
-                </span>
-              </button>
-            `
-          )
-          .join('');
-        modalImagesList.querySelectorAll('[data-reader-enlarge-idx]').forEach((btn) => {
-          btn.addEventListener('click', () => {
-            const idx = Number(btn.dataset.readerEnlargeIdx || 0);
-            if (shardImages[idx]) {
-              openLightbox(shardImages[idx], `${shard.title} [${idx + 1}/${shardImages.length}]`);
-            }
-          });
-        });
-        modalImageWrap.classList.remove('hidden');
-      } else {
-        modalImagesList.innerHTML = '';
-        modalImageWrap.classList.add('hidden');
-      }
-
-      copyFeedback.classList.add('opacity-0');
-      readerModal.classList.remove('hidden');
     }
 
-    function closeReaderModal() {
-      readerModal.classList.add('hidden');
+    if (requestsBtn) {
+      requestsBtn.addEventListener('click', openRequestsModal);
     }
-
-    closeReaderBtn.addEventListener('click', closeReaderModal);
-    readerModal.addEventListener('click', (e) => {
-      if (e.target === readerModal) closeReaderModal();
-    });
-
-    modalCopyBtn.addEventListener('click', async () => {
-      const shard = records.find((r) => r.id === selectedId);
-      if (!shard) return;
-      try {
-        await navigator.clipboard.writeText(`${shard.title}\n\n${shard.content}`);
-        copyFeedback.classList.remove('opacity-0');
-        setTimeout(() => copyFeedback.classList.add('opacity-0'), 1800);
-      } catch (_) {
-        // Fallback ignore
-      }
-    });
-
-    modalDeleteBtn.addEventListener('click', async () => {
-      if (!selectedId) return;
-      const targetId = selectedId;
-      records = records.filter((r) => r.id !== targetId);
-      selectedId = records[0]?.id || null;
-      closeReaderModal();
-      renderWorkspace();
-      await deleteShardFromCloud(targetId);
-    });
-
-    modalEditBtn.addEventListener('click', () => {
-      if (!selectedId) return;
-      const shardToEdit = records.find((r) => r.id === selectedId);
-      if (!shardToEdit) return;
-      if (shardToEdit.secret && !hasStaffPrivileges()) return;
-      closeReaderModal();
-      openEditModal(shardToEdit);
-    });
-
-    /**
-     * 10. IMAGE URL ATTACHMENT & CREATE / EDIT SHARD MODAL
-     */
-    function isValidImageUrl(rawUrl) {
-      try {
-        const parsed = new URL(rawUrl);
-        return parsed.protocol === 'https:' || parsed.protocol === 'http:';
-      } catch (_) {
-        return false;
-      }
+    if (closeRequestsBtn) {
+      closeRequestsBtn.addEventListener('click', closeRequestsModal);
     }
-
-    function renderPendingImages() {
-      uploadImageStatus.textContent = `${pendingImages.length} / ${MAX_IMAGES} OPTIC LINKS ATTACHED`;
-
-      if (pendingImages.length === 0) {
-        createImagePreviewWrap.innerHTML = '';
-        createImagePreviewWrap.classList.add('hidden');
-        return;
-      }
-
-      createImagePreviewWrap.classList.remove('hidden');
-      createImagePreviewWrap.innerHTML = pendingImages
-        .map(
-          (imgItem, idx) => `
-            <div class="p-2 border border-[#1d5663] bg-[#040c10] flex items-center justify-between gap-3">
-              <div class="flex items-center gap-3 min-w-0">
-                <img src="${escapeHtml(imgItem.url)}" alt="Preview" class="w-11 h-11 object-cover border border-[#48d1e8] shrink-0" />
-                <div class="min-w-0">
-                  <div class="font-mono-tech text-[11px] text-[#7df9ff] truncate">${escapeHtml(imgItem.url)}</div>
-                  <div class="font-mono-tech text-[9px] text-[#397c8a] tracking-widest">REMOTE_URL // READY</div>
-                </div>
-              </div>
-              <button
-                type="button"
-                data-remove-img-idx="${idx}"
-                class="font-mono-tech text-[10px] px-2 py-1 border border-[#7a2028] text-[#e05a65] hover:border-[#ff4d5a] hover:bg-[#5c1118]/40 shrink-0"
-              >
-                REMOVE
-              </button>
-            </div>
-          `
-        )
-        .join('');
-
-      createImagePreviewWrap.querySelectorAll('[data-remove-img-idx]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const idx = Number(btn.dataset.removeImgIdx);
-          pendingImages.splice(idx, 1);
-          renderPendingImages();
-        });
+    if (requestsModal) {
+      requestsModal.addEventListener('click', (e) => {
+        if (e.target === requestsModal) closeRequestsModal();
       });
     }
 
-    function resetCreateImage() {
-      pendingImages = [];
-      if (createImageUrlInput) createImageUrlInput.value = '';
-      renderPendingImages();
+    function openMakeRequestModal() {
+      if (hasStaffPrivileges()) return;
+      makeRequestForm.reset();
+      makeRequestModal.classList.remove('hidden');
+      userRequestTitleInput.focus();
     }
 
-    function openCreateModal() {
-      editingShardId = null;
-      createModalMeta.textContent = 'WRITE_PROTOCOL // NEW_RECORD';
-      createModalTitle.textContent = 'ARCHIVE NEW SHARD';
-      createSubmitBtn.textContent = 'COMMIT TO ARCHIVE';
-      createForm.reset();
-      resetCreateImage();
-      if (hasStaffPrivileges()) {
-        createClassificationWrap.classList.remove('hidden');
-        const stdRadio = document.querySelector('input[name="shard-classification"][value="STANDARD"]');
-        if (stdRadio) stdRadio.checked = true;
-      } else {
-        createClassificationWrap.classList.add('hidden');
-      }
-      createModal.classList.remove('hidden');
-      document.getElementById('create-title').focus();
+    function closeMakeRequestModal() {
+      makeRequestModal.classList.add('hidden');
     }
 
-    function openEditModal(shard) {
-      editingShardId = shard.id;
-      createModalMeta.textContent = `WRITE_PROTOCOL // EDIT_${shard.id.slice(-6).toUpperCase()}`;
-      createModalTitle.textContent = 'EDIT ARCHIVE SHARD';
-      createSubmitBtn.textContent = 'SAVE CHANGES';
-      createForm.reset();
-
-      document.getElementById('create-title').value = shard.title || '';
-      document.getElementById('create-content').value = shard.content || '';
-
-      if (hasStaffPrivileges()) {
-        createClassificationWrap.classList.remove('hidden');
-        const targetVal = shard.secret ? 'SECRET' : 'STANDARD';
-        const radio = document.querySelector(`input[name="shard-classification"][value="${targetVal}"]`);
-        if (radio) radio.checked = true;
-      } else {
-        createClassificationWrap.classList.add('hidden');
-      }
-
-      const existingImages = getShardImages(shard);
-      pendingImages = existingImages.slice(0, MAX_IMAGES).map((url) => ({
-        url
-      }));
-      if (createImageUrlInput) createImageUrlInput.value = '';
-      renderPendingImages();
-
-      createModal.classList.remove('hidden');
-      document.getElementById('create-title').focus();
+    if (makeRequestBtn) {
+      makeRequestBtn.addEventListener('click', openMakeRequestModal);
     }
-
-    function closeCreateModal() {
-      editingShardId = null;
-      createModal.classList.add('hidden');
-      resetCreateImage();
-    }
-
-    newEntryBtn.addEventListener('click', openCreateModal);
-    closeCreateBtn.addEventListener('click', closeCreateModal);
-    cancelCreateBtn.addEventListener('click', closeCreateModal);
-    createModal.addEventListener('click', (e) => {
-      if (e.target === createModal) closeCreateModal();
+    closeMakeRequestBtn.addEventListener('click', closeMakeRequestModal);
+    cancelMakeRequestBtn.addEventListener('click', closeMakeRequestModal);
+    makeRequestModal.addEventListener('click', (e) => {
+      if (e.target === makeRequestModal) closeMakeRequestModal();
     });
 
-    function handleAddImageUrl() {
-      const candidate = (createImageUrlInput.value || '').trim();
-      if (!candidate) return;
-
-      if (pendingImages.length >= MAX_IMAGES) {
-        uploadImageStatus.textContent = `MAX ${MAX_IMAGES} URLS REACHED`;
-        return;
-      }
-
-      if (!isValidImageUrl(candidate)) {
-        uploadImageStatus.textContent = 'INVALID URL // USE HTTP OR HTTPS';
-        return;
-      }
-
-      if (pendingImages.some((item) => item.url === candidate)) {
-        uploadImageStatus.textContent = 'DUPLICATE URL SKIPPED';
-        return;
-      }
-
-      pendingImages.push({ url: candidate });
-      createImageUrlInput.value = '';
-      renderPendingImages();
-    }
-
-    addImageUrlBtn.addEventListener('click', handleAddImageUrl);
-    createImageUrlInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleAddImageUrl();
-      }
-    });
-
-    createForm.addEventListener('submit', async (e) => {
+    makeRequestForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const rawTitle = document.getElementById('create-title').value.trim();
-      const rawContent = document.getElementById('create-content').value.trim();
-      if (!rawTitle || !rawContent) return;
+      if (hasStaffPrivileges()) return;
+      const title = userRequestTitleInput.value.trim();
+      const body = userRequestBodyInput.value.trim();
+      if (!title || !body) return;
 
-      const pendingTypedUrl = (createImageUrlInput.value || '').trim();
-      if (pendingTypedUrl && pendingImages.length < MAX_IMAGES && isValidImageUrl(pendingTypedUrl)) {
-        if (!pendingImages.some((item) => item.url === pendingTypedUrl)) {
-          pendingImages.push({ url: pendingTypedUrl });
-          createImageUrlInput.value = '';
-        }
+      const reqObj = {
+        id: `ureq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        sender: currentUser.toUpperCase(),
+        title,
+        body,
+        status: 'OPEN',
+        archived: false,
+        createdAt: Date.now()
+      };
+
+      userRequests = [reqObj, ...userRequests];
+      makeRequestForm.reset();
+      closeMakeRequestModal();
+      updateRequestsBadge();
+      await saveUserRequestToCloud(reqObj);
+    });
+
+    function setRequestReaderMaxed(maxed) {
+      isRequestReaderMaxed = Boolean(maxed);
+      if (isRequestReaderMaxed) {
+        requestReaderModal.className = 'fixed inset-0 z-40 bg-black/90 backdrop-blur-xs flex items-center justify-center p-0';
+        requestReaderBox.className = 'w-full h-full max-w-none max-h-none border border-[#48d1e8] bg-[#061319] flex flex-col';
+        requestReaderExpandBtn.textContent = '[MIN]';
+      } else {
+        requestReaderModal.className = 'fixed inset-0 z-40 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6';
+        requestReaderBox.className = 'w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_45px_rgba(72,209,232,0.32)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        requestReaderExpandBtn.textContent = '[MAX]';
+      }
+    }
+
+    function renderRequestReaderModal(reqObj) {
+      if (!reqObj) return;
+      const isAccepted = String(reqObj.status || '').toUpperCase() === 'ACCEPTED';
+      requestReaderMeta.textContent = `REQUEST_INSPECTION // ${reqObj.id.slice(-6).toUpperCase()}`;
+      requestReaderTitle.textContent = reqObj.title || 'UNTITLED REQUEST';
+      requestReaderSender.textContent = reqObj.sender || 'OPERATIVE';
+      requestReaderBody.textContent = reqObj.body || '';
+
+      if (isAccepted) {
+        requestReaderStatusBadge.textContent = 'Accepted';
+        requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff] text-[10px] tracking-widest uppercase';
+        requestReaderAcceptBtn.classList.add('hidden');
+        requestReaderDenyBtn.classList.add('hidden');
+        requestReaderArchiveBtn.classList.remove('hidden');
+      } else {
+        requestReaderStatusBadge.textContent = 'OPEN';
+        requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#236978] bg-[#071820] text-[#48d1e8] text-[10px] tracking-widest uppercase';
+        requestReaderAcceptBtn.classList.remove('hidden');
+        requestReaderDenyBtn.classList.remove('hidden');
+        requestReaderArchiveBtn.classList.add('hidden');
+      }
+    }
+
+    function openRequestReaderModal(reqObj) {
+      if (!hasStaffPrivileges() || !reqObj) return;
+      activeStaffRequestId = reqObj.id;
+      setRequestReaderMaxed(false);
+      renderRequestReaderModal(reqObj);
+      requestReaderModal.classList.remove('hidden');
+    }
+
+    function closeRequestReaderModal() {
+      activeStaffRequestId = null;
+      setRequestReaderMaxed(false);
+      requestReaderModal.classList.add('hidden');
+    }
+
+    requestReaderExpandBtn.addEventListener('click', () => {
+      setRequestReaderMaxed(!isRequestReaderMaxed);
+    });
+
+    closeRequestReaderBtn.addEventListener('click', closeRequestReaderModal);
+    requestReaderModal.addEventListener('click', (e) => {
+      if (e.target === requestReaderModal) closeRequestReaderModal();
+    });
+
+    async function sendRequestDecisionNotification(reqObj, decisionStatus) {
+      if (!reqObj || !reqObj.sender) return;
+      const notifObj = {
+        id: `unotif-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        recipient: String(reqObj.sender).toUpperCase(),
+        actor: currentUser.toUpperCase(),
+        requestId: reqObj.id,
+        requestTitle: reqObj.title || 'UNTITLED REQUEST',
+        status: decisionStatus,
+        createdAt: Date.now()
+      };
+      userNotifications = [notifObj, ...userNotifications];
+      updateNotificationsBadge();
+      await saveUserNotificationToCloud(notifObj);
+    }
+
+    async function acceptUserRequestById(reqId) {
+      if (!hasStaffPrivileges() || !reqId) return;
+      const target = userRequests.find((r) => r.id === reqId);
+      if (!target) return;
+
+      const updatedReq = {
+        ...target,
+        status: 'ACCEPTED',
+        archived: false,
+        acceptedBy: currentUser.toUpperCase(),
+        acceptedAt: Date.now()
+      };
+
+      userRequests = userRequests.map((r) => (r.id === reqId ? updatedReq : r));
+      updateRequestsBadge();
+      renderRequestsModal();
+      if (activeStaffRequestId === reqId) {
+        renderRequestReaderModal(updatedReq);
       }
 
-      const selectedClassification = document.querySelector('input[name="shard-classification"]:checked')?.value || 'STANDARD';
-      const isSecret = hasStaffPrivileges() && selectedClassification === 'SECRET';
+      await saveUserRequestToCloud(updatedReq);
+      await sendRequestDecisionNotification(updatedReq, 'ACCEPTED');
+    }
 
-      const formattedTitle = rawTitle.toUpperCase().replace(/\s+/g, '_');
-      const finalImages = pendingImages.slice(0, MAX_IMAGES).map((img) => img.url);
-      const byteSize = new Blob([rawContent]).size;
-      const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
+    async function denyUserRequestById(reqId) {
+      if (!hasStaffPrivileges() || !reqId) return;
+      const target = userRequests.find((r) => r.id === reqId);
+      if (!target) return;
 
-      if (editingShardId) {
-        const existing = records.find((r) => r.id === editingShardId);
-        if (!existing) return;
-
-        const effectiveSecret = existing.secret && !hasStaffPrivileges() ? true : isSecret;
-        const updatedShard = {
-          ...existing,
-          secret: effectiveSecret,
-          title: formattedTitle,
-          subtitle: effectiveSecret
-            ? `CLASSIFIED_SHARD // ${existing.author || currentUser.toUpperCase()}`
-            : `USR_UPLOAD // ${existing.author || currentUser.toUpperCase()}`,
-          size: sizeStr,
-          content: rawContent,
-          images: finalImages,
-          image: finalImages[0] || null,
-          updatedAt: Date.now()
-        };
-
-        records = records.map((r) => (r.id === editingShardId ? updatedShard : r));
-        selectedId = updatedShard.id;
-        closeCreateModal();
-        renderWorkspace();
-        await saveShardToCloud(updatedShard);
-        return;
+      userRequests = userRequests.filter((r) => r.id !== reqId);
+      if (activeStaffRequestId === reqId) {
+        closeRequestReaderModal();
       }
+      updateRequestsBadge();
+      renderRequestsModal();
+
+      await deleteUserRequestFromCloud(reqId);
+      await sendRequestDecisionNotification(target, 'DENIED');
+    }
+
+    requestReaderAcceptBtn.addEventListener('click', async () => {
+      if (!activeStaffRequestId) return;
+      await acceptUserRequestById(activeStaffRequestId);
+    });
+
+    requestReaderDenyBtn.addEventListener('click', async () => {
+      if (!activeStaffRequestId) return;
+      await denyUserRequestById(activeStaffRequestId);
+    });
+
+    requestReaderArchiveBtn.addEventListener('click', async () => {
+      if (!hasStaffPrivileges() || !activeStaffRequestId) return;
+      const target = userRequests.find((r) => r.id === activeStaffRequestId);
+      if (!target || String(target.status || '').toUpperCase() !== 'ACCEPTED') return;
 
       const now = new Date();
       const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
       const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
+      const rawContent = target.body || '';
+      const byteSize = new Blob([rawContent]).size;
+      const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
+      const formattedTitle = String(target.title || 'ARCHIVED_REQUEST').trim().toUpperCase().replace(/\s+/g, '_');
 
       const newShard = {
-        id: `usr-${Date.now()}`,
+        id: `reqshard-${Date.now()}`,
         tab: 'FILES',
-        secret: isSecret,
+        secret: false,
         title: formattedTitle,
-        subtitle: isSecret ? `CLASSIFIED_SHARD // ${currentUser.toUpperCase()}` : `USR_UPLOAD // ${currentUser.toUpperCase()}`,
+        subtitle: `REQ_ARCHIVE // FROM_${String(target.sender || 'OPERATIVE').toUpperCase()}`,
         date: dateStr,
-        author: currentUser.toUpperCase(),
+        author: String(target.sender || currentUser).toUpperCase(),
         size: sizeStr,
         hash: `0x${randHex()}...${randHex()}`,
         content: rawContent,
-        images: finalImages,
-        image: finalImages[0] || null,
+        images: [],
+        image: null,
         createdAt: Date.now()
       };
 
-      records.unshift(newShard);
+      userRequests = userRequests.filter((r) => r.id !== target.id);
+      records = [newShard, ...records];
       selectedId = newShard.id;
-      closeCreateModal();
-      renderWorkspace();
+
+      closeRequestReaderModal();
+      updateRequestsBadge();
+      renderRequestsModal();
+      if (activeTab === 'FILES') {
+        renderWorkspace();
+      }
+
+      await deleteUserRequestFromCloud(target.id);
       await saveShardToCloud(newShard);
     });
 
@@ -3209,6 +4083,10 @@
           closeSendPmModal();
         } else if (!notificationsModal.classList.contains('hidden')) {
           notificationsModal.classList.add('hidden');
+        } else if (!requestReaderModal.classList.contains('hidden')) {
+          closeRequestReaderModal();
+        } else if (!makeRequestModal.classList.contains('hidden')) {
+          closeMakeRequestModal();
         } else if (!requestsModal.classList.contains('hidden')) {
           requestsModal.classList.add('hidden');
         } else if (!manageMemberModal.classList.contains('hidden')) {
@@ -3220,6 +4098,10 @@
         }
       }
     });
+
+    // Apply default/cached settings immediately and listen for global settings even before login
+    applyGlobalSiteSettings(globalSiteSettings);
+    startGlobalSettingsListener();
   </script>
 </body>
 </html>
