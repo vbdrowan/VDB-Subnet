@@ -18,19 +18,19 @@
       --border-mid: #236978;
       --cyan-bright: #48d1e8;
       --cyan-glow: #7df9ff;
-      --crimson-deep: #4a0d13;
-      --crimson-glow: #8f1d24;
-      --text-primary: #7be2f4;
-      --text-muted: #397c8a;
-    }
-
-    * {
-      box-sizing: border-box;
-      user-select: none;
-    }
-
-    input, textarea {
+    input, textarea, select {
       user-select: text;
+    }
+
+    select {
+      color-scheme: dark;
+      background-color: #040c10;
+      color: var(--cyan-glow);
+    }
+
+    select option {
+      background-color: #051218;
+      color: #7df9ff;
     }
 
     body {
@@ -1035,18 +1035,8 @@
           <span id="manage-member-tier" class="text-[10px] tracking-widest text-[#397c8a]">STANDARD</span>
         </div>
 
-        <div>
-          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ROLE / DESIGNATION</label>
-          <input
-            id="manage-member-role-input"
-            type="text"
-            placeholder="E.G. NETRUNNER // SUBNET_OPS"
-            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
-          />
-        </div>
-
-        <!-- Moderator Checkbox: Admin Only -->
-        <div id="manage-moderator-wrap" class="hidden pt-1">
+        <!-- Moderator Checkboxes: Admin Only -->
+        <div id="manage-moderator-wrap" class="hidden pt-1 flex flex-col gap-2">
           <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
             <input
               id="manage-moderator-input"
@@ -1055,6 +1045,16 @@
             />
             <span class="font-mono-tech text-[11px] text-[#7df9ff] tracking-widest uppercase">
               MODERATOR (LEADERSHIP)
+            </span>
+          </label>
+          <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              id="manage-secret-moderator-input"
+              type="checkbox"
+              class="w-4 h-4 accent-[#48d1e8] bg-[#040c10] border border-[#236978] cursor-pointer"
+            />
+            <span class="font-mono-tech text-[11px] text-[#7df9ff] tracking-widest uppercase">
+              SECRET MODERATION
             </span>
           </label>
         </div>
@@ -1742,6 +1742,7 @@
     const manageMemberRoleInput = document.getElementById('manage-member-role-input');
     const manageModeratorWrap = document.getElementById('manage-moderator-wrap');
     const manageModeratorInput = document.getElementById('manage-moderator-input');
+    const manageSecretModeratorInput = document.getElementById('manage-secret-moderator-input');
     const manageMemberStatus = document.getElementById('manage-member-status');
     const manageDeleteUserBtn = document.getElementById('manage-delete-user-btn');
     const closeManageMemberBtn = document.getElementById('close-manage-member-btn');
@@ -1986,6 +1987,10 @@
         :is(${uiScopes}) .bg-\\[\\#040c10\\],
         :is(${uiScopes}) .bg-\\[\\#040c10\\]\\/85 {
           background-color: ${darkSurfaceRgba} !important;
+        }
+        :is(${uiScopes}) select option {
+          background-color: #051218 !important;
+          color: ${glowHex} !important;
         }
       `;
 
@@ -2363,7 +2368,8 @@
         if (!acc || !acc.id) continue;
         const expectedMemberId = `mbr-${acc.id}`;
         if (existingIds.has(expectedMemberId)) continue;
-        const isLeader = Boolean(acc.isModerator || acc.isLeadership);
+        const isSecretMod = Boolean(acc.isSecretModerator);
+        const isLeader = !isSecretMod && Boolean(acc.isModerator || acc.isLeadership);
         existingIds.add(expectedMemberId);
         await saveMemberToCloud({
           id: expectedMemberId,
@@ -2372,6 +2378,7 @@
           role: acc.role || 'ACTIVE_OPERATIVE',
           isModerator: isLeader,
           isLeadership: isLeader,
+          isSecretModerator: isSecretMod,
           createdAt: acc.approvedAt || acc.createdAt || Date.now()
         });
       }
@@ -2890,7 +2897,7 @@
         }
 
         if (matchedAccount) {
-          const isMod = Boolean(matchedAccount.isModerator || matchedAccount.isLeadership);
+          const isMod = Boolean(matchedAccount.isModerator || matchedAccount.isLeadership || matchedAccount.isSecretModerator);
           loginPassword.value = '';
           setStatusMessage(loginStatus, '');
           enterDesktopSession(matchedAccount.username, isMod ? 'MODERATOR' : 'USER');
@@ -3058,14 +3065,21 @@
 
         const approvedModUsernames = new Set(
           approvedAccounts
-            .filter((a) => Boolean(a && (a.isModerator || a.isLeadership)))
+            .filter((a) => Boolean(a && !a.isSecretModerator && (a.isModerator || a.isLeadership)))
+            .map((a) => String(a.username || '').trim().toUpperCase())
+        );
+
+        const approvedSecretModUsernames = new Set(
+          approvedAccounts
+            .filter((a) => Boolean(a && a.isSecretModerator))
             .map((a) => String(a.username || '').trim().toUpperCase())
         );
 
         const isMemberLeadership = (member) => {
           if (!member) return false;
-          if (member.isModerator || member.isLeadership) return true;
           const uname = String(member.username || member.name || '').trim().toUpperCase();
+          if (member.isSecretModerator || approvedSecretModUsernames.has(uname)) return false;
+          if (member.isModerator || member.isLeadership) return true;
           return approvedModUsernames.has(uname);
         };
 
@@ -4127,29 +4141,60 @@
     function openManageMemberModal(member) {
       if (!hasStaffPrivileges() || !member) return;
       managingMemberId = member.id;
-      const isTargetMod = Boolean(member.isModerator || member.isLeadership);
+      const isTargetSecretMod = Boolean(member.isSecretModerator);
+      const isTargetMod = !isTargetSecretMod && Boolean(member.isModerator || member.isLeadership);
+      const isAnyMod = isTargetMod || isTargetSecretMod;
 
       manageMemberName.textContent = member.name || 'OPERATIVE';
-      manageMemberTier.textContent = isTargetMod ? 'MODERATOR // LEADERSHIP' : 'MEMBER // STANDARD';
-      manageMemberRoleInput.value = member.role || '';
+      if (isTargetSecretMod && isAdminAccount()) {
+        manageMemberTier.textContent = 'SECRET MODERATION';
+      } else if (isTargetMod) {
+        manageMemberTier.textContent = 'MODERATOR // LEADERSHIP';
+      } else {
+        manageMemberTier.textContent = 'MEMBER // STANDARD';
+      }
+      if (manageMemberRoleInput) {
+        manageMemberRoleInput.value = member.role || '';
+      }
       manageMemberStatus.textContent = '';
 
       if (isAdminAccount()) {
         manageModeratorWrap.classList.remove('hidden');
         manageModeratorInput.checked = isTargetMod;
+        if (manageSecretModeratorInput) {
+          manageSecretModeratorInput.checked = isTargetSecretMod;
+        }
       } else {
         manageModeratorWrap.classList.add('hidden');
         manageModeratorInput.checked = isTargetMod;
+        if (manageSecretModeratorInput) {
+          manageSecretModeratorInput.checked = isTargetSecretMod;
+        }
       }
 
-      if (isTargetMod && !isAdminAccount()) {
+      if (isAnyMod && !isAdminAccount()) {
         manageDeleteUserBtn.classList.add('hidden');
       } else {
         manageDeleteUserBtn.classList.remove('hidden');
       }
 
       manageMemberModal.classList.remove('hidden');
-      manageMemberRoleInput.focus();
+      if (manageMemberRoleInput) {
+        manageMemberRoleInput.focus();
+      }
+    }
+
+    if (manageModeratorInput && manageSecretModeratorInput) {
+      manageModeratorInput.addEventListener('change', () => {
+        if (manageModeratorInput.checked) {
+          manageSecretModeratorInput.checked = false;
+        }
+      });
+      manageSecretModeratorInput.addEventListener('change', () => {
+        if (manageSecretModeratorInput.checked) {
+          manageModeratorInput.checked = false;
+        }
+      });
     }
 
     function closeManageMemberModal() {
@@ -4171,23 +4216,30 @@
       const member = rosterMembers.find((m) => m.id === managingMemberId);
       if (!member) return;
 
-      const nextRole = manageMemberRoleInput.value.trim().toUpperCase() || 'ACTIVE_OPERATIVE';
-      const nextMod =
-        isAdminAccount()
-          ? Boolean(manageModeratorInput.checked)
-          : Boolean(member.isModerator || member.isLeadership);
+      const nextRole = manageMemberRoleInput
+        ? manageMemberRoleInput.value.trim().toUpperCase() || 'ACTIVE_OPERATIVE'
+        : member.role || 'ACTIVE_OPERATIVE';
+      const nextSecretMod = isAdminAccount()
+        ? Boolean(manageSecretModeratorInput && manageSecretModeratorInput.checked)
+        : Boolean(member.isSecretModerator);
+      const nextMod = isAdminAccount()
+        ? !nextSecretMod && Boolean(manageModeratorInput && manageModeratorInput.checked)
+        : !nextSecretMod && Boolean(member.isModerator || member.isLeadership);
 
       const updatedMember = {
         ...member,
         role: nextRole,
         isModerator: nextMod,
         isLeadership: nextMod,
+        isSecretModerator: nextSecretMod,
         updatedAt: Date.now()
       };
 
       rosterMembers = rosterMembers.map((m) => (m.id === member.id ? updatedMember : m));
 
-      const linkedAccId = member.id.startsWith('mbr-') ? member.id.slice(4) : `acc-${(member.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+      const linkedAccId = member.id.startsWith('mbr-')
+        ? member.id.slice(4)
+        : `acc-${(member.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
       const matchedAcc = approvedAccounts.find(
         (a) => a.id === linkedAccId || (a.username || '').toUpperCase() === (member.name || '').toUpperCase()
       );
@@ -4197,6 +4249,7 @@
           role: nextRole,
           isModerator: nextMod,
           isLeadership: nextMod,
+          isSecretModerator: nextSecretMod,
           updatedAt: Date.now()
         };
         approvedAccounts = approvedAccounts.map((a) => (a.id === matchedAcc.id ? updatedAcc : a));
@@ -4213,8 +4266,8 @@
       const member = rosterMembers.find((m) => m.id === managingMemberId);
       if (!member) return;
 
-      const isTargetMod = Boolean(member.isModerator || member.isLeadership);
-      if (isTargetMod && !isAdminAccount()) {
+      const isTargetAnyMod = Boolean(member.isModerator || member.isLeadership || member.isSecretModerator);
+      if (isTargetAnyMod && !isAdminAccount()) {
         manageMemberStatus.textContent = 'ONLY ADMIN CAN REMOVE MODERATOR ACCOUNTS';
         return;
       }
@@ -4289,7 +4342,7 @@
       }
     });
 
-    // Apply default/cached settings immediately and listen for global settings even before login
+    // Apply initial defaults and start global site settings sync before login
     applyGlobalSiteSettings(globalSiteSettings);
     startGlobalSettingsListener();
   </script>
