@@ -489,106 +489,8 @@
         Create account
       </button>
 
-      <!-- Send Intel Link Directly Below Create Account -->
-      <button
-        id="open-intel-link"
-        type="button"
-        class="font-mono-tech text-xs tracking-[0.2em] text-[#48d1e8] hover:text-[#7df9ff] underline underline-offset-4 uppercase text-center transition-colors"
-      >
-        Send Intel
-      </button>
-
       <!-- Subtle Inline Terminal Feedback -->
       <div id="login-status" class="font-mono-tech text-[11px] tracking-widest text-center h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
-    </form>
-
-    <!-- Send Intel Form (Hidden by default) -->
-    <form id="intel-form" class="hidden w-full max-w-sm flex flex-col gap-3 hud-enter" autocomplete="off" novalidate>
-      <div class="text-center border-b border-[#1c5461] pb-2">
-        <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8]">DEAD_DROP // ANONYMOUS_FEED</div>
-        <div class="font-hud font-bold text-lg tracking-[0.16em] text-[#7df9ff]">SEND INTEL</div>
-      </div>
-
-      <!-- 1. Name Text Box -->
-      <div class="cp-input-wrap">
-        <input
-          id="intel-name"
-          type="text"
-          placeholder="NAME"
-          aria-label="Name"
-          class="cp-input px-4 py-2.5 text-sm"
-          spellcheck="false"
-        />
-      </div>
-
-      <!-- 2. Message Text Box -->
-      <div class="cp-input-wrap">
-        <textarea
-          id="intel-message"
-          rows="4"
-          placeholder="MESSAGE"
-          aria-label="Message"
-          class="cp-input px-4 py-2.5 text-xs resize-y"
-        ></textarea>
-      </div>
-
-      <!-- 3. 4 URL Text Boxes for Images -->
-      <div class="flex flex-col gap-2">
-        <div class="cp-input-wrap">
-          <input
-            id="intel-url-1"
-            type="url"
-            placeholder="IMAGE URL 1 (OPTIONAL)"
-            aria-label="Image URL 1"
-            class="cp-input px-3.5 py-2 text-xs"
-            spellcheck="false"
-          />
-        </div>
-        <div class="cp-input-wrap">
-          <input
-            id="intel-url-2"
-            type="url"
-            placeholder="IMAGE URL 2 (OPTIONAL)"
-            aria-label="Image URL 2"
-            class="cp-input px-3.5 py-2 text-xs"
-            spellcheck="false"
-          />
-        </div>
-        <div class="cp-input-wrap">
-          <input
-            id="intel-url-3"
-            type="url"
-            placeholder="IMAGE URL 3 (OPTIONAL)"
-            aria-label="Image URL 3"
-            class="cp-input px-3.5 py-2 text-xs"
-            spellcheck="false"
-          />
-        </div>
-        <div class="cp-input-wrap">
-          <input
-            id="intel-url-4"
-            type="url"
-            placeholder="IMAGE URL 4 (OPTIONAL)"
-            aria-label="Image URL 4"
-            class="cp-input px-3.5 py-2 text-xs"
-            spellcheck="false"
-          />
-        </div>
-      </div>
-
-      <button id="intel-submit" type="submit" class="cp-btn py-2.5 px-6 text-base">
-        TRANSMIT INTEL
-      </button>
-
-      <button
-        id="back-from-intel-link"
-        type="button"
-        class="font-mono-tech text-xs tracking-[0.2em] text-[#48d1e8] hover:text-[#7df9ff] underline underline-offset-4 uppercase text-center transition-colors"
-      >
-        Back to Login
-      </button>
-
-      <div id="intel-status" class="font-mono-tech text-[11px] tracking-widest text-center min-h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
     </form>
 
     <!-- Create Account Form (Hidden by default) -->
@@ -1064,7 +966,7 @@
   </div>
 
   <!-- =========================================================
-       4A-2. INFORMANT LINK MODAL (/inform)
+       4A-2. INFORMANT LINK MODAL
        ========================================================= -->
   <div id="informant-link-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
     <div class="w-full max-w-lg border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
@@ -1080,7 +982,7 @@
 
       <div class="p-5 flex flex-col gap-3.5">
         <div class="font-mono-tech text-[11px] leading-relaxed text-[#9beaf7]">
-          SHARE THIS <span class="text-[#7df9ff]">/inform</span> LINK WITH AN INFORMANT. IT OPENS DIRECTLY TO THE <span class="text-[#7df9ff]">SEND INTEL</span> FORM WITHOUT EXPOSING THE LOGIN SCREEN.
+          SHARE THIS <span class="text-[#7df9ff]">INFORMANT</span> LINK WITH AN INFORMANT. IT OPENS DIRECTLY TO THE <span class="text-[#7df9ff]">SEND INTEL</span> FORM WITHOUT EXPOSING THE LOGIN SCREEN.
         </div>
 
         <div>
@@ -1114,6 +1016,143 @@
   </div>
 
   <!-- =========================================================
+       4A-3. SHARD READER OVERLAY MODAL
+       ========================================================= -->
+  <div id="reader-modal" class="hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div id="reader-modal-box" class="w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter">
+      <div id="reader-modal-header" class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div class="min-w-0 pr-3">
+          <div id="modal-meta-top" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DATASHARD // DECRYPTED</div>
+          <h2 id="modal-title" class="font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5 truncate">UNTITLED_SHARD</h2>
+        </div>
+        <button id="close-reader-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76] transition-colors shrink-0">
+          [X] CLOSE
+        </button>
+      </div>
+
+      <div id="modal-meta-strip" class="px-5 py-2 border-b border-[#133b45] bg-[#050f14] font-mono-tech text-[10px] sm:text-[11px] grid grid-cols-2 sm:grid-cols-4 gap-2"></div>
+
+      <div class="p-5 overflow-y-auto cp-scroll flex-1">
+        <pre id="modal-body" class="font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed"></pre>
+        <div id="modal-image-wrap" class="hidden mt-4 pt-3 border-t border-[#143d47]">
+          <div class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8] mb-2">ATTACHED_CAPTURES // CLICK TO ENLARGE</div>
+          <div id="modal-images-list" class="flex flex-wrap gap-2.5"></div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <div class="flex items-center gap-2">
+          <button
+            id="modal-delete-btn"
+            type="button"
+            class="hidden font-mono-tech text-xs px-3.5 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors uppercase tracking-wider"
+          >
+            DELETE
+          </button>
+          <button
+            id="modal-edit-btn"
+            type="button"
+            class="hidden font-mono-tech text-xs px-3.5 py-1.5 border border-[#236978] bg-[#0a212b] text-[#7df9ff] hover:border-[#7df9ff] transition-colors uppercase tracking-wider"
+          >
+            EDIT
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3 ml-auto">
+          <span id="copy-feedback" class="font-mono-tech text-[10px] tracking-widest text-[#7df9ff] uppercase opacity-0 transition-opacity duration-200">
+            COPIED
+          </span>
+          <button id="modal-copy-btn" type="button" class="cp-btn text-xs py-1.5 px-4">
+            COPY PAYLOAD
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       4A-4. CREATE / EDIT SHARD OVERLAY MODAL
+       ========================================================= -->
+  <div id="create-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <form id="create-form" class="w-full max-w-xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div id="create-modal-meta" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">SYS.ARCHIVE // WRITE_SHARD</div>
+          <h2 id="create-modal-title" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">NEW ARCHIVE ENTRY</h2>
+        </div>
+        <button id="close-create-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 overflow-y-auto cp-scroll flex-1 flex flex-col gap-3.5">
+        <div>
+          <label for="create-title" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">SHARD TITLE</label>
+          <input
+            id="create-title"
+            type="text"
+            required
+            placeholder="ENTER SHARD TITLE..."
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+          />
+        </div>
+
+        <div id="create-classification-wrap" class="hidden">
+          <label class="inline-flex items-center gap-2.5 cursor-pointer select-none px-3 py-2 border border-[#7a2028] bg-[#26080c]/75 w-full">
+            <input
+              id="create-secret-input"
+              type="checkbox"
+              class="w-4 h-4 accent-[#ff4d5a] cursor-pointer"
+            />
+            <span class="font-mono-tech text-[11px] tracking-widest text-[#ff9aa2] uppercase">
+              MARK AS SECRET SHARD (STAFF ONLY)
+            </span>
+          </label>
+        </div>
+
+        <div>
+          <label for="create-content" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">PAYLOAD / NOTES</label>
+          <textarea
+            id="create-content"
+            rows="6"
+            required
+            placeholder="ENTER ARCHIVE DATA PAYLOAD..."
+            class="w-full bg-[#040c10] border border-[#236978] p-3 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
+          ></textarea>
+        </div>
+
+        <div>
+          <label for="create-image-url-input" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ATTACH IMAGE URL (UP TO 4)</label>
+          <div class="flex items-center gap-2">
+            <input
+              id="create-image-url-input"
+              type="url"
+              placeholder="HTTPS://EXAMPLE.COM/IMAGE.PNG"
+              class="flex-1 bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+            />
+            <button id="add-image-url-btn" type="button" class="cp-btn text-xs px-3.5 py-2 shrink-0">
+              + ADD
+            </button>
+          </div>
+          <div id="upload-image-status" class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] mt-1">
+            0 / 4 OPTIC LINKS ATTACHED
+          </div>
+          <div id="create-image-preview-wrap" class="hidden mt-2 flex flex-col gap-1.5"></div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button id="cancel-create-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
+          CANCEL
+        </button>
+        <button id="create-submit-btn" type="submit" class="cp-btn text-xs py-1.5 px-5">
+          SAVE SHARD
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- =========================================================
        4B-2. MANAGE MEMBER OVERLAY MODAL (ADMIN & MODERATOR)
        ========================================================= -->
   <div id="manage-member-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
@@ -1132,6 +1171,16 @@
         <div class="p-2.5 border border-[#17454f] bg-[#040c10] font-mono-tech text-xs text-[#7df9ff] flex items-center justify-between">
           <span id="manage-member-name" class="font-bold tracking-wider">OPERATIVE</span>
           <span id="manage-member-tier" class="text-[10px] tracking-widest text-[#397c8a]">STANDARD</span>
+        </div>
+
+        <div>
+          <label for="manage-member-role-input" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ROLE TITLE</label>
+          <input
+            id="manage-member-role-input"
+            type="text"
+            placeholder="ACTIVE_OPERATIVE"
+            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
+          />
         </div>
 
         <!-- Moderator Checkboxes: Admin Only -->
@@ -1411,7 +1460,7 @@
       </div>
 
       <div id="pm-reader-thread" class="p-5 overflow-y-auto cp-scroll flex-1 flex flex-col gap-3">
-        <!-- Replies and original message rendered dynamically (newest reply above last one) -->
+        <!-- Replies and original message rendered dynamically -->
       </div>
 
       <form id="pm-reply-form" class="hidden px-5 py-3 border-t border-[#17454f] bg-[#051016] flex flex-col gap-2">
@@ -1492,7 +1541,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     /**
      * 0. FIREBASE CLOUD FIRESTORE CONFIGURATION (VDB-Database)
@@ -1517,6 +1566,7 @@
     let userRequestsCollection = null;
     let userNotificationsCollection = null;
     let siteSettingsDocRef = null;
+
     try {
       const firebaseApp = initializeApp(firebaseConfig);
       db = getFirestore(firebaseApp);
@@ -1659,6 +1709,8 @@
     let activeShardId = null;
     let clockIntervalId = null;
 
+    const MAX_IMAGES = 4;
+
     function isInformantModeRoute() {
       const path = String(window.location.pathname || '').replace(/\/+$/, '').toLowerCase();
       const hash = String(window.location.hash || '').toLowerCase();
@@ -1686,8 +1738,6 @@
       startGlobalSettingsListener();
       return true;
     }
-
-    const MAX_IMAGES = 4;
 
     function isAdminAccount(username = currentUser) {
       return String(username || '').trim().toUpperCase() === 'ADMIN';
@@ -1734,9 +1784,11 @@
         activeSectorLabel.textContent = 'SECTOR_01 // FILES';
       }
 
-      loginScreen.classList.add('hidden');
-      desktopScreen.classList.remove('hidden');
-      desktopScreen.classList.add('hud-enter');
+      if (loginScreen) loginScreen.classList.add('hidden');
+      if (desktopScreen) {
+        desktopScreen.classList.remove('hidden');
+        desktopScreen.classList.add('hud-enter');
+      }
 
       startFirestoreListeners();
       applyGlobalSiteSettings(globalSiteSettings);
@@ -1765,7 +1817,6 @@
     const doneInformantLinkBtn = document.getElementById('done-informant-link-btn');
     const generatedInformantUrl = document.getElementById('generated-informant-url');
     const copyInformantUrlBtn = document.getElementById('copy-informant-url-btn');
-    const regenerateInformantUrlBtn = document.getElementById('regenerate-informant-url-btn');
     const informantGenStatus = document.getElementById('informant-gen-status');
 
     const loginScreen = document.getElementById('login-screen');
@@ -1778,19 +1829,6 @@
     const registerForm = document.getElementById('register-form');
     const openRegisterLink = document.getElementById('open-register-link');
     const backToLoginLink = document.getElementById('back-to-login-link');
-    const openIntelLink = document.getElementById('open-intel-link');
-    const intelForm = document.getElementById('intel-form');
-    const backFromIntelLink = document.getElementById('back-from-intel-link');
-    const intelNameInput = document.getElementById('intel-name');
-    const intelMessageInput = document.getElementById('intel-message');
-    const intelUrlInputs = [
-      document.getElementById('intel-url-1'),
-      document.getElementById('intel-url-2'),
-      document.getElementById('intel-url-3'),
-      document.getElementById('intel-url-4')
-    ];
-    const intelSubmit = document.getElementById('intel-submit');
-    const intelStatus = document.getElementById('intel-status');
     const registerUsername = document.getElementById('register-username');
     const registerRole = document.getElementById('register-role');
     const registerPassword = document.getElementById('register-password');
@@ -1821,6 +1859,7 @@
     const adminOutlineOpacityInput = document.getElementById('admin-outline-opacity-input');
     const adminOutlineOpacityVal = document.getElementById('admin-outline-opacity-val');
     const adminSettingsStatus = document.getElementById('admin-settings-status');
+
     const requestsModal = document.getElementById('requests-modal');
     const closeRequestsBtn = document.getElementById('close-requests-btn');
     const requestsList = document.getElementById('requests-list');
@@ -1848,14 +1887,17 @@
     const requestReaderSecretWrap = document.getElementById('request-reader-secret-wrap');
     const requestReaderSecretCheckbox = document.getElementById('request-reader-secret-checkbox');
     const requestReaderArchiveBtn = document.getElementById('request-reader-archive-btn');
+
     const recordCount = document.getElementById('record-count');
     const searchInput = document.getElementById('search-input');
     const navModules = document.querySelectorAll('.nav-module[data-tab]');
+
     const notificationsBtn = document.getElementById('notifications-btn');
     const notificationsBadge = document.getElementById('notifications-badge');
     const notificationsModal = document.getElementById('notifications-modal');
     const closeNotificationsBtn = document.getElementById('close-notifications-btn');
     const notificationsList = document.getElementById('notifications-list');
+
     const msgModePrivateBtn = document.getElementById('msg-mode-private-btn');
     const msgModePublicBtn = document.getElementById('msg-mode-public-btn');
     const privateMessagesView = document.getElementById('private-messages-view');
@@ -1933,6 +1975,15 @@
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxTitle = document.getElementById('lightbox-title');
     const closeLightboxBtn = document.getElementById('close-lightbox-btn');
+
+    const itemsGrid = document.getElementById('items-grid');
+    const emptyState = document.getElementById('empty-state');
+    const gridContainer = document.getElementById('grid-container');
+    const messagesBoard = document.getElementById('messages-board');
+    const workspaceToolbar = document.getElementById('workspace-toolbar');
+    const searchBoxWrap = document.getElementById('search-box-wrap');
+    const generateInformantLinkBtn = document.getElementById('generate-informant-link-btn');
+    const newEntryBtn = document.getElementById('new-entry-btn');
 
     // Firestore Persistence Helpers
     async function saveDocToCloud(colName, docObj) {
@@ -2042,7 +2093,7 @@
       const glowRingRgba = hexToRgba(accentHex, fmtOutline(0.22));
       const glowInsetRgba = hexToRgba(accentHex, fmtAlpha(0.16));
       const hoverTintRgba = hexToRgba(accentHex, fmtAlpha(0.28));
-      const uiScopes = '#desktop-screen, #login-screen, #reader-modal:not(.secret-reader), #create-modal, #manage-member-modal, #requests-modal, #make-request-modal, #request-reader-modal, #send-pm-modal, #pm-reader-modal, #notifications-modal, #lightbox-modal';
+      const uiScopes = '#desktop-screen, #login-screen, #informant-link-screen, #reader-modal:not(.secret-reader), #create-modal, #manage-member-modal, #requests-modal, #make-request-modal, #request-reader-modal, #send-pm-modal, #pm-reader-modal, #notifications-modal, #lightbox-modal';
 
       const rootStyle = document.documentElement.style;
       rootStyle.setProperty('--cyan-bright', accentHex);
@@ -2065,6 +2116,7 @@
       dynamicStyleEl.textContent = `
         #desktop-screen :not(.secret-card):not(.secret-card *):not(.pulse-red):not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#c94a53"]):not([class*="#b8323c"]):not([class*="#7a2028"]):not([class*="#6e171e"]):not([class*="#5e171d"]),
         #login-screen :not([class*="#ff4d5a"]):not([class*="#e05a65"]),
+        #informant-link-screen :not([class*="#ff4d5a"]):not([class*="#e05a65"]),
         #reader-modal:not(.secret-reader) :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
         #create-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#b8323c"]):not([class*="#7a2028"]):not([class*="#6e171e"]):not([class*="#5e171d"]),
         #manage-member-modal :not([class*="#ff4d5a"]):not([class*="#e05a65"]):not([class*="#7a2028"]),
@@ -2110,15 +2162,20 @@
           background: ${hoverTintRgba} !important;
           box-shadow: 0 0 22px ${glowRingRgba}, inset 0 0 12px ${glowInsetRgba} !important;
         }
-        #login-screen .cp-input-wrap {
+        #login-screen .cp-input-wrap,
+        #informant-link-screen .cp-input-wrap {
           background: ${darkSurfaceRgba} !important;
         }
         #login-screen .cp-input-wrap,
         #login-screen .cp-input-wrap::before,
-        #login-screen .cp-input-wrap::after {
+        #login-screen .cp-input-wrap::after,
+        #informant-link-screen .cp-input-wrap,
+        #informant-link-screen .cp-input-wrap::before,
+        #informant-link-screen .cp-input-wrap::after {
           border-color: ${accentBorderRgba} !important;
         }
-        #login-screen .cp-input {
+        #login-screen .cp-input,
+        #informant-link-screen .cp-input {
           color: ${glowHex} !important;
         }
         :is(${uiScopes}) .border-\\[\\#48d1e8\\],
@@ -2175,7 +2232,6 @@
         }
       `;
 
-      // Apply background image across the page for every user
       const validBgUrl = /^https?:\/\//i.test(bgUrl) ? bgUrl : '';
       if (validBgUrl) {
         document.body.style.backgroundImage = `url("${validBgUrl.replace(/"/g, '%22')}")`;
@@ -2318,7 +2374,7 @@
             title: `ACCOUNT REQUEST // ${escapeHtml(req.username)}`,
             meta: `ROLE: ${escapeHtml(req.role || 'OPERATIVE')}`,
             onClick: () => {
-              notificationsModal.classList.add('hidden');
+              if (notificationsModal) notificationsModal.classList.add('hidden');
               openRequestsModal();
             }
           });
@@ -2347,11 +2403,11 @@
           title: `PRIVATE MESSAGE // ${escapeHtml(pm.from || 'UNKNOWN')}`,
           meta: `SUBJECT: ${escapeHtml(pm.subject || 'NO SUBJECT')}`,
           onClick: () => {
-            notificationsModal.classList.add('hidden');
+            if (notificationsModal) notificationsModal.classList.add('hidden');
             navModules.forEach((b) => b.classList.toggle('active', b.dataset.tab === 'MESSAGES'));
             activeTab = 'MESSAGES';
             messageSubTab = 'PRIVATE';
-            activeSectorLabel.textContent = 'SECTOR_01 // MESSAGES';
+            if (activeSectorLabel) activeSectorLabel.textContent = 'SECTOR_01 // MESSAGES';
             renderWorkspace();
             openPmReaderModal(pm);
           }
@@ -2418,9 +2474,9 @@
 
     function renderPmReaderContent(pm) {
       if (!pm || !pmReaderThread) return;
-      pmReaderSubject.textContent = pm.subject || 'NO SUBJECT';
-      pmReaderFrom.textContent = pm.from || 'UNKNOWN';
-      pmReaderTo.textContent = pm.to || 'UNKNOWN';
+      if (pmReaderSubject) pmReaderSubject.textContent = pm.subject || 'NO SUBJECT';
+      if (pmReaderFrom) pmReaderFrom.textContent = pm.from || 'UNKNOWN';
+      if (pmReaderTo) pmReaderTo.textContent = pm.to || 'UNKNOWN';
 
       const replies = Array.isArray(pm.replies) ? pm.replies : [];
       const orderedReplies = [...replies].reverse();
@@ -2453,6 +2509,7 @@
     }
 
     function renderPrivateMessages() {
+      if (!privateMessagesList) return;
       const me = currentUser.toUpperCase();
       const visiblePms = privateMessages.filter((pm) => {
         const deletedBy = Array.isArray(pm.deletedBy) ? pm.deletedBy.map((u) => String(u).toUpperCase()) : [];
@@ -2460,7 +2517,9 @@
         return (pm.from || '').toUpperCase() === me || (pm.to || '').toUpperCase() === me;
       });
 
-      recordCount.textContent = `${visiblePms.length} PM${visiblePms.length === 1 ? '' : 'S'}`;
+      if (recordCount) {
+        recordCount.textContent = `${visiblePms.length} PM${visiblePms.length === 1 ? '' : 'S'}`;
+      }
 
       if (visiblePms.length === 0) {
         privateMessagesList.innerHTML = `
@@ -2522,6 +2581,7 @@
     }
 
     function renderMessagesBoard() {
+      if (!msgModePublicBtn || !msgModePrivateBtn || !privateMessagesView || !publicChatView) return;
       if (messageSubTab === 'PUBLIC') {
         msgModePublicBtn.className =
           'font-mono-tech text-xs px-3 py-1 border border-[#48d1e8] bg-[#123844]/80 text-[#7df9ff] tracking-widest uppercase transition-all';
@@ -2613,7 +2673,7 @@
               cloudList.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
               records = cloudList;
               if (cloudSyncBadge) cloudSyncBadge.textContent = 'CLOUD // ONLINE';
-              if (!desktopScreen.classList.contains('hidden') && activeTab === 'FILES') {
+              if (desktopScreen && !desktopScreen.classList.contains('hidden') && activeTab === 'FILES') {
                 renderWorkspace();
               }
             },
@@ -2634,7 +2694,7 @@
               snapshot.forEach((docSnap) => list.push(docSnap.data()));
               list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
               rosterMembers = list;
-              if (!desktopScreen.classList.contains('hidden')) {
+              if (desktopScreen && !desktopScreen.classList.contains('hidden')) {
                 if (activeTab === 'ROSTER') renderWorkspace();
                 if (activeTab === 'MESSAGES') populatePmRecipientSelect();
               }
@@ -2655,7 +2715,7 @@
               accountRequests = list;
               updateRequestsBadge();
               updateNotificationsBadge();
-              if (!requestsModal.classList.contains('hidden')) {
+              if (requestsModal && !requestsModal.classList.contains('hidden')) {
                 renderRequestsModal();
               }
             },
@@ -2673,7 +2733,7 @@
               snapshot.forEach((docSnap) => list.push(docSnap.data()));
               approvedAccounts = list;
               syncApprovedAccountsToRoster(list).catch(() => {});
-              if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES') {
+              if (desktopScreen && !desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES') {
                 populatePmRecipientSelect();
               }
             },
@@ -2692,7 +2752,7 @@
               list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
               privateMessages = list;
               updateNotificationsBadge();
-              if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PRIVATE') {
+              if (desktopScreen && !desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PRIVATE') {
                 renderPrivateMessages();
               }
             },
@@ -2710,7 +2770,7 @@
               snapshot.forEach((docSnap) => list.push(docSnap.data()));
               list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
               publicChatMessages = list;
-              if (!desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PUBLIC') {
+              if (desktopScreen && !desktopScreen.classList.contains('hidden') && activeTab === 'MESSAGES' && messageSubTab === 'PUBLIC') {
                 renderPublicChat();
               }
             },
@@ -2729,10 +2789,10 @@
               list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
               userRequests = list;
               updateRequestsBadge();
-              if (!requestsModal.classList.contains('hidden')) {
+              if (requestsModal && !requestsModal.classList.contains('hidden')) {
                 renderRequestsModal();
               }
-              if (!requestReaderModal.classList.contains('hidden') && activeStaffRequestId) {
+              if (requestReaderModal && !requestReaderModal.classList.contains('hidden') && activeStaffRequestId) {
                 const updatedActive = userRequests.find((r) => r.id === activeStaffRequestId);
                 if (updatedActive && !updatedActive.archived) {
                   renderRequestReaderModal(updatedActive);
@@ -2756,7 +2816,7 @@
               list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
               userNotifications = list;
               updateNotificationsBadge();
-              if (!notificationsModal.classList.contains('hidden')) {
+              if (notificationsModal && !notificationsModal.classList.contains('hidden')) {
                 renderNotificationsModal();
               }
             },
@@ -2785,20 +2845,20 @@
     }
 
     function openPmReaderModal(pm) {
-      if (!pm) return;
+      if (!pm || !pmReaderModal) return;
       activePmId = pm.id;
       dismissedNotificationKeys.add(`pm:${pm.id}`);
       updateNotificationsBadge();
       renderPmReaderContent(pm);
-      pmReplyForm.classList.add('hidden');
-      pmReplyInput.value = '';
+      if (pmReplyForm) pmReplyForm.classList.add('hidden');
+      if (pmReplyInput) pmReplyInput.value = '';
       pmReaderModal.classList.remove('hidden');
     }
 
     function closePmReaderModal() {
-      pmReplyForm.classList.add('hidden');
-      pmReplyInput.value = '';
-      pmReaderModal.classList.add('hidden');
+      if (pmReplyForm) pmReplyForm.classList.add('hidden');
+      if (pmReplyInput) pmReplyInput.value = '';
+      if (pmReaderModal) pmReaderModal.classList.add('hidden');
     }
 
     function formatMsgTimestamp(ts) {
@@ -2810,7 +2870,10 @@
     }
 
     function renderPublicChat() {
-      recordCount.textContent = `${publicChatMessages.length} MSG${publicChatMessages.length === 1 ? '' : 'S'}`;
+      if (!publicChatList) return;
+      if (recordCount) {
+        recordCount.textContent = `${publicChatMessages.length} MSG${publicChatMessages.length === 1 ? '' : 'S'}`;
+      }
       const isAdmin = isAdminAccount();
 
       if (publicChatMessages.length === 0) {
@@ -2852,54 +2915,66 @@
       publicChatList.scrollTop = publicChatList.scrollHeight;
     }
 
-    publicChatList.addEventListener('click', async (e) => {
-      const btn = e.target.closest('[data-delete-pub-id]');
-      if (!btn || !isAdminAccount()) return;
-      e.stopPropagation();
-      const msgId = btn.dataset.deletePubId;
-      if (!msgId) return;
-      btn.disabled = true;
-      const prevMessages = [...publicChatMessages];
-      publicChatMessages = publicChatMessages.filter((m) => String(m.id) !== String(msgId));
-      renderPublicChat();
-      const ok = await deletePublicChatFromCloud(msgId);
-      if (!ok) {
-        publicChatMessages = prevMessages;
+    if (publicChatList) {
+      publicChatList.addEventListener('click', async (e) => {
+        const btn = e.target.closest('[data-delete-pub-id]');
+        if (!btn || !isAdminAccount()) return;
+        e.stopPropagation();
+        const msgId = btn.dataset.deletePubId;
+        if (!msgId) return;
+        btn.disabled = true;
+        const prevMessages = [...publicChatMessages];
+        publicChatMessages = publicChatMessages.filter((m) => String(m.id) !== String(msgId));
         renderPublicChat();
-      }
-    });
-
-    msgModePrivateBtn.addEventListener('click', () => {
-      messageSubTab = 'PRIVATE';
-      renderMessagesBoard();
-    });
-
-    msgModePublicBtn.addEventListener('click', () => {
-      messageSubTab = 'PUBLIC';
-      renderMessagesBoard();
-    });
-
-    openSendPmBtn.addEventListener('click', () => {
-      populatePmRecipientSelect();
-      privateMessageForm.reset();
-      sendPmModal.classList.remove('hidden');
-      pmToSelect.focus();
-    });
-
-    function closeSendPmModal() {
-      sendPmModal.classList.add('hidden');
+        const ok = await deletePublicChatFromCloud(msgId);
+        if (!ok) {
+          publicChatMessages = prevMessages;
+          renderPublicChat();
+        }
+      });
     }
 
-    closeSendPmBtn.addEventListener('click', closeSendPmModal);
-    cancelSendPmBtn.addEventListener('click', closeSendPmModal);
-    sendPmModal.addEventListener('click', (e) => {
-      if (e.target === sendPmModal) closeSendPmModal();
-    });
+    if (msgModePrivateBtn) {
+      msgModePrivateBtn.addEventListener('click', () => {
+        messageSubTab = 'PRIVATE';
+        renderMessagesBoard();
+      });
+    }
 
-    closePmReaderBtn.addEventListener('click', closePmReaderModal);
-    pmReaderModal.addEventListener('click', (e) => {
-      if (e.target === pmReaderModal) closePmReaderModal();
-    });
+    if (msgModePublicBtn) {
+      msgModePublicBtn.addEventListener('click', () => {
+        messageSubTab = 'PUBLIC';
+        renderMessagesBoard();
+      });
+    }
+
+    if (openSendPmBtn) {
+      openSendPmBtn.addEventListener('click', () => {
+        populatePmRecipientSelect();
+        if (privateMessageForm) privateMessageForm.reset();
+        if (sendPmModal) sendPmModal.classList.remove('hidden');
+        if (pmToSelect) pmToSelect.focus();
+      });
+    }
+
+    function closeSendPmModal() {
+      if (sendPmModal) sendPmModal.classList.add('hidden');
+    }
+
+    if (closeSendPmBtn) closeSendPmBtn.addEventListener('click', closeSendPmModal);
+    if (cancelSendPmBtn) cancelSendPmBtn.addEventListener('click', closeSendPmModal);
+    if (sendPmModal) {
+      sendPmModal.addEventListener('click', (e) => {
+        if (e.target === sendPmModal) closeSendPmModal();
+      });
+    }
+
+    if (closePmReaderBtn) closePmReaderBtn.addEventListener('click', closePmReaderModal);
+    if (pmReaderModal) {
+      pmReaderModal.addEventListener('click', (e) => {
+        if (e.target === pmReaderModal) closePmReaderModal();
+      });
+    }
 
     if (pmReaderReplyBtn) {
       pmReaderReplyBtn.addEventListener('click', () => {
@@ -3030,7 +3105,6 @@
         setStatusMessage(loginStatus, '');
         setStatusMessage(registerStatus, '');
         if (loginForm) loginForm.classList.add('hidden');
-        if (intelForm) intelForm.classList.add('hidden');
         if (registerForm) {
           registerForm.classList.remove('hidden');
           if (registerUsername) registerUsername.focus();
@@ -3042,33 +3116,6 @@
       backToLoginLink.addEventListener('click', () => {
         setStatusMessage(registerStatus, '');
         setStatusMessage(loginStatus, '');
-        if (registerForm) registerForm.classList.add('hidden');
-        if (intelForm) intelForm.classList.add('hidden');
-        if (loginForm) {
-          loginForm.classList.remove('hidden');
-          if (loginUsername) loginUsername.focus();
-        }
-      });
-    }
-
-    if (openIntelLink) {
-      openIntelLink.addEventListener('click', () => {
-        setStatusMessage(loginStatus, '');
-        setStatusMessage(intelStatus, '');
-        if (loginForm) loginForm.classList.add('hidden');
-        if (registerForm) registerForm.classList.add('hidden');
-        if (intelForm) {
-          intelForm.classList.remove('hidden');
-          if (intelNameInput) intelNameInput.focus();
-        }
-      });
-    }
-
-    if (backFromIntelLink) {
-      backFromIntelLink.addEventListener('click', () => {
-        setStatusMessage(intelStatus, '');
-        setStatusMessage(loginStatus, '');
-        if (intelForm) intelForm.classList.add('hidden');
         if (registerForm) registerForm.classList.add('hidden');
         if (loginForm) {
           loginForm.classList.remove('hidden');
@@ -3105,9 +3152,6 @@
 
           let matchedAccount = null;
           if (db && approvedAccountsCollection) {
-            const { getDocs, query, where } = await import(
-              'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js'
-            );
             const q = query(approvedAccountsCollection, where('username', '==', upperUser));
             const snap = await getDocs(q);
             snap.forEach((docSnap) => {
@@ -3205,66 +3249,6 @@
       });
     }
 
-    if (intelForm) {
-      intelForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (intelSubmit && intelSubmit.disabled) return;
-
-        const senderName = intelNameInput ? intelNameInput.value.trim() : '';
-        const messageBody = intelMessageInput ? intelMessageInput.value.trim() : '';
-        const rawUrls = intelUrlInputs
-          .map((inp) => (inp ? inp.value.trim() : ''))
-          .filter(Boolean);
-
-        if (!senderName || !messageBody) {
-          setStatusMessage(intelStatus, 'ENTER NAME AND MESSAGE', true);
-          return;
-        }
-
-        for (const u of rawUrls) {
-          if (!/^https?:\/\//i.test(u)) {
-            setStatusMessage(intelStatus, 'IMAGE URLS MUST START WITH HTTP:// OR HTTPS://', true);
-            return;
-          }
-        }
-
-        if (intelSubmit) intelSubmit.disabled = true;
-        setStatusMessage(intelStatus, 'TRANSMITTING INTEL...', false);
-
-        try {
-          const intelReq = {
-            id: `intel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-            requestType: 'INTEL',
-            isIntel: true,
-            sender: senderName.toUpperCase(),
-            title: `INTEL // ${senderName.toUpperCase()}`,
-            body: messageBody,
-            images: rawUrls,
-            status: 'OPEN',
-            archived: false,
-            createdAt: Date.now()
-          };
-
-          userRequests = [intelReq, ...userRequests];
-          updateRequestsBadge();
-          await saveUserRequestToCloud(intelReq);
-
-          intelForm.reset();
-          setStatusMessage(intelStatus, 'INTEL SENT TO STAFF // THANK YOU', false);
-          setTimeout(() => {
-            setStatusMessage(intelStatus, '');
-            intelForm.classList.add('hidden');
-            if (loginForm) loginForm.classList.remove('hidden');
-          }, 1200);
-        } catch (err) {
-          console.error('Intel submit error:', err);
-          setStatusMessage(intelStatus, 'TRANSMISSION FAILED // RETRY', true);
-        } finally {
-          if (intelSubmit) intelSubmit.disabled = false;
-        }
-      });
-    }
-
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => {
         stopFirestoreListeners();
@@ -3280,22 +3264,12 @@
         activeStaffRequestId = null;
         if (desktopScreen) desktopScreen.classList.add('hidden');
         if (registerForm) registerForm.classList.add('hidden');
-        if (intelForm) intelForm.classList.add('hidden');
         if (loginForm) loginForm.classList.remove('hidden');
         if (loginPassword) loginPassword.value = '';
         setStatusMessage(loginStatus, '');
         if (loginScreen) loginScreen.classList.remove('hidden');
       });
     }
-
-    const itemsGrid = document.getElementById('items-grid');
-    const emptyState = document.getElementById('empty-state');
-    const gridContainer = document.getElementById('grid-container');
-    const messagesBoard = document.getElementById('messages-board');
-    const workspaceToolbar = document.getElementById('workspace-toolbar');
-    const searchBoxWrap = document.getElementById('search-box-wrap');
-    const generateInformantLinkBtn = document.getElementById('generate-informant-link-btn');
-    const newEntryBtn = document.getElementById('new-entry-btn');
 
     function renderWorkspace() {
       if (!itemsGrid || !emptyState) return;
@@ -3650,6 +3624,178 @@
 
     const createTitleInput = document.getElementById('create-title');
     const createContentInput = document.getElementById('create-content');
+    const createSecretInput = document.getElementById('create-secret-input');
+
+    function openCreateModal(existingShard = null) {
+      if (!createModal) return;
+      editingShardId = existingShard ? existingShard.id : null;
+      pendingImages = existingShard ? [...getShardImages(existingShard)].slice(0, MAX_IMAGES) : [];
+
+      if (createModalMeta) {
+        createModalMeta.textContent = editingShardId
+          ? `SYS.ARCHIVE // EDIT_SHARD_${editingShardId.slice(-4).toUpperCase()}`
+          : 'SYS.ARCHIVE // WRITE_SHARD';
+      }
+      if (createModalTitle) {
+        createModalTitle.textContent = editingShardId ? 'EDIT ARCHIVE ENTRY' : 'NEW ARCHIVE ENTRY';
+      }
+      if (createSubmitBtn) {
+        createSubmitBtn.textContent = editingShardId ? 'UPDATE SHARD' : 'SAVE SHARD';
+      }
+      if (createTitleInput) {
+        createTitleInput.value = existingShard ? existingShard.title || '' : '';
+      }
+      if (createContentInput) {
+        createContentInput.value = existingShard ? existingShard.content || '' : '';
+      }
+      if (createImageUrlInput) {
+        createImageUrlInput.value = '';
+      }
+      if (createClassificationWrap && createSecretInput) {
+        if (hasStaffPrivileges()) {
+          createClassificationWrap.classList.remove('hidden');
+          createSecretInput.checked = Boolean(existingShard && existingShard.secret);
+        } else {
+          createClassificationWrap.classList.add('hidden');
+          createSecretInput.checked = false;
+        }
+      }
+
+      renderPendingImagesPreview();
+      createModal.classList.remove('hidden');
+      if (createTitleInput) createTitleInput.focus();
+    }
+
+    function closeCreateModal() {
+      editingShardId = null;
+      pendingImages = [];
+      if (createImageUrlInput) createImageUrlInput.value = '';
+      renderPendingImagesPreview();
+      if (createModal) createModal.classList.add('hidden');
+    }
+
+    if (newEntryBtn) {
+      newEntryBtn.addEventListener('click', () => {
+        openCreateModal(null);
+      });
+    }
+
+    if (modalEditBtn) {
+      modalEditBtn.addEventListener('click', () => {
+        if (!hasStaffPrivileges() || !activeShardId) return;
+        const shardToEdit = records.find((r) => r.id === activeShardId);
+        if (!shardToEdit) return;
+        closeReaderModal();
+        openCreateModal(shardToEdit);
+      });
+    }
+
+    if (closeCreateBtn) closeCreateBtn.addEventListener('click', closeCreateModal);
+    if (cancelCreateBtn) cancelCreateBtn.addEventListener('click', closeCreateModal);
+    if (createModal) {
+      createModal.addEventListener('click', (e) => {
+        if (e.target === createModal) closeCreateModal();
+      });
+    }
+
+    if (addImageUrlBtn && createImageUrlInput) {
+      addImageUrlBtn.addEventListener('click', () => {
+        const rawUrl = createImageUrlInput.value.trim();
+        if (!rawUrl) return;
+        if (pendingImages.length >= MAX_IMAGES) {
+          if (uploadImageStatus) uploadImageStatus.textContent = `MAX ${MAX_IMAGES} IMAGES REACHED`;
+          return;
+        }
+        if (!/^https?:\/\//i.test(rawUrl)) {
+          if (uploadImageStatus) uploadImageStatus.textContent = 'URL MUST START WITH HTTP:// OR HTTPS://';
+          return;
+        }
+        pendingImages.push(rawUrl);
+        createImageUrlInput.value = '';
+        renderPendingImagesPreview();
+      });
+    }
+
+    if (createImagePreviewWrap) {
+      createImagePreviewWrap.addEventListener('click', (e) => {
+        const removeBtn = e.target.closest('[data-remove-img]');
+        if (!removeBtn) return;
+        const idx = Number(removeBtn.dataset.removeImg);
+        if (!Number.isNaN(idx)) {
+          pendingImages = pendingImages.filter((_, i) => i !== idx);
+          renderPendingImagesPreview();
+        }
+      });
+    }
+
+    if (createForm) {
+      createForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const rawTitle = createTitleInput ? createTitleInput.value.trim() : '';
+        const rawContent = createContentInput ? createContentInput.value.trim() : '';
+        if (!rawTitle || !rawContent) return;
+
+        const imgs = [...pendingImages].slice(0, MAX_IMAGES);
+        const now = new Date();
+        const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+        const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
+        const byteSize = new Blob([rawContent]).size;
+        const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
+        const formattedTitle = rawTitle.toUpperCase().replace(/\s+/g, '_');
+
+        if (editingShardId) {
+          const existing = records.find((r) => r.id === editingShardId);
+          if (!existing) return;
+          const isSecret = hasStaffPrivileges()
+            ? Boolean(createSecretInput && createSecretInput.checked)
+            : Boolean(existing.secret);
+
+          const updatedShard = {
+            ...existing,
+            title: formattedTitle,
+            secret: isSecret,
+            subtitle: isSecret
+              ? `CLASSIFIED_SHARD // ${currentUser}`
+              : existing.subtitle || `LOGGED_SHARD // ${currentUser}`,
+            size: sizeStr,
+            content: rawContent,
+            images: imgs,
+            image: imgs[0] || null,
+            updatedAt: Date.now()
+          };
+
+          records = records.map((r) => (r.id === existing.id ? updatedShard : r));
+          selectedId = updatedShard.id;
+          closeCreateModal();
+          renderWorkspace();
+          await saveShardToCloud(updatedShard);
+          return;
+        }
+
+        const isSecret = hasStaffPrivileges() && Boolean(createSecretInput && createSecretInput.checked);
+        const newShard = {
+          id: `shard-${Date.now()}`,
+          tab: 'FILES',
+          secret: isSecret,
+          title: formattedTitle,
+          subtitle: isSecret ? `CLASSIFIED_SHARD // ${currentUser}` : `LOGGED_SHARD // ${currentUser}`,
+          date: dateStr,
+          author: currentUser,
+          size: sizeStr,
+          hash: `0x${randHex()}...${randHex()}`,
+          content: rawContent,
+          images: imgs,
+          image: imgs[0] || null,
+          createdAt: Date.now()
+        };
+
+        records = [newShard, ...records];
+        selectedId = newShard.id;
+        closeCreateModal();
+        renderWorkspace();
+        await saveShardToCloud(newShard);
+      });
+    }
 
     function renderPendingImagesPreview() {
       if (uploadImageStatus) {
@@ -3736,15 +3882,7 @@
     }
 
     function buildInformantShareUrl() {
-      try {
-        const currentUrl = new URL(window.location.href);
-        const cleanPath = currentUrl.pathname.replace(/\/+$/, '');
-        currentUrl.pathname = `${cleanPath}/inform`;
-        return currentUrl.toString();
-      } catch (_) {
-        const base = String(window.location.href || '').split('#')[0].split('?')[0].replace(/\/+$/, '');
-        return base ? `${base}/inform` : '/inform';
-      }
+      return 'https://vdbsubnet.github.io/Info/';
     }
 
     if (generateInformantLinkBtn) {
