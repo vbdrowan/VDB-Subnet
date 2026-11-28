@@ -1659,6 +1659,34 @@
     let activeShardId = null;
     let clockIntervalId = null;
 
+    function isInformantModeRoute() {
+      const path = String(window.location.pathname || '').replace(/\/+$/, '').toLowerCase();
+      const hash = String(window.location.hash || '').toLowerCase();
+      const search = String(window.location.search || '').toLowerCase();
+      return (
+        path.endsWith('/inform') ||
+        hash === '#inform' ||
+        hash === '#/inform' ||
+        hash.includes('inform') ||
+        search.includes('inform')
+      );
+    }
+
+    function activateInformantModeIfRequested() {
+      if (!isInformantModeRoute()) return false;
+      if (loginScreen) loginScreen.classList.add('hidden');
+      if (desktopScreen) desktopScreen.classList.add('hidden');
+      if (informantLinkScreen) {
+        informantLinkScreen.classList.remove('hidden');
+        if (informantLinkMeta) {
+          informantLinkMeta.textContent = 'DIRECT_SUBMISSION // NO_AUTH_REQUIRED';
+        }
+        if (informantLinkName) informantLinkName.focus();
+      }
+      startGlobalSettingsListener();
+      return true;
+    }
+
     const MAX_IMAGES = 4;
 
     function isAdminAccount(username = currentUser) {
@@ -3650,59 +3678,61 @@
           `
         )
         .join('');
+    }
 
-      createImagePreviewWrap.querySelectorAll('[data-remove-img]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const idx = Number(btn.dataset.removeImg);
-          pendingImages.splice(idx, 1);
-          renderPendingImagesPreview();
-        });
+    if (informantLinkForm) {
+      informantLinkForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (informantLinkSubmit && informantLinkSubmit.disabled) return;
+
+        const senderName = informantLinkName ? informantLinkName.value.trim() : '';
+        const messageBody = informantLinkMessage ? informantLinkMessage.value.trim() : '';
+        const rawUrls = informantLinkUrlInputs
+          .map((inp) => (inp ? inp.value.trim() : ''))
+          .filter(Boolean);
+
+        if (!senderName || !messageBody) {
+          setStatusMessage(informantLinkStatus, 'ENTER NAME AND MESSAGE', true);
+          return;
+        }
+
+        for (const u of rawUrls) {
+          if (!/^https?:\/\//i.test(u)) {
+            setStatusMessage(informantLinkStatus, 'IMAGE URLS MUST START WITH HTTP:// OR HTTPS://', true);
+            return;
+          }
+        }
+
+        if (informantLinkSubmit) informantLinkSubmit.disabled = true;
+        setStatusMessage(informantLinkStatus, 'TRANSMITTING INTEL...', false);
+
+        try {
+          const intelReq = {
+            id: `intel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            requestType: 'INTEL',
+            isIntel: true,
+            sender: senderName.toUpperCase(),
+            title: `INTEL // ${senderName.toUpperCase()}`,
+            body: messageBody,
+            images: rawUrls,
+            status: 'OPEN',
+            archived: false,
+            createdAt: Date.now()
+          };
+
+          userRequests = [intelReq, ...userRequests];
+          updateRequestsBadge();
+          await saveUserRequestToCloud(intelReq);
+
+          informantLinkForm.reset();
+          setStatusMessage(informantLinkStatus, 'INTEL SENT TO STAFF // THANK YOU', false);
+        } catch (err) {
+          console.error('Informant link submit error:', err);
+          setStatusMessage(informantLinkStatus, 'TRANSMISSION FAILED // RETRY', true);
+        } finally {
+          if (informantLinkSubmit) informantLinkSubmit.disabled = false;
+        }
       });
-    }
-
-    function openCreateModal(existingShard = null) {
-      if (!createForm || !createModal) return;
-      createForm.reset();
-      pendingImages = [];
-
-      if (createClassificationWrap) {
-        createClassificationWrap.classList.toggle('hidden', !hasStaffPrivileges());
-      }
-
-      if (existingShard) {
-        editingShardId = existingShard.id;
-        if (createModalMeta) createModalMeta.textContent = 'WRITE_PROTOCOL // MODIFY_RECORD';
-        if (createModalTitle) createModalTitle.textContent = 'EDIT ARCHIVE SHARD';
-        if (createSubmitBtn) createSubmitBtn.textContent = 'SAVE CHANGES';
-        if (createTitleInput) createTitleInput.value = existingShard.title || '';
-        if (createContentInput) createContentInput.value = existingShard.content || '';
-        pendingImages = [...getShardImages(existingShard)];
-        const radio = createForm.querySelector(
-          `input[name="shard-classification"][value="${existingShard.secret ? 'SECRET' : 'STANDARD'}"]`
-        );
-        if (radio) radio.checked = true;
-      } else {
-        editingShardId = null;
-        if (createModalMeta) createModalMeta.textContent = 'WRITE_PROTOCOL // NEW_RECORD';
-        if (createModalTitle) createModalTitle.textContent = 'ARCHIVE NEW SHARD';
-        if (createSubmitBtn) createSubmitBtn.textContent = 'COMMIT TO ARCHIVE';
-        const stdRadio = createForm.querySelector('input[name="shard-classification"][value="STANDARD"]');
-        if (stdRadio) stdRadio.checked = true;
-      }
-
-      renderPendingImagesPreview();
-      createModal.classList.remove('hidden');
-      if (createTitleInput) createTitleInput.focus();
-    }
-
-    function closeCreateModal() {
-      editingShardId = null;
-      pendingImages = [];
-      if (createModal) createModal.classList.add('hidden');
-    }
-
-    if (newEntryBtn) {
-      newEntryBtn.addEventListener('click', () => openCreateModal(null));
     }
 
     function buildInformantShareUrl() {
@@ -4608,6 +4638,9 @@
     });
 
     applyGlobalSiteSettings(globalSiteSettings);
+    activateInformantModeIfRequested();
+    window.addEventListener('hashchange', activateInformantModeIfRequested);
+    window.addEventListener('popstate', activateInformantModeIfRequested);
     startGlobalSettingsListener();
   </script>
 </body>
