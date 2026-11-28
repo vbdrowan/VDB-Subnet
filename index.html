@@ -350,6 +350,93 @@
   <div class="scanlines"></div>
 
   <!-- =========================================================
+       0. STANDALONE INFORMANT LINK VIEW (?informant=<token>)
+       ========================================================= -->
+  <section id="informant-link-screen" class="hidden relative z-10 min-h-screen w-full flex items-center justify-center p-4">
+    <div class="w-full max-w-md border border-[#48d1e8] bg-[#061319]/90 shadow-[0_0_40px_rgba(72,209,232,0.25)] chamfer-md p-5 flex flex-col gap-3.5 hud-enter">
+      <div class="text-center border-b border-[#1c5461] pb-2.5">
+        <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8]">TEMP_DROP // INFORMANT_UPLINK</div>
+        <h1 class="font-hud font-bold text-xl tracking-[0.16em] text-[#7df9ff] mt-0.5">SEND INTEL</h1>
+        <div id="informant-link-meta" class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] mt-1">
+          DIRECT_SUBMISSION // NO_AUTH_REQUIRED
+        </div>
+      </div>
+
+      <form id="informant-link-form" class="flex flex-col gap-3" autocomplete="off" novalidate>
+        <div class="cp-input-wrap">
+          <input
+            id="informant-link-name"
+            type="text"
+            placeholder="NAME"
+            aria-label="Name"
+            class="cp-input px-4 py-2.5 text-sm"
+            spellcheck="false"
+          />
+        </div>
+
+        <div class="cp-input-wrap">
+          <textarea
+            id="informant-link-message"
+            rows="4"
+            placeholder="MESSAGE"
+            aria-label="Message"
+            class="cp-input px-4 py-2.5 text-xs resize-y"
+          ></textarea>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <div class="cp-input-wrap">
+            <input
+              id="informant-link-url-1"
+              type="url"
+              placeholder="IMAGE URL 1 (OPTIONAL)"
+              aria-label="Image URL 1"
+              class="cp-input px-3.5 py-2 text-xs"
+              spellcheck="false"
+            />
+          </div>
+          <div class="cp-input-wrap">
+            <input
+              id="informant-link-url-2"
+              type="url"
+              placeholder="IMAGE URL 2 (OPTIONAL)"
+              aria-label="Image URL 2"
+              class="cp-input px-3.5 py-2 text-xs"
+              spellcheck="false"
+            />
+          </div>
+          <div class="cp-input-wrap">
+            <input
+              id="informant-link-url-3"
+              type="url"
+              placeholder="IMAGE URL 3 (OPTIONAL)"
+              aria-label="Image URL 3"
+              class="cp-input px-3.5 py-2 text-xs"
+              spellcheck="false"
+            />
+          </div>
+          <div class="cp-input-wrap">
+            <input
+              id="informant-link-url-4"
+              type="url"
+              placeholder="IMAGE URL 4 (OPTIONAL)"
+              aria-label="Image URL 4"
+              class="cp-input px-3.5 py-2 text-xs"
+              spellcheck="false"
+            />
+          </div>
+        </div>
+
+        <button id="informant-link-submit" type="submit" class="cp-btn py-2.5 px-6 text-base mt-1">
+          TRANSMIT INTEL
+        </button>
+
+        <div id="informant-link-status" class="font-mono-tech text-[11px] tracking-widest text-center min-h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- =========================================================
        1. STRICT INITIAL LOGIN SCREEN (NOTHING ELSE VISIBLE)
        ========================================================= -->
   <main id="login-screen" class="relative z-10 min-h-screen w-full flex items-center justify-center p-4">
@@ -391,8 +478,106 @@
         Create account
       </button>
 
+      <!-- Send Intel Link Directly Below Create Account -->
+      <button
+        id="open-intel-link"
+        type="button"
+        class="font-mono-tech text-xs tracking-[0.2em] text-[#48d1e8] hover:text-[#7df9ff] underline underline-offset-4 uppercase text-center transition-colors"
+      >
+        Send Intel
+      </button>
+
       <!-- Subtle Inline Terminal Feedback -->
       <div id="login-status" class="font-mono-tech text-[11px] tracking-widest text-center h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
+    </form>
+
+    <!-- Send Intel Form (Hidden by default) -->
+    <form id="intel-form" class="hidden w-full max-w-sm flex flex-col gap-3 hud-enter" autocomplete="off" novalidate>
+      <div class="text-center border-b border-[#1c5461] pb-2">
+        <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8]">DEAD_DROP // ANONYMOUS_FEED</div>
+        <div class="font-hud font-bold text-lg tracking-[0.16em] text-[#7df9ff]">SEND INTEL</div>
+      </div>
+
+      <!-- 1. Name Text Box -->
+      <div class="cp-input-wrap">
+        <input
+          id="intel-name"
+          type="text"
+          placeholder="NAME"
+          aria-label="Name"
+          class="cp-input px-4 py-2.5 text-sm"
+          spellcheck="false"
+        />
+      </div>
+
+      <!-- 2. Message Text Box -->
+      <div class="cp-input-wrap">
+        <textarea
+          id="intel-message"
+          rows="4"
+          placeholder="MESSAGE"
+          aria-label="Message"
+          class="cp-input px-4 py-2.5 text-xs resize-y"
+        ></textarea>
+      </div>
+
+      <!-- 3. 4 URL Text Boxes for Images -->
+      <div class="flex flex-col gap-2">
+        <div class="cp-input-wrap">
+          <input
+            id="intel-url-1"
+            type="url"
+            placeholder="IMAGE URL 1 (OPTIONAL)"
+            aria-label="Image URL 1"
+            class="cp-input px-3.5 py-2 text-xs"
+            spellcheck="false"
+          />
+        </div>
+        <div class="cp-input-wrap">
+          <input
+            id="intel-url-2"
+            type="url"
+            placeholder="IMAGE URL 2 (OPTIONAL)"
+            aria-label="Image URL 2"
+            class="cp-input px-3.5 py-2 text-xs"
+            spellcheck="false"
+          />
+        </div>
+        <div class="cp-input-wrap">
+          <input
+            id="intel-url-3"
+            type="url"
+            placeholder="IMAGE URL 3 (OPTIONAL)"
+            aria-label="Image URL 3"
+            class="cp-input px-3.5 py-2 text-xs"
+            spellcheck="false"
+          />
+        </div>
+        <div class="cp-input-wrap">
+          <input
+            id="intel-url-4"
+            type="url"
+            placeholder="IMAGE URL 4 (OPTIONAL)"
+            aria-label="Image URL 4"
+            class="cp-input px-3.5 py-2 text-xs"
+            spellcheck="false"
+          />
+        </div>
+      </div>
+
+      <button id="intel-submit" type="submit" class="cp-btn py-2.5 px-6 text-base">
+        TRANSMIT INTEL
+      </button>
+
+      <button
+        id="back-from-intel-link"
+        type="button"
+        class="font-mono-tech text-xs tracking-[0.2em] text-[#48d1e8] hover:text-[#7df9ff] underline underline-offset-4 uppercase text-center transition-colors"
+      >
+        Back to Login
+      </button>
+
+      <div id="intel-status" class="font-mono-tech text-[11px] tracking-widest text-center min-h-4 text-[#ff4d5a] uppercase transition-opacity duration-200 opacity-0"></div>
     </form>
 
     <!-- Create Account Form (Hidden by default) -->
@@ -627,6 +812,13 @@
 
             <div class="flex items-center gap-2">
               <span id="record-count" class="font-mono-tech text-[11px] text-[#397c8a] hidden sm:inline mr-2">0 RECORDS</span>
+              <button
+                id="generate-informant-link-btn"
+                type="button"
+                class="font-mono-tech text-xs px-3 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider"
+              >
+                Generate_Informant_Link
+              </button>
               <button
                 id="new-entry-btn"
                 type="button"
@@ -1015,6 +1207,63 @@
   </div>
 
   <!-- =========================================================
+       4A-2. INFORMANT TEMP LINK GENERATOR MODAL
+       ========================================================= -->
+  <div id="informant-link-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+    <div class="w-full max-w-lg border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
+      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
+        <div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DEAD_DROP // TEMP_LINK_GENERATOR</div>
+          <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">INFORMANT LINK</h2>
+        </div>
+        <button id="close-informant-link-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
+          [X]
+        </button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-3.5">
+        <div class="font-mono-tech text-[11px] leading-relaxed text-[#9beaf7]">
+          SHARE THIS TEMPORARY URL WITH AN INFORMANT. IT OPENS DIRECTLY TO THE <span class="text-[#7df9ff]">SEND INTEL</span> FORM WITHOUT EXPOSING THE LOGIN SCREEN.
+        </div>
+
+        <div>
+          <label for="generated-informant-url" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">
+            TEMPORARY INFORMANT URL
+          </label>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <input
+              id="generated-informant-url"
+              type="text"
+              readonly
+              class="flex-1 bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none select-all"
+            />
+            <button id="copy-informant-url-btn" type="button" class="cp-btn text-xs px-4 py-2 shrink-0">
+              COPY LINK
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 pt-1">
+          <span id="informant-gen-status" class="font-mono-tech text-[10px] tracking-widest text-[#7df9ff] min-h-4"></span>
+          <button
+            id="regenerate-informant-url-btn"
+            type="button"
+            class="font-mono-tech text-xs px-3 py-1 border border-[#226675] bg-[#071820] text-[#48d1e8] hover:text-white hover:border-[#7df9ff] transition-colors tracking-wider uppercase"
+          >
+            NEW TEMP LINK
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
+        <button id="done-informant-link-btn" type="button" class="cp-btn text-xs py-1.5 px-5">
+          DONE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
        4B-2. MANAGE MEMBER OVERLAY MODAL (ADMIN & MODERATOR)
        ========================================================= -->
   <div id="manage-member-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
@@ -1185,6 +1434,10 @@
 
       <div class="p-5 overflow-y-auto cp-scroll flex-1">
         <pre id="request-reader-body" class="font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed"></pre>
+        <div id="request-reader-images-wrap" class="hidden mt-4 pt-3 border-t border-[#143d47]">
+          <div class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8] mb-2">ATTACHED_INTEL_IMAGES // CLICK TO ENLARGE</div>
+          <div id="request-reader-images-list" class="flex flex-wrap gap-2.5"></div>
+        </div>
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
@@ -1195,7 +1448,18 @@
         >
           DENY
         </button>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-3 ml-auto">
+          <label
+            id="request-reader-secret-wrap"
+            class="hidden inline-flex items-center gap-2 cursor-pointer select-none px-2.5 py-1 border border-[#7a2028] bg-[#26080c]/75"
+          >
+            <input
+              id="request-reader-secret-checkbox"
+              type="checkbox"
+              class="w-3.5 h-3.5 accent-[#ff4d5a] cursor-pointer"
+            />
+            <span class="font-mono-tech text-[10px] tracking-widest text-[#ff9aa2] uppercase">ARCHIVE AS SECRET</span>
+          </label>
           <button
             id="request-reader-archive-btn"
             type="button"
@@ -1402,6 +1666,7 @@
     let publicChatCollection = null;
     let userRequestsCollection = null;
     let userNotificationsCollection = null;
+    let informantDropsCollection = null;
     let siteSettingsDocRef = null;
     try {
       const firebaseApp = initializeApp(firebaseConfig);
@@ -1414,6 +1679,7 @@
       publicChatCollection = collection(db, "public_chat_messages");
       userRequestsCollection = collection(db, "user_requests");
       userNotificationsCollection = collection(db, "user_notifications");
+      informantDropsCollection = collection(db, "informant_drops");
       siteSettingsDocRef = doc(db, "site_settings", "global");
     } catch (initErr) {
       console.error("Firebase initialization warning:", initErr);
@@ -1604,6 +1870,28 @@
     }
 
     // DOM Element References
+    const informantLinkScreen = document.getElementById('informant-link-screen');
+    const informantLinkMeta = document.getElementById('informant-link-meta');
+    const informantLinkForm = document.getElementById('informant-link-form');
+    const informantLinkName = document.getElementById('informant-link-name');
+    const informantLinkMessage = document.getElementById('informant-link-message');
+    const informantLinkUrlInputs = [
+      document.getElementById('informant-link-url-1'),
+      document.getElementById('informant-link-url-2'),
+      document.getElementById('informant-link-url-3'),
+      document.getElementById('informant-link-url-4')
+    ];
+    const informantLinkSubmit = document.getElementById('informant-link-submit');
+    const informantLinkStatus = document.getElementById('informant-link-status');
+
+    const informantLinkModal = document.getElementById('informant-link-modal');
+    const closeInformantLinkBtn = document.getElementById('close-informant-link-btn');
+    const doneInformantLinkBtn = document.getElementById('done-informant-link-btn');
+    const generatedInformantUrl = document.getElementById('generated-informant-url');
+    const copyInformantUrlBtn = document.getElementById('copy-informant-url-btn');
+    const regenerateInformantUrlBtn = document.getElementById('regenerate-informant-url-btn');
+    const informantGenStatus = document.getElementById('informant-gen-status');
+
     const loginScreen = document.getElementById('login-screen');
     const loginForm = document.getElementById('login-form');
     const loginUsername = document.getElementById('login-username');
@@ -1614,6 +1902,19 @@
     const registerForm = document.getElementById('register-form');
     const openRegisterLink = document.getElementById('open-register-link');
     const backToLoginLink = document.getElementById('back-to-login-link');
+    const openIntelLink = document.getElementById('open-intel-link');
+    const intelForm = document.getElementById('intel-form');
+    const backFromIntelLink = document.getElementById('back-from-intel-link');
+    const intelNameInput = document.getElementById('intel-name');
+    const intelMessageInput = document.getElementById('intel-message');
+    const intelUrlInputs = [
+      document.getElementById('intel-url-1'),
+      document.getElementById('intel-url-2'),
+      document.getElementById('intel-url-3'),
+      document.getElementById('intel-url-4')
+    ];
+    const intelSubmit = document.getElementById('intel-submit');
+    const intelStatus = document.getElementById('intel-status');
     const registerUsername = document.getElementById('register-username');
     const registerRole = document.getElementById('register-role');
     const registerPassword = document.getElementById('register-password');
@@ -1662,10 +1963,14 @@
     const requestReaderSender = document.getElementById('request-reader-sender');
     const requestReaderStatusBadge = document.getElementById('request-reader-status-badge');
     const requestReaderBody = document.getElementById('request-reader-body');
+    const requestReaderImagesWrap = document.getElementById('request-reader-images-wrap');
+    const requestReaderImagesList = document.getElementById('request-reader-images-list');
     const requestReaderExpandBtn = document.getElementById('request-reader-expand-btn');
     const closeRequestReaderBtn = document.getElementById('close-request-reader-btn');
     const requestReaderDenyBtn = document.getElementById('request-reader-deny-btn');
     const requestReaderAcceptBtn = document.getElementById('request-reader-accept-btn');
+    const requestReaderSecretWrap = document.getElementById('request-reader-secret-wrap');
+    const requestReaderSecretCheckbox = document.getElementById('request-reader-secret-checkbox');
     const requestReaderArchiveBtn = document.getElementById('request-reader-archive-btn');
     const recordCount = document.getElementById('record-count');
     const searchInput = document.getElementById('search-input');
@@ -1791,6 +2096,7 @@
     const deleteUserRequestFromCloud = (reqId) => deleteDocFromCloud('user_requests', reqId);
     const saveUserNotificationToCloud = (notifObj) => saveDocToCloud('user_notifications', notifObj);
     const deleteUserNotificationFromCloud = (notifId) => deleteDocFromCloud('user_notifications', notifId);
+    const saveInformantDropToCloud = (dropObj) => saveDocToCloud('informant_drops', dropObj);
     const saveSiteSettingsToCloud = (settingsObj) => saveDocToCloud('site_settings', { id: 'global', ...settingsObj });
 
     function normalizeHexColor(hex) {
@@ -2834,6 +3140,7 @@
       setStatusMessage(loginStatus, '');
       setStatusMessage(registerStatus, '');
       loginForm.classList.add('hidden');
+      intelForm.classList.add('hidden');
       registerForm.classList.remove('hidden');
       registerUsername.focus();
     });
@@ -2841,6 +3148,25 @@
     backToLoginLink.addEventListener('click', () => {
       setStatusMessage(registerStatus, '');
       setStatusMessage(loginStatus, '');
+      registerForm.classList.add('hidden');
+      intelForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      loginUsername.focus();
+    });
+
+    openIntelLink.addEventListener('click', () => {
+      setStatusMessage(loginStatus, '');
+      setStatusMessage(intelStatus, '');
+      loginForm.classList.add('hidden');
+      registerForm.classList.add('hidden');
+      intelForm.classList.remove('hidden');
+      intelNameInput.focus();
+    });
+
+    backFromIntelLink.addEventListener('click', () => {
+      setStatusMessage(intelStatus, '');
+      setStatusMessage(loginStatus, '');
+      intelForm.classList.add('hidden');
       registerForm.classList.add('hidden');
       loginForm.classList.remove('hidden');
       loginUsername.focus();
@@ -2897,7 +3223,11 @@
         }
 
         if (matchedAccount) {
-          const isMod = Boolean(matchedAccount.isModerator || matchedAccount.isLeadership || matchedAccount.isSecretModerator);
+          const isMod = Boolean(
+            matchedAccount.isSecretModerator ||
+              matchedAccount.isModerator ||
+              matchedAccount.isLeadership
+          );
           loginPassword.value = '';
           setStatusMessage(loginStatus, '');
           enterDesktopSession(matchedAccount.username, isMod ? 'MODERATOR' : 'USER');
@@ -2919,6 +3249,61 @@
         setStatusMessage(loginStatus, 'AUTH LINK ERROR // RETRY', true);
       } finally {
         loginSubmit.disabled = false;
+      }
+    });
+
+    intelForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (intelSubmit.disabled) return;
+
+      const senderName = intelNameInput.value.trim();
+      const messageBody = intelMessageInput.value.trim();
+      const rawUrls = intelUrlInputs.map((inp) => (inp ? inp.value.trim() : '')).filter(Boolean);
+
+      if (!senderName || !messageBody) {
+        setStatusMessage(intelStatus, 'ENTER NAME AND MESSAGE', true);
+        return;
+      }
+
+      for (const u of rawUrls) {
+        if (!/^https?:\/\//i.test(u)) {
+          setStatusMessage(intelStatus, 'IMAGE URLS MUST START WITH HTTP:// OR HTTPS://', true);
+          return;
+        }
+      }
+
+      intelSubmit.disabled = true;
+      setStatusMessage(intelStatus, 'TRANSMITTING INTEL...', false);
+
+      try {
+        const intelReq = {
+          id: `intel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          requestType: 'INTEL',
+          isIntel: true,
+          sender: senderName.toUpperCase(),
+          title: `INTEL // ${senderName.toUpperCase()}`,
+          body: messageBody,
+          images: rawUrls,
+          status: 'OPEN',
+          archived: false,
+          createdAt: Date.now()
+        };
+
+        userRequests = [intelReq, ...userRequests];
+        await saveUserRequestToCloud(intelReq);
+
+        intelForm.reset();
+        setStatusMessage(intelStatus, 'INTEL TRANSMITTED TO ADMIN', false);
+        setTimeout(() => {
+          setStatusMessage(intelStatus, '');
+          intelForm.classList.add('hidden');
+          loginForm.classList.remove('hidden');
+        }, 1200);
+      } catch (err) {
+        console.error('Send Intel error:', err);
+        setStatusMessage(intelStatus, 'TRANSMISSION FAILED // RETRY', true);
+      } finally {
+        intelSubmit.disabled = false;
       }
     });
 
@@ -2987,6 +3372,7 @@
       activeStaffRequestId = null;
       desktopScreen.classList.add('hidden');
       registerForm.classList.add('hidden');
+      intelForm.classList.add('hidden');
       loginForm.classList.remove('hidden');
       loginPassword.value = '';
       setStatusMessage(loginStatus, '');
@@ -3003,6 +3389,160 @@
     const workspaceToolbar = document.getElementById('workspace-toolbar');
     const searchBoxWrap = document.getElementById('search-box-wrap');
     const newEntryBtn = document.getElementById('new-entry-btn');
+    const generateInformantLinkBtn = document.getElementById('generate-informant-link-btn');
+
+    function buildInformantShareUrl(token) {
+      const baseUrl = new URL(window.location.href);
+      baseUrl.search = '';
+      baseUrl.hash = '';
+      baseUrl.searchParams.set('informant', token);
+      return baseUrl.toString();
+    }
+
+    async function createTemporaryInformantLink() {
+      const token = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      const shareUrl = buildInformantShareUrl(token);
+      if (generatedInformantUrl) {
+        generatedInformantUrl.value = shareUrl;
+      }
+      if (informantGenStatus) {
+        informantGenStatus.textContent = 'TEMP LINK READY // DIRECT INTEL ONLY';
+      }
+      await saveInformantDropToCloud({
+        id: token,
+        token,
+        createdBy: currentUser.toUpperCase(),
+        createdAt: Date.now()
+      });
+    }
+
+    function openInformantLinkModal() {
+      if (!informantLinkModal) return;
+      informantLinkModal.classList.remove('hidden');
+      createTemporaryInformantLink().catch(() => {});
+    }
+
+    function closeInformantLinkModal() {
+      if (!informantLinkModal) return;
+      informantLinkModal.classList.add('hidden');
+      if (informantGenStatus) informantGenStatus.textContent = '';
+    }
+
+    if (generateInformantLinkBtn) {
+      generateInformantLinkBtn.addEventListener('click', openInformantLinkModal);
+    }
+    if (closeInformantLinkBtn) {
+      closeInformantLinkBtn.addEventListener('click', closeInformantLinkModal);
+    }
+    if (doneInformantLinkBtn) {
+      doneInformantLinkBtn.addEventListener('click', closeInformantLinkModal);
+    }
+    if (informantLinkModal) {
+      informantLinkModal.addEventListener('click', (e) => {
+        if (e.target === informantLinkModal) closeInformantLinkModal();
+      });
+    }
+    if (regenerateInformantUrlBtn) {
+      regenerateInformantUrlBtn.addEventListener('click', () => {
+        createTemporaryInformantLink().catch(() => {});
+      });
+    }
+    if (copyInformantUrlBtn && generatedInformantUrl) {
+      copyInformantUrlBtn.addEventListener('click', () => {
+        const val = generatedInformantUrl.value || '';
+        if (!val) return;
+        const tempArea = document.createElement('textarea');
+        tempArea.value = val;
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        try {
+          document.execCommand('copy');
+        } catch (_) {}
+        document.body.removeChild(tempArea);
+        if (informantGenStatus) {
+          informantGenStatus.textContent = 'LINK COPIED TO CLIPBOARD';
+        }
+        setTimeout(() => {
+          if (informantGenStatus && informantGenStatus.textContent === 'LINK COPIED TO CLIPBOARD') {
+            informantGenStatus.textContent = 'TEMP LINK READY // DIRECT INTEL ONLY';
+          }
+        }, 1600);
+      });
+    }
+
+    function getActiveInformantToken() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const tok = String(params.get('informant') || '').trim();
+        return tok || null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    const activeInformantToken = getActiveInformantToken();
+    if (activeInformantToken) {
+      if (loginScreen) loginScreen.classList.add('hidden');
+      if (desktopScreen) desktopScreen.classList.add('hidden');
+      if (informantLinkScreen) informantLinkScreen.classList.remove('hidden');
+      if (informantLinkMeta) {
+        informantLinkMeta.textContent = `DROP_TOKEN // ${activeInformantToken.toUpperCase()}`;
+      }
+      if (informantLinkName) informantLinkName.focus();
+    }
+
+    if (informantLinkForm) {
+      informantLinkForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!informantLinkSubmit || informantLinkSubmit.disabled) return;
+
+        const senderName = informantLinkName ? informantLinkName.value.trim() : '';
+        const messageBody = informantLinkMessage ? informantLinkMessage.value.trim() : '';
+        const rawUrls = informantLinkUrlInputs
+          .map((inp) => (inp ? inp.value.trim() : ''))
+          .filter(Boolean);
+
+        if (!senderName || !messageBody) {
+          setStatusMessage(informantLinkStatus, 'ENTER NAME AND MESSAGE', true);
+          return;
+        }
+
+        for (const u of rawUrls) {
+          if (!/^https?:\/\//i.test(u)) {
+            setStatusMessage(informantLinkStatus, 'IMAGE URLS MUST START WITH HTTP:// OR HTTPS://', true);
+            return;
+          }
+        }
+
+        informantLinkSubmit.disabled = true;
+        setStatusMessage(informantLinkStatus, 'TRANSMITTING INTEL...', false);
+
+        try {
+          const intelReq = {
+            id: `intel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            requestType: 'INTEL',
+            isIntel: true,
+            informantToken: activeInformantToken || 'DIRECT',
+            sender: senderName.toUpperCase(),
+            title: `INTEL // ${senderName.toUpperCase()}`,
+            body: messageBody,
+            images: rawUrls,
+            status: 'OPEN',
+            archived: false,
+            createdAt: Date.now()
+          };
+
+          await saveUserRequestToCloud(intelReq);
+          informantLinkForm.reset();
+          setStatusMessage(informantLinkStatus, 'INTEL TRANSMITTED // THANK YOU', false);
+        } catch (err) {
+          console.error('Informant link submit error:', err);
+          setStatusMessage(informantLinkStatus, 'TRANSMISSION FAILED // RETRY', true);
+        } finally {
+          informantLinkSubmit.disabled = false;
+        }
+      });
+    }
 
     function renderWorkspace() {
       if (!itemsGrid || !emptyState) return;
@@ -3152,6 +3692,7 @@
       // Default: FILES tab
       if (searchBoxWrap) searchBoxWrap.classList.remove('hidden');
       if (newEntryBtn) newEntryBtn.classList.remove('hidden');
+      if (generateInformantLinkBtn) generateInformantLinkBtn.classList.remove('hidden');
 
       const visibleShards = records.filter((rec) => {
         if (rec.tab && rec.tab !== 'FILES') return false;
@@ -3735,6 +4276,8 @@
       const userReqCardsHtml = activeUserRequests
         .map((req) => {
           const isAccepted = String(req.status || '').toUpperCase() === 'ACCEPTED';
+          const isIntel = Boolean(req.isIntel || String(req.requestType || '').toUpperCase() === 'INTEL');
+          const imgsCount = Array.isArray(req.images) ? req.images.filter(Boolean).length : 0;
           return `
             <div
               data-open-user-req="${escapeHtml(req.id)}"
@@ -3745,6 +4288,16 @@
                   <span class="font-hud font-bold text-base tracking-wider text-[#7df9ff] truncate">
                     ${escapeHtml(req.title || 'UNTITLED REQUEST')}
                   </span>
+                  ${
+                    isIntel
+                      ? '<span style="border-color:#22c55e;background:rgba(20,83,45,0.75);color:#86efac;" class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border uppercase">INTEL</span>'
+                      : ''
+                  }
+                  ${
+                    imgsCount > 0
+                      ? `<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#236978] text-[#48d1e8]">${imgsCount} IMG</span>`
+                      : ''
+                  }
                   ${
                     isAccepted
                       ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff] uppercase">Accepted</span>'
@@ -3982,22 +4535,63 @@
     function renderRequestReaderModal(reqObj) {
       if (!reqObj) return;
       const isAccepted = String(reqObj.status || '').toUpperCase() === 'ACCEPTED';
-      requestReaderMeta.textContent = `REQUEST_INSPECTION // ${reqObj.id.slice(-6).toUpperCase()}`;
+      const isIntel = Boolean(reqObj.isIntel || String(reqObj.requestType || '').toUpperCase() === 'INTEL');
+      requestReaderMeta.textContent = `${isIntel ? 'INTEL_SUBMISSION' : 'REQUEST_INSPECTION'} // ${reqObj.id.slice(-6).toUpperCase()}`;
       requestReaderTitle.textContent = reqObj.title || 'UNTITLED REQUEST';
       requestReaderSender.textContent = reqObj.sender || 'OPERATIVE';
       requestReaderBody.textContent = reqObj.body || '';
 
+      const reqImages = Array.isArray(reqObj.images) ? reqObj.images.filter(Boolean) : [];
+      if (reqImages.length > 0 && requestReaderImagesWrap && requestReaderImagesList) {
+        requestReaderImagesWrap.classList.remove('hidden');
+        requestReaderImagesList.innerHTML = reqImages
+          .map(
+            (url, idx) => `
+              <button
+                type="button"
+                data-req-lightbox-url="${escapeHtml(url)}"
+                class="group relative w-28 h-20 border border-[#236978] hover:border-[#7df9ff] bg-[#040c10] overflow-hidden cursor-pointer"
+              >
+                <img
+                  src="${escapeHtml(url)}"
+                  alt="Intel capture ${idx + 1}"
+                  onerror="this.src='https://placehold.co/224x160/061319/48d1e8?text=IMG_ERR'"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                />
+              </button>
+            `
+          )
+          .join('');
+        requestReaderImagesList.querySelectorAll('[data-req-lightbox-url]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            openLightbox(btn.dataset.reqLightboxUrl, reqObj.title || 'INTEL_CAPTURE');
+          });
+        });
+      } else if (requestReaderImagesWrap && requestReaderImagesList) {
+        requestReaderImagesWrap.classList.add('hidden');
+        requestReaderImagesList.innerHTML = '';
+      }
+
       if (isAccepted) {
-        requestReaderStatusBadge.textContent = 'Accepted';
+        requestReaderStatusBadge.textContent = isIntel ? 'INTEL // ACCEPTED' : 'Accepted';
         requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff] text-[10px] tracking-widest uppercase';
         requestReaderAcceptBtn.classList.add('hidden');
         requestReaderDenyBtn.classList.add('hidden');
+        if (requestReaderSecretWrap) {
+          requestReaderSecretWrap.classList.toggle('hidden', !hasStaffPrivileges());
+        }
         requestReaderArchiveBtn.classList.remove('hidden');
       } else {
-        requestReaderStatusBadge.textContent = 'OPEN';
+        requestReaderStatusBadge.textContent = isIntel ? 'INTEL // OPEN' : 'OPEN';
         requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#236978] bg-[#071820] text-[#48d1e8] text-[10px] tracking-widest uppercase';
         requestReaderAcceptBtn.classList.remove('hidden');
         requestReaderDenyBtn.classList.remove('hidden');
+        if (requestReaderSecretWrap) {
+          requestReaderSecretWrap.classList.add('hidden');
+        }
+        if (requestReaderSecretCheckbox) {
+          requestReaderSecretCheckbox.checked = false;
+        }
         requestReaderArchiveBtn.classList.add('hidden');
       }
     }
@@ -4005,6 +4599,9 @@
     function openRequestReaderModal(reqObj) {
       if (!hasStaffPrivileges() || !reqObj) return;
       activeStaffRequestId = reqObj.id;
+      if (requestReaderSecretCheckbox) {
+        requestReaderSecretCheckbox.checked = false;
+      }
       setRequestReaderMaxed(false);
       renderRequestReaderModal(reqObj);
       requestReaderModal.classList.remove('hidden');
@@ -4012,6 +4609,9 @@
 
     function closeRequestReaderModal() {
       activeStaffRequestId = null;
+      if (requestReaderSecretCheckbox) {
+        requestReaderSecretCheckbox.checked = false;
+      }
       setRequestReaderMaxed(false);
       requestReaderModal.classList.add('hidden');
     }
@@ -4096,6 +4696,12 @@
       const target = userRequests.find((r) => r.id === activeStaffRequestId);
       if (!target || String(target.status || '').toUpperCase() !== 'ACCEPTED') return;
 
+      const archiveAsSecret = Boolean(
+        hasStaffPrivileges() && requestReaderSecretCheckbox && requestReaderSecretCheckbox.checked
+      );
+      const isIntel = Boolean(target.isIntel || String(target.requestType || '').toUpperCase() === 'INTEL');
+      const reqImages = Array.isArray(target.images) ? target.images.filter(Boolean) : [];
+
       const now = new Date();
       const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
       const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
@@ -4107,16 +4713,18 @@
       const newShard = {
         id: `reqshard-${Date.now()}`,
         tab: 'FILES',
-        secret: false,
+        secret: archiveAsSecret,
         title: formattedTitle,
-        subtitle: `REQ_ARCHIVE // FROM_${String(target.sender || 'OPERATIVE').toUpperCase()}`,
+        subtitle: archiveAsSecret
+          ? 'CLASSIFIED_SUBNET // RESTRICTED'
+          : `${isIntel ? 'INTEL_ARCHIVE' : 'REQ_ARCHIVE'} // FROM_${String(target.sender || 'OPERATIVE').toUpperCase()}`,
         date: dateStr,
         author: String(target.sender || currentUser).toUpperCase(),
         size: sizeStr,
         hash: `0x${randHex()}...${randHex()}`,
         content: rawContent,
-        images: [],
-        image: null,
+        images: reqImages,
+        image: reqImages[0] || null,
         createdAt: Date.now()
       };
 
@@ -4320,6 +4928,8 @@
       if (e.key === 'Escape') {
         if (!lightboxModal.classList.contains('hidden')) {
           closeLightbox();
+        } else if (!informantLinkModal.classList.contains('hidden')) {
+          closeInformantLinkModal();
         } else if (!pmReaderModal.classList.contains('hidden')) {
           closePmReaderModal();
         } else if (!sendPmModal.classList.contains('hidden')) {
@@ -4344,7 +4954,11 @@
 
     // Apply initial defaults and start global site settings sync before login
     applyGlobalSiteSettings(globalSiteSettings);
-    startGlobalSettingsListener();
+    if (activeInformantToken) {
+      startGlobalSettingsListener();
+    } else {
+      startGlobalSettingsListener();
+    }
   </script>
 </body>
 </html>
