@@ -18,6 +18,17 @@
       --border-mid: #236978;
       --cyan-bright: #48d1e8;
       --cyan-glow: #7df9ff;
+      --crimson-deep: #4a0d13;
+      --crimson-glow: #8f1d24;
+      --text-primary: #7be2f4;
+      --text-muted: #397c8a;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
     input, textarea, select {
       user-select: text;
     }
@@ -350,12 +361,12 @@
   <div class="scanlines"></div>
 
   <!-- =========================================================
-       0. STANDALONE INFORMANT LINK VIEW (?informant=<token>)
+       0. STANDALONE INFORMANT LINK VIEW (/inform)
        ========================================================= -->
   <section id="informant-link-screen" class="hidden relative z-10 min-h-screen w-full flex items-center justify-center p-4">
     <div class="w-full max-w-md border border-[#48d1e8] bg-[#061319]/90 shadow-[0_0_40px_rgba(72,209,232,0.25)] chamfer-md p-5 flex flex-col gap-3.5 hud-enter">
       <div class="text-center border-b border-[#1c5461] pb-2.5">
-        <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8]">TEMP_DROP // INFORMANT_UPLINK</div>
+        <div class="font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8]">DEAD_DROP // INFORMANT_UPLINK</div>
         <h1 class="font-hud font-bold text-xl tracking-[0.16em] text-[#7df9ff] mt-0.5">SEND INTEL</h1>
         <div id="informant-link-meta" class="font-mono-tech text-[10px] tracking-widest text-[#397c8a] mt-1">
           DIRECT_SUBMISSION // NO_AUTH_REQUIRED
@@ -817,7 +828,7 @@
                 type="button"
                 class="font-mono-tech text-xs px-3 py-1 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider"
               >
-                Generate_Informant_Link
+                Informant_Link
               </button>
               <button
                 id="new-entry-btn"
@@ -1053,167 +1064,13 @@
   </div>
 
   <!-- =========================================================
-       3. SHARD READER / DECRYPTION MODAL
-       ========================================================= -->
-  <div id="reader-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
-    <div id="reader-modal-box" class="w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter">
-      <!-- Modal Top Bar -->
-      <div id="reader-modal-header" class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
-        <div>
-          <div id="modal-meta-top" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DATASHARD // DECRYPTED</div>
-          <h2 id="modal-title" class="font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5">TITLE</h2>
-        </div>
-        <button id="close-reader-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76] transition-colors">
-          [X] CLOSE
-        </button>
-      </div>
-
-      <!-- Metadata Strip -->
-      <div id="modal-meta-strip" class="grid grid-cols-2 sm:grid-cols-4 gap-2 px-5 py-2.5 border-b border-[#133b45] bg-[#050f14] font-mono-tech text-[11px]">
-        <!-- Populated dynamically -->
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-5 overflow-y-auto cp-scroll flex-1">
-        <pre id="modal-body" class="font-mono-tech text-xs sm:text-sm text-[#9beaf7] whitespace-pre-wrap leading-relaxed"></pre>
-        <!-- Attached Images Thumbnail Container -->
-        <div id="modal-image-wrap" class="hidden mt-4 pt-3 border-t border-[#143d47]">
-          <div class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8] mb-2">ATTACHED_OPTIC_CAPTURES // CLICK TO ENLARGE</div>
-          <div id="modal-images-list" class="flex flex-wrap gap-2.5">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Footer Actions -->
-      <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
-        <div class="flex items-center gap-2">
-          <button id="modal-delete-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#7a2028] text-[#e05a65] hover:bg-[#5c1118]/50 hover:border-[#ff4d5a] transition-colors">
-            PURGE_SHARD
-          </button>
-          <button id="modal-edit-btn" type="button" class="font-mono-tech text-xs px-3 py-1.5 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-colors">
-            EDIT_SHARD
-          </button>
-        </div>
-        <div class="flex items-center gap-2">
-          <span id="copy-feedback" class="font-mono-tech text-[11px] text-[#7df9ff] opacity-0 transition-opacity">COPIED TO BUFFER</span>
-          <button id="modal-copy-btn" type="button" class="cp-btn text-xs py-1.5 px-4">
-            COPY DATA
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- =========================================================
-       4. CREATE / EDIT ARCHIVE ENTRY MODAL
-       ========================================================= -->
-  <div id="create-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
-    <form id="create-form" class="w-full max-w-lg border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
-      <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
-        <div>
-          <div id="create-modal-meta" class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">WRITE_PROTOCOL // NEW_RECORD</div>
-          <h2 id="create-modal-title" class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">ARCHIVE NEW SHARD</h2>
-        </div>
-        <button id="close-create-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
-          [X]
-        </button>
-      </div>
-
-      <div class="p-5 flex flex-col gap-3.5">
-        <div>
-          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">TITLE</label>
-          <input
-            id="create-title"
-            type="text"
-            required
-            placeholder="E.G. ARASAKA_SUBNET_DUMP_04"
-            class="w-full bg-[#040c10] border border-[#236978] px-3 py-2 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8] uppercase"
-          />
-        </div>
-
-        <!-- Admin / Moderator Classification Selector (Standard vs Secret) -->
-        <div id="create-classification-wrap" class="hidden">
-          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">CLEARANCE LEVEL</label>
-          <div class="grid grid-cols-2 gap-2.5">
-            <label class="cursor-pointer">
-              <input type="radio" name="shard-classification" value="STANDARD" checked class="peer sr-only" />
-              <div class="px-3 py-2 border border-[#236978] bg-[#040c10] text-center font-mono-tech text-xs text-[#48d1e8] peer-checked:border-[#7df9ff] peer-checked:bg-[#103642] peer-checked:text-[#7df9ff] transition-all">
-                STANDARD // CYAN
-              </div>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="shard-classification" value="SECRET" class="peer sr-only" />
-              <div class="px-3 py-2 border border-[#5e171d] bg-[#140507] text-center font-mono-tech text-xs text-[#b8323c] peer-checked:border-[#ff4d5a] peer-checked:bg-[#3d0c12] peer-checked:text-[#ff7a84] transition-all">
-                SECRET // CRIMSON
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <label class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">ARCHIVE CONTENTS</label>
-          <textarea
-            id="create-content"
-            rows="6"
-            required
-            placeholder="ENTER ENCRYPTED LOGS, NOTES, OR DATASHARD CONTENTS..."
-            class="w-full bg-[#040c10] border border-[#236978] p-3 font-mono-tech text-xs text-[#9beaf7] outline-none focus:border-[#48d1e8]"
-          ></textarea>
-        </div>
-
-        <!-- Upload Image Control & Live Preview -->
-        <div>
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            <input
-              id="create-image-url-input"
-              type="url"
-              placeholder="HTTPS://EXAMPLE.COM/IMAGE.JPG"
-              class="flex-1 bg-[#040c10] border border-[#236978] px-3 py-1.5 font-mono-tech text-xs text-[#7df9ff] outline-none focus:border-[#48d1e8]"
-            />
-            <button
-              id="add-image-url-btn"
-              type="button"
-              class="font-mono-tech text-xs px-3.5 py-1.5 border border-[#2b7b8c] bg-[#0c2933]/80 text-[#7df9ff] hover:border-[#7df9ff] hover:bg-[#164959] transition-all tracking-wider shrink-0"
-            >
-              + ADD URL
-            </button>
-          </div>
-          <div class="flex items-center justify-between gap-2 mt-1">
-            <span class="font-mono-tech text-[10px] tracking-wider text-[#397c8a]">
-              MAX 4 IMAGE URLS // HTTP OR HTTPS LINK
-            </span>
-            <span id="upload-image-status" class="font-mono-tech text-[10px] tracking-wider text-[#397c8a] truncate">
-              0 / 4 OPTIC LINKS ATTACHED
-            </span>
-          </div>
-
-          <!-- Thumbnails Preview List -->
-          <div id="create-image-preview-wrap" class="hidden mt-2.5 flex flex-col gap-2">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-end gap-2 px-5 py-3 border-t border-[#1b525e] bg-[#071820]">
-        <button id="cancel-create-btn" type="button" class="font-mono-tech text-xs px-4 py-1.5 border border-[#226675] text-[#48d1e8] hover:text-white">
-          CANCEL
-        </button>
-        <button id="create-submit-btn" type="submit" class="cp-btn text-xs py-1.5 px-5">
-          COMMIT TO ARCHIVE
-        </button>
-      </div>
-    </form>
-  </div>
-
-  <!-- =========================================================
-       4A-2. INFORMANT TEMP LINK GENERATOR MODAL
+       4A-2. INFORMANT LINK MODAL (/inform)
        ========================================================= -->
   <div id="informant-link-modal" class="hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
     <div class="w-full max-w-lg border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col hud-enter">
       <div class="flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]">
         <div>
-          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DEAD_DROP // TEMP_LINK_GENERATOR</div>
+          <div class="font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]">DEAD_DROP // INFORMANT_ENDPOINT</div>
           <h2 class="font-hud font-bold text-xl tracking-wider text-[#7df9ff]">INFORMANT LINK</h2>
         </div>
         <button id="close-informant-link-btn" type="button" class="font-mono-tech text-xs px-2.5 py-1 border border-[#2a7585] text-[#7df9ff] hover:border-[#ff4d5a] hover:text-[#ff6b76]">
@@ -1223,12 +1080,12 @@
 
       <div class="p-5 flex flex-col gap-3.5">
         <div class="font-mono-tech text-[11px] leading-relaxed text-[#9beaf7]">
-          SHARE THIS TEMPORARY URL WITH AN INFORMANT. IT OPENS DIRECTLY TO THE <span class="text-[#7df9ff]">SEND INTEL</span> FORM WITHOUT EXPOSING THE LOGIN SCREEN.
+          SHARE THIS <span class="text-[#7df9ff]">/inform</span> LINK WITH AN INFORMANT. IT OPENS DIRECTLY TO THE <span class="text-[#7df9ff]">SEND INTEL</span> FORM WITHOUT EXPOSING THE LOGIN SCREEN.
         </div>
 
         <div>
           <label for="generated-informant-url" class="block font-mono-tech text-[11px] text-[#48d1e8] mb-1 tracking-widest">
-            TEMPORARY INFORMANT URL
+            INFORMANT URL
           </label>
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <input
@@ -1245,13 +1102,6 @@
 
         <div class="flex items-center justify-between gap-2 pt-1">
           <span id="informant-gen-status" class="font-mono-tech text-[10px] tracking-widest text-[#7df9ff] min-h-4"></span>
-          <button
-            id="regenerate-informant-url-btn"
-            type="button"
-            class="font-mono-tech text-xs px-3 py-1 border border-[#226675] bg-[#071820] text-[#48d1e8] hover:text-white hover:border-[#7df9ff] transition-colors tracking-wider uppercase"
-          >
-            NEW TEMP LINK
-          </button>
         </div>
       </div>
 
@@ -1666,7 +1516,6 @@
     let publicChatCollection = null;
     let userRequestsCollection = null;
     let userNotificationsCollection = null;
-    let informantDropsCollection = null;
     let siteSettingsDocRef = null;
     try {
       const firebaseApp = initializeApp(firebaseConfig);
@@ -1679,7 +1528,6 @@
       publicChatCollection = collection(db, "public_chat_messages");
       userRequestsCollection = collection(db, "user_requests");
       userNotificationsCollection = collection(db, "user_notifications");
-      informantDropsCollection = collection(db, "informant_drops");
       siteSettingsDocRef = doc(db, "site_settings", "global");
     } catch (initErr) {
       console.error("Firebase initialization warning:", initErr);
@@ -2096,7 +1944,6 @@
     const deleteUserRequestFromCloud = (reqId) => deleteDocFromCloud('user_requests', reqId);
     const saveUserNotificationToCloud = (notifObj) => saveDocToCloud('user_notifications', notifObj);
     const deleteUserNotificationFromCloud = (notifId) => deleteDocFromCloud('user_notifications', notifId);
-    const saveInformantDropToCloud = (dropObj) => saveDocToCloud('informant_drops', dropObj);
     const saveSiteSettingsToCloud = (settingsObj) => saveDocToCloud('site_settings', { id: 'global', ...settingsObj });
 
     function normalizeHexColor(hex) {
@@ -3026,503 +2873,341 @@
       if (e.target === pmReaderModal) closePmReaderModal();
     });
 
-    pmReaderReplyBtn.addEventListener('click', () => {
-      pmReplyForm.classList.remove('hidden');
-      pmReplyInput.focus();
-    });
+    if (pmReaderReplyBtn) {
+      pmReaderReplyBtn.addEventListener('click', () => {
+        if (pmReplyForm) pmReplyForm.classList.remove('hidden');
+        if (pmReplyInput) pmReplyInput.focus();
+      });
+    }
 
-    cancelPmReplyBtn.addEventListener('click', () => {
-      pmReplyForm.classList.add('hidden');
-      pmReplyInput.value = '';
-    });
+    if (cancelPmReplyBtn) {
+      cancelPmReplyBtn.addEventListener('click', () => {
+        if (pmReplyForm) pmReplyForm.classList.add('hidden');
+        if (pmReplyInput) pmReplyInput.value = '';
+      });
+    }
 
-    pmReplyForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!activePmId) return;
-      const replyText = pmReplyInput.value.trim();
-      if (!replyText) return;
+    if (pmReplyForm) {
+      pmReplyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!activePmId) return;
+        const replyText = pmReplyInput ? pmReplyInput.value.trim() : '';
+        if (!replyText) return;
 
-      const targetPm = privateMessages.find((p) => p.id === activePmId);
-      if (!targetPm) return;
+        const targetPm = privateMessages.find((p) => p.id === activePmId);
+        if (!targetPm) return;
 
-      const newReply = {
-        id: `rep-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        sender: currentUser.toUpperCase(),
-        text: replyText,
-        createdAt: Date.now()
-      };
+        const newReply = {
+          id: `rep-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          sender: currentUser.toUpperCase(),
+          text: replyText,
+          createdAt: Date.now()
+        };
 
-      const existingReplies = Array.isArray(targetPm.replies) ? targetPm.replies : [];
-      const updatedPm = {
-        ...targetPm,
-        replies: [...existingReplies, newReply]
-      };
+        const existingReplies = Array.isArray(targetPm.replies) ? targetPm.replies : [];
+        const updatedPm = {
+          ...targetPm,
+          replies: [...existingReplies, newReply]
+        };
 
-      privateMessages = privateMessages.map((p) => (p.id === targetPm.id ? updatedPm : p));
-      pmReplyInput.value = '';
-      pmReplyForm.classList.add('hidden');
-      renderPmReaderContent(updatedPm);
-      renderPrivateMessages();
-      await savePrivateMessageToCloud(updatedPm);
-    });
+        privateMessages = privateMessages.map((p) => (p.id === targetPm.id ? updatedPm : p));
+        if (pmReplyInput) pmReplyInput.value = '';
+        pmReplyForm.classList.add('hidden');
+        renderPmReaderContent(updatedPm);
+        renderPrivateMessages();
+        await savePrivateMessageToCloud(updatedPm);
+      });
+    }
 
-    pmReaderDeleteBtn.addEventListener('click', async () => {
-      if (!activePmId) return;
-      const me = currentUser.toUpperCase();
-      const targetPm = privateMessages.find((p) => p.id === activePmId);
-      if (!targetPm) return;
+    if (pmReaderDeleteBtn) {
+      pmReaderDeleteBtn.addEventListener('click', async () => {
+        if (!activePmId) return;
+        const me = currentUser.toUpperCase();
+        const targetPm = privateMessages.find((p) => p.id === activePmId);
+        if (!targetPm) return;
 
-      const existingDeleted = Array.isArray(targetPm.deletedBy) ? targetPm.deletedBy : [];
-      const updatedDeleted = Array.from(new Set([...existingDeleted.map((u) => String(u).toUpperCase()), me]));
-      const updatedPm = {
-        ...targetPm,
-        deletedBy: updatedDeleted
-      };
+        const existingDeleted = Array.isArray(targetPm.deletedBy) ? targetPm.deletedBy : [];
+        const updatedDeleted = Array.from(new Set([...existingDeleted.map((u) => String(u).toUpperCase()), me]));
+        const updatedPm = {
+          ...targetPm,
+          deletedBy: updatedDeleted
+        };
 
-      privateMessages = privateMessages.map((p) => (p.id === targetPm.id ? updatedPm : p));
-      activePmId = null;
-      closePmReaderModal();
-      renderPrivateMessages();
-      await savePrivateMessageToCloud(updatedPm);
-    });
+        privateMessages = privateMessages.map((p) => (p.id === targetPm.id ? updatedPm : p));
+        activePmId = null;
+        closePmReaderModal();
+        renderPrivateMessages();
+        await savePrivateMessageToCloud(updatedPm);
+      });
+    }
 
-    privateMessageForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const recipient = pmToSelect.value.trim().toUpperCase();
-      const subject = pmSubjectInput.value.trim();
-      const body = pmBodyInput.value.trim();
+    if (privateMessageForm) {
+      privateMessageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const recipient = pmToSelect ? pmToSelect.value.trim().toUpperCase() : '';
+        const subject = pmSubjectInput ? pmSubjectInput.value.trim() : '';
+        const body = pmBodyInput ? pmBodyInput.value.trim() : '';
 
-      if (!recipient || !subject || !body) return;
+        if (!recipient || !subject || !body) return;
 
-      const newPm = {
-        id: `pm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        from: currentUser.toUpperCase(),
-        to: recipient,
-        subject,
-        body,
-        createdAt: Date.now()
-      };
+        const newPm = {
+          id: `pm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          from: currentUser.toUpperCase(),
+          to: recipient,
+          subject,
+          body,
+          createdAt: Date.now()
+        };
 
-      privateMessages = [newPm, ...privateMessages];
-      privateMessageForm.reset();
-      closeSendPmModal();
-      pmStatus.textContent = `PM SENT TO ${recipient}`;
-      setTimeout(() => {
-        if (pmStatus) pmStatus.textContent = '';
-      }, 2500);
+        privateMessages = [newPm, ...privateMessages];
+        privateMessageForm.reset();
+        closeSendPmModal();
+        if (pmStatus) {
+          pmStatus.textContent = `PM SENT TO ${recipient}`;
+          setTimeout(() => {
+            if (pmStatus) pmStatus.textContent = '';
+          }, 2500);
+        }
 
-      renderPrivateMessages();
-      await savePrivateMessageToCloud(newPm);
-    });
+        renderPrivateMessages();
+        await savePrivateMessageToCloud(newPm);
+      });
+    }
 
-    publicChatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = publicChatInput.value.trim();
-      if (!text) return;
+    if (publicChatForm) {
+      publicChatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const text = publicChatInput ? publicChatInput.value.trim() : '';
+        if (!text) return;
 
-      const newMsg = {
-        id: `pub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        sender: currentUser.toUpperCase(),
-        text,
-        createdAt: Date.now()
-      };
+        const newMsg = {
+          id: `pub-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          sender: currentUser.toUpperCase(),
+          text,
+          createdAt: Date.now()
+        };
 
-      publicChatMessages = [...publicChatMessages, newMsg];
-      publicChatInput.value = '';
-      renderPublicChat();
-      await savePublicChatToCloud(newMsg);
-    });
+        publicChatMessages = [...publicChatMessages, newMsg];
+        if (publicChatInput) publicChatInput.value = '';
+        renderPublicChat();
+        await savePublicChatToCloud(newMsg);
+      });
+    }
 
     /**
      * 7. LOGIN & ACCOUNT REGISTRATION HANDLERS
      */
-    openRegisterLink.addEventListener('click', () => {
-      setStatusMessage(loginStatus, '');
-      setStatusMessage(registerStatus, '');
-      loginForm.classList.add('hidden');
-      intelForm.classList.add('hidden');
-      registerForm.classList.remove('hidden');
-      registerUsername.focus();
-    });
-
-    backToLoginLink.addEventListener('click', () => {
-      setStatusMessage(registerStatus, '');
-      setStatusMessage(loginStatus, '');
-      registerForm.classList.add('hidden');
-      intelForm.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-      loginUsername.focus();
-    });
-
-    openIntelLink.addEventListener('click', () => {
-      setStatusMessage(loginStatus, '');
-      setStatusMessage(intelStatus, '');
-      loginForm.classList.add('hidden');
-      registerForm.classList.add('hidden');
-      intelForm.classList.remove('hidden');
-      intelNameInput.focus();
-    });
-
-    backFromIntelLink.addEventListener('click', () => {
-      setStatusMessage(intelStatus, '');
-      setStatusMessage(loginStatus, '');
-      intelForm.classList.add('hidden');
-      registerForm.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-      loginUsername.focus();
-    });
-
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (loginSubmit.disabled) return;
-
-      const enteredUser = loginUsername.value.trim();
-      const enteredPass = loginPassword.value;
-
-      if (!enteredUser || !enteredPass) {
-        setStatusMessage(loginStatus, 'ENTER USERNAME AND PASSWORD', true);
-        return;
-      }
-
-      loginSubmit.disabled = true;
-      setStatusMessage(loginStatus, 'VERIFYING CREDENTIALS...', false);
-
-      try {
-        const upperUser = enteredUser.toUpperCase();
-
-        // Primary built-in Admin credential check
-        if (upperUser === 'ADMIN' && enteredPass === 'VDBForever') {
-          loginPassword.value = '';
-          setStatusMessage(loginStatus, '');
-          enterDesktopSession('ADMIN', 'ADMIN');
-          return;
+    if (openRegisterLink) {
+      openRegisterLink.addEventListener('click', () => {
+        setStatusMessage(loginStatus, '');
+        setStatusMessage(registerStatus, '');
+        if (loginForm) loginForm.classList.add('hidden');
+        if (intelForm) intelForm.classList.add('hidden');
+        if (registerForm) {
+          registerForm.classList.remove('hidden');
+          if (registerUsername) registerUsername.focus();
         }
+      });
+    }
 
-        // Check approved accounts in Firestore if available
-        let matchedAccount = null;
-        if (db && approvedAccountsCollection) {
-          const { getDocs, query, where } = await import(
-            'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js'
-          );
-          const q = query(approvedAccountsCollection, where('username', '==', upperUser));
-          const snap = await getDocs(q);
-          snap.forEach((docSnap) => {
-            const data = docSnap.data();
-            if (data && data.password === enteredPass) {
-              matchedAccount = data;
-            }
-          });
-        }
-
-        if (!matchedAccount) {
-          matchedAccount = approvedAccounts.find(
-            (acc) =>
-              String(acc.username || '').trim().toUpperCase() === upperUser &&
-              acc.password === enteredPass
-          );
-        }
-
-        if (matchedAccount) {
-          const isMod = Boolean(
-            matchedAccount.isSecretModerator ||
-              matchedAccount.isModerator ||
-              matchedAccount.isLeadership
-          );
-          loginPassword.value = '';
-          setStatusMessage(loginStatus, '');
-          enterDesktopSession(matchedAccount.username, isMod ? 'MODERATOR' : 'USER');
-          return;
-        }
-
-        // Check if account is still pending approval
-        const pendingMatch = accountRequests.find(
-          (req) => String(req.username || '').trim().toUpperCase() === upperUser
-        );
-        if (pendingMatch) {
-          setStatusMessage(loginStatus, 'ACCOUNT PENDING STAFF APPROVAL', true);
-          return;
-        }
-
-        setStatusMessage(loginStatus, 'ACCESS DENIED // INVALID CREDENTIALS', true);
-      } catch (err) {
-        console.error('Login error:', err);
-        setStatusMessage(loginStatus, 'AUTH LINK ERROR // RETRY', true);
-      } finally {
-        loginSubmit.disabled = false;
-      }
-    });
-
-    intelForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (intelSubmit.disabled) return;
-
-      const senderName = intelNameInput.value.trim();
-      const messageBody = intelMessageInput.value.trim();
-      const rawUrls = intelUrlInputs.map((inp) => (inp ? inp.value.trim() : '')).filter(Boolean);
-
-      if (!senderName || !messageBody) {
-        setStatusMessage(intelStatus, 'ENTER NAME AND MESSAGE', true);
-        return;
-      }
-
-      for (const u of rawUrls) {
-        if (!/^https?:\/\//i.test(u)) {
-          setStatusMessage(intelStatus, 'IMAGE URLS MUST START WITH HTTP:// OR HTTPS://', true);
-          return;
-        }
-      }
-
-      intelSubmit.disabled = true;
-      setStatusMessage(intelStatus, 'TRANSMITTING INTEL...', false);
-
-      try {
-        const intelReq = {
-          id: `intel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-          requestType: 'INTEL',
-          isIntel: true,
-          sender: senderName.toUpperCase(),
-          title: `INTEL // ${senderName.toUpperCase()}`,
-          body: messageBody,
-          images: rawUrls,
-          status: 'OPEN',
-          archived: false,
-          createdAt: Date.now()
-        };
-
-        userRequests = [intelReq, ...userRequests];
-        await saveUserRequestToCloud(intelReq);
-
-        intelForm.reset();
-        setStatusMessage(intelStatus, 'INTEL TRANSMITTED TO ADMIN', false);
-        setTimeout(() => {
-          setStatusMessage(intelStatus, '');
-          intelForm.classList.add('hidden');
+    if (backToLoginLink) {
+      backToLoginLink.addEventListener('click', () => {
+        setStatusMessage(registerStatus, '');
+        setStatusMessage(loginStatus, '');
+        if (registerForm) registerForm.classList.add('hidden');
+        if (intelForm) intelForm.classList.add('hidden');
+        if (loginForm) {
           loginForm.classList.remove('hidden');
-        }, 1200);
-      } catch (err) {
-        console.error('Send Intel error:', err);
-        setStatusMessage(intelStatus, 'TRANSMISSION FAILED // RETRY', true);
-      } finally {
-        intelSubmit.disabled = false;
-      }
-    });
-
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (isSubmittingRequest || registerSubmit.disabled) return;
-
-      const username = registerUsername.value.trim().toUpperCase();
-      const role = registerRole.value.trim().toUpperCase();
-      const password = registerPassword.value;
-
-      if (!username || !role || !password) {
-        setStatusMessage(registerStatus, 'COMPLETE ALL FIELDS', true);
-        return;
-      }
-
-      if (username === 'ADMIN') {
-        setStatusMessage(registerStatus, 'RESERVED IDENTIFIER', true);
-        return;
-      }
-
-      isSubmittingRequest = true;
-      registerSubmit.disabled = true;
-      setStatusMessage(registerStatus, 'TRANSMITTING REQUEST...', false);
-
-      try {
-        const reqId = `req-${username.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
-        const reqObj = {
-          id: reqId,
-          username,
-          role,
-          password,
-          createdAt: Date.now()
-        };
-
-        accountRequests = [reqObj, ...accountRequests.filter((r) => r.id !== reqId)];
-        await saveAccountRequestToCloud(reqObj);
-
-        registerForm.reset();
-        setStatusMessage(registerStatus, 'REQUEST SENT // AWAIT APPROVAL', false);
-        setTimeout(() => {
-          setStatusMessage(registerStatus, '');
-          registerForm.classList.add('hidden');
-          loginForm.classList.remove('hidden');
-        }, 1200);
-      } catch (err) {
-        console.error('Registration error:', err);
-        setStatusMessage(registerStatus, 'REQUEST FAILED // RETRY', true);
-      } finally {
-        isSubmittingRequest = false;
-        registerSubmit.disabled = false;
-      }
-    });
-
-    logoutBtn.addEventListener('click', () => {
-      stopFirestoreListeners();
-      if (clockIntervalId) {
-        clearInterval(clockIntervalId);
-        clockIntervalId = null;
-      }
-      currentUser = 'ADMIN';
-      currentRoleType = 'ADMIN';
-      selectedId = null;
-      activeShardId = null;
-      activePmId = null;
-      activeStaffRequestId = null;
-      desktopScreen.classList.add('hidden');
-      registerForm.classList.add('hidden');
-      intelForm.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-      loginPassword.value = '';
-      setStatusMessage(loginStatus, '');
-      loginScreen.classList.remove('hidden');
-    });
-
-    /**
-     * 7B. WORKSPACE RENDERER (FILES, ROSTER & ADMIN SETTINGS)
-     */
-    const itemsGrid = document.getElementById('items-grid');
-    const emptyState = document.getElementById('empty-state');
-    const gridContainer = document.getElementById('grid-container');
-    const messagesBoard = document.getElementById('messages-board');
-    const workspaceToolbar = document.getElementById('workspace-toolbar');
-    const searchBoxWrap = document.getElementById('search-box-wrap');
-    const newEntryBtn = document.getElementById('new-entry-btn');
-    const generateInformantLinkBtn = document.getElementById('generate-informant-link-btn');
-
-    function buildInformantShareUrl(token) {
-      const baseUrl = new URL(window.location.href);
-      baseUrl.search = '';
-      baseUrl.hash = '';
-      baseUrl.searchParams.set('informant', token);
-      return baseUrl.toString();
-    }
-
-    async function createTemporaryInformantLink() {
-      const token = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-      const shareUrl = buildInformantShareUrl(token);
-      if (generatedInformantUrl) {
-        generatedInformantUrl.value = shareUrl;
-      }
-      if (informantGenStatus) {
-        informantGenStatus.textContent = 'TEMP LINK READY // DIRECT INTEL ONLY';
-      }
-      await saveInformantDropToCloud({
-        id: token,
-        token,
-        createdBy: currentUser.toUpperCase(),
-        createdAt: Date.now()
-      });
-    }
-
-    function openInformantLinkModal() {
-      if (!informantLinkModal) return;
-      informantLinkModal.classList.remove('hidden');
-      createTemporaryInformantLink().catch(() => {});
-    }
-
-    function closeInformantLinkModal() {
-      if (!informantLinkModal) return;
-      informantLinkModal.classList.add('hidden');
-      if (informantGenStatus) informantGenStatus.textContent = '';
-    }
-
-    if (generateInformantLinkBtn) {
-      generateInformantLinkBtn.addEventListener('click', openInformantLinkModal);
-    }
-    if (closeInformantLinkBtn) {
-      closeInformantLinkBtn.addEventListener('click', closeInformantLinkModal);
-    }
-    if (doneInformantLinkBtn) {
-      doneInformantLinkBtn.addEventListener('click', closeInformantLinkModal);
-    }
-    if (informantLinkModal) {
-      informantLinkModal.addEventListener('click', (e) => {
-        if (e.target === informantLinkModal) closeInformantLinkModal();
-      });
-    }
-    if (regenerateInformantUrlBtn) {
-      regenerateInformantUrlBtn.addEventListener('click', () => {
-        createTemporaryInformantLink().catch(() => {});
-      });
-    }
-    if (copyInformantUrlBtn && generatedInformantUrl) {
-      copyInformantUrlBtn.addEventListener('click', () => {
-        const val = generatedInformantUrl.value || '';
-        if (!val) return;
-        const tempArea = document.createElement('textarea');
-        tempArea.value = val;
-        document.body.appendChild(tempArea);
-        tempArea.select();
-        try {
-          document.execCommand('copy');
-        } catch (_) {}
-        document.body.removeChild(tempArea);
-        if (informantGenStatus) {
-          informantGenStatus.textContent = 'LINK COPIED TO CLIPBOARD';
+          if (loginUsername) loginUsername.focus();
         }
-        setTimeout(() => {
-          if (informantGenStatus && informantGenStatus.textContent === 'LINK COPIED TO CLIPBOARD') {
-            informantGenStatus.textContent = 'TEMP LINK READY // DIRECT INTEL ONLY';
-          }
-        }, 1600);
       });
     }
 
-    function getActiveInformantToken() {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const tok = String(params.get('informant') || '').trim();
-        return tok || null;
-      } catch (_) {
-        return null;
-      }
+    if (openIntelLink) {
+      openIntelLink.addEventListener('click', () => {
+        setStatusMessage(loginStatus, '');
+        setStatusMessage(intelStatus, '');
+        if (loginForm) loginForm.classList.add('hidden');
+        if (registerForm) registerForm.classList.add('hidden');
+        if (intelForm) {
+          intelForm.classList.remove('hidden');
+          if (intelNameInput) intelNameInput.focus();
+        }
+      });
     }
 
-    const activeInformantToken = getActiveInformantToken();
-    if (activeInformantToken) {
-      if (loginScreen) loginScreen.classList.add('hidden');
-      if (desktopScreen) desktopScreen.classList.add('hidden');
-      if (informantLinkScreen) informantLinkScreen.classList.remove('hidden');
-      if (informantLinkMeta) {
-        informantLinkMeta.textContent = `DROP_TOKEN // ${activeInformantToken.toUpperCase()}`;
-      }
-      if (informantLinkName) informantLinkName.focus();
+    if (backFromIntelLink) {
+      backFromIntelLink.addEventListener('click', () => {
+        setStatusMessage(intelStatus, '');
+        setStatusMessage(loginStatus, '');
+        if (intelForm) intelForm.classList.add('hidden');
+        if (registerForm) registerForm.classList.add('hidden');
+        if (loginForm) {
+          loginForm.classList.remove('hidden');
+          if (loginUsername) loginUsername.focus();
+        }
+      });
     }
 
-    if (informantLinkForm) {
-      informantLinkForm.addEventListener('submit', async (e) => {
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!informantLinkSubmit || informantLinkSubmit.disabled) return;
+        if (loginSubmit && loginSubmit.disabled) return;
 
-        const senderName = informantLinkName ? informantLinkName.value.trim() : '';
-        const messageBody = informantLinkMessage ? informantLinkMessage.value.trim() : '';
-        const rawUrls = informantLinkUrlInputs
+        const enteredUser = loginUsername ? loginUsername.value.trim() : '';
+        const enteredPass = loginPassword ? loginPassword.value : '';
+
+        if (!enteredUser || !enteredPass) {
+          setStatusMessage(loginStatus, 'ENTER USERNAME AND PASSWORD', true);
+          return;
+        }
+
+        if (loginSubmit) loginSubmit.disabled = true;
+        setStatusMessage(loginStatus, 'VERIFYING CREDENTIALS...', false);
+
+        try {
+          const upperUser = enteredUser.toUpperCase();
+
+          if (upperUser === 'ADMIN' && enteredPass === 'VDBForever') {
+            if (loginPassword) loginPassword.value = '';
+            setStatusMessage(loginStatus, '');
+            enterDesktopSession('ADMIN', 'ADMIN');
+            return;
+          }
+
+          let matchedAccount = null;
+          if (db && approvedAccountsCollection) {
+            const { getDocs, query, where } = await import(
+              'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js'
+            );
+            const q = query(approvedAccountsCollection, where('username', '==', upperUser));
+            const snap = await getDocs(q);
+            snap.forEach((docSnap) => {
+              const data = docSnap.data();
+              if (data && data.password === enteredPass) {
+                matchedAccount = data;
+              }
+            });
+          }
+
+          if (!matchedAccount) {
+            matchedAccount = approvedAccounts.find(
+              (acc) =>
+                String(acc.username || '').trim().toUpperCase() === upperUser &&
+                acc.password === enteredPass
+            );
+          }
+
+          if (matchedAccount) {
+            const isMod = Boolean(matchedAccount.isModerator || matchedAccount.isLeadership || matchedAccount.isSecretModerator);
+            if (loginPassword) loginPassword.value = '';
+            setStatusMessage(loginStatus, '');
+            enterDesktopSession(matchedAccount.username, isMod ? 'MODERATOR' : 'USER');
+            return;
+          }
+
+          const pendingMatch = accountRequests.find(
+            (req) => String(req.username || '').trim().toUpperCase() === upperUser
+          );
+          if (pendingMatch) {
+            setStatusMessage(loginStatus, 'ACCOUNT PENDING STAFF APPROVAL', true);
+            return;
+          }
+
+          setStatusMessage(loginStatus, 'ACCESS DENIED // INVALID CREDENTIALS', true);
+        } catch (err) {
+          console.error('Login error:', err);
+          setStatusMessage(loginStatus, 'AUTH LINK ERROR // RETRY', true);
+        } finally {
+          if (loginSubmit) loginSubmit.disabled = false;
+        }
+      });
+    }
+
+    if (registerForm) {
+      registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (isSubmittingRequest || (registerSubmit && registerSubmit.disabled)) return;
+
+        const username = registerUsername ? registerUsername.value.trim().toUpperCase() : '';
+        const role = registerRole ? registerRole.value.trim().toUpperCase() : '';
+        const password = registerPassword ? registerPassword.value : '';
+
+        if (!username || !role || !password) {
+          setStatusMessage(registerStatus, 'COMPLETE ALL FIELDS', true);
+          return;
+        }
+
+        if (username === 'ADMIN') {
+          setStatusMessage(registerStatus, 'RESERVED IDENTIFIER', true);
+          return;
+        }
+
+        isSubmittingRequest = true;
+        if (registerSubmit) registerSubmit.disabled = true;
+        setStatusMessage(registerStatus, 'TRANSMITTING REQUEST...', false);
+
+        try {
+          const reqId = `req-${username.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+          const reqObj = {
+            id: reqId,
+            username,
+            role,
+            password,
+            createdAt: Date.now()
+          };
+
+          accountRequests = [reqObj, ...accountRequests.filter((r) => r.id !== reqId)];
+          await saveAccountRequestToCloud(reqObj);
+
+          registerForm.reset();
+          setStatusMessage(registerStatus, 'REQUEST SENT // AWAIT APPROVAL', false);
+          setTimeout(() => {
+            setStatusMessage(registerStatus, '');
+            registerForm.classList.add('hidden');
+            if (loginForm) loginForm.classList.remove('hidden');
+          }, 1200);
+        } catch (err) {
+          console.error('Registration error:', err);
+          setStatusMessage(registerStatus, 'REQUEST FAILED // RETRY', true);
+        } finally {
+          isSubmittingRequest = false;
+          if (registerSubmit) registerSubmit.disabled = false;
+        }
+      });
+    }
+
+    if (intelForm) {
+      intelForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (intelSubmit && intelSubmit.disabled) return;
+
+        const senderName = intelNameInput ? intelNameInput.value.trim() : '';
+        const messageBody = intelMessageInput ? intelMessageInput.value.trim() : '';
+        const rawUrls = intelUrlInputs
           .map((inp) => (inp ? inp.value.trim() : ''))
           .filter(Boolean);
 
         if (!senderName || !messageBody) {
-          setStatusMessage(informantLinkStatus, 'ENTER NAME AND MESSAGE', true);
+          setStatusMessage(intelStatus, 'ENTER NAME AND MESSAGE', true);
           return;
         }
 
         for (const u of rawUrls) {
           if (!/^https?:\/\//i.test(u)) {
-            setStatusMessage(informantLinkStatus, 'IMAGE URLS MUST START WITH HTTP:// OR HTTPS://', true);
+            setStatusMessage(intelStatus, 'IMAGE URLS MUST START WITH HTTP:// OR HTTPS://', true);
             return;
           }
         }
 
-        informantLinkSubmit.disabled = true;
-        setStatusMessage(informantLinkStatus, 'TRANSMITTING INTEL...', false);
+        if (intelSubmit) intelSubmit.disabled = true;
+        setStatusMessage(intelStatus, 'TRANSMITTING INTEL...', false);
 
         try {
           const intelReq = {
             id: `intel-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
             requestType: 'INTEL',
             isIntel: true,
-            informantToken: activeInformantToken || 'DIRECT',
             sender: senderName.toUpperCase(),
             title: `INTEL // ${senderName.toUpperCase()}`,
             body: messageBody,
@@ -3532,67 +3217,104 @@
             createdAt: Date.now()
           };
 
+          userRequests = [intelReq, ...userRequests];
+          updateRequestsBadge();
           await saveUserRequestToCloud(intelReq);
-          informantLinkForm.reset();
-          setStatusMessage(informantLinkStatus, 'INTEL TRANSMITTED // THANK YOU', false);
+
+          intelForm.reset();
+          setStatusMessage(intelStatus, 'INTEL SENT TO STAFF // THANK YOU', false);
+          setTimeout(() => {
+            setStatusMessage(intelStatus, '');
+            intelForm.classList.add('hidden');
+            if (loginForm) loginForm.classList.remove('hidden');
+          }, 1200);
         } catch (err) {
-          console.error('Informant link submit error:', err);
-          setStatusMessage(informantLinkStatus, 'TRANSMISSION FAILED // RETRY', true);
+          console.error('Intel submit error:', err);
+          setStatusMessage(intelStatus, 'TRANSMISSION FAILED // RETRY', true);
         } finally {
-          informantLinkSubmit.disabled = false;
+          if (intelSubmit) intelSubmit.disabled = false;
         }
       });
     }
+
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        stopFirestoreListeners();
+        if (clockIntervalId) {
+          clearInterval(clockIntervalId);
+          clockIntervalId = null;
+        }
+        currentUser = 'ADMIN';
+        currentRoleType = 'ADMIN';
+        selectedId = null;
+        activeShardId = null;
+        activePmId = null;
+        activeStaffRequestId = null;
+        if (desktopScreen) desktopScreen.classList.add('hidden');
+        if (registerForm) registerForm.classList.add('hidden');
+        if (intelForm) intelForm.classList.add('hidden');
+        if (loginForm) loginForm.classList.remove('hidden');
+        if (loginPassword) loginPassword.value = '';
+        setStatusMessage(loginStatus, '');
+        if (loginScreen) loginScreen.classList.remove('hidden');
+      });
+    }
+
+    const itemsGrid = document.getElementById('items-grid');
+    const emptyState = document.getElementById('empty-state');
+    const gridContainer = document.getElementById('grid-container');
+    const messagesBoard = document.getElementById('messages-board');
+    const workspaceToolbar = document.getElementById('workspace-toolbar');
+    const searchBoxWrap = document.getElementById('search-box-wrap');
+    const generateInformantLinkBtn = document.getElementById('generate-informant-link-btn');
+    const newEntryBtn = document.getElementById('new-entry-btn');
 
     function renderWorkspace() {
       if (!itemsGrid || !emptyState) return;
       const queryText = (searchInput ? searchInput.value : '').trim().toLowerCase();
 
-      if (activeTab === 'SETTINGS' && isAdminAccount()) {
-        gridContainer.classList.add('hidden');
-        messagesBoard.classList.add('hidden');
+      if (activeTab === 'SETTINGS') {
+        if (gridContainer) gridContainer.classList.add('hidden');
+        if (messagesBoard) messagesBoard.classList.add('hidden');
         if (workspaceToolbar) workspaceToolbar.classList.add('hidden');
-        if (adminSettingsView) adminSettingsView.classList.remove('hidden');
-        if (recordCount) recordCount.textContent = 'ADMIN // CONFIG';
-        if (adminBgUrlInput) adminBgUrlInput.value = globalSiteSettings.backgroundUrl || '';
-        if (adminUiColorInput) {
-          const hex = normalizeHexColor(globalSiteSettings.uiAccentColor || '#48d1e8');
-          adminUiColorInput.value = hex;
-          if (adminUiColorHex) adminUiColorHex.textContent = hex.toUpperCase();
+        if (adminSettingsView) {
+          adminSettingsView.classList.remove('hidden');
+          applyGlobalSiteSettings(globalSiteSettings);
         }
-        if (adminFillOpacityInput) {
-          const fillPct = clampPercent(globalSiteSettings.uiFillOpacity, 75);
-          adminFillOpacityInput.value = String(fillPct);
-          if (adminFillOpacityVal) adminFillOpacityVal.textContent = `${fillPct}%`;
-        }
-        if (adminOutlineOpacityInput) {
-          const outlinePct = clampPercent(globalSiteSettings.uiOutlineOpacity, 100);
-          adminOutlineOpacityInput.value = String(outlinePct);
-          if (adminOutlineOpacityVal) adminOutlineOpacityVal.textContent = `${outlinePct}%`;
-        }
+        if (recordCount) recordCount.textContent = 'SYSTEM CONFIG';
         return;
       }
 
       if (adminSettingsView) adminSettingsView.classList.add('hidden');
 
       if (activeTab === 'MESSAGES') {
-        gridContainer.classList.add('hidden');
-        messagesBoard.classList.remove('hidden');
+        if (gridContainer) gridContainer.classList.add('hidden');
+        if (messagesBoard) messagesBoard.classList.remove('hidden');
         if (workspaceToolbar) workspaceToolbar.classList.add('hidden');
         renderMessagesBoard();
         return;
       }
 
-      messagesBoard.classList.add('hidden');
-      gridContainer.classList.remove('hidden');
+      if (messagesBoard) messagesBoard.classList.add('hidden');
+      if (gridContainer) gridContainer.classList.remove('hidden');
       if (workspaceToolbar) workspaceToolbar.classList.remove('hidden');
 
       if (activeTab === 'ROSTER') {
         if (searchBoxWrap) searchBoxWrap.classList.add('hidden');
+        if (generateInformantLinkBtn) generateInformantLinkBtn.classList.add('hidden');
         if (newEntryBtn) newEntryBtn.classList.add('hidden');
 
         const canManage = hasStaffPrivileges();
-        recordCount.textContent = `${rosterMembers.length} OPERATIVE${rosterMembers.length === 1 ? '' : 'S'}`;
+        const leadershipMembers = rosterMembers.filter(
+          (m) => !m.isSecretModerator && Boolean(m.isModerator || m.isLeadership)
+        );
+        const operativeMembers = rosterMembers.filter(
+          (m) => m.isSecretModerator || !Boolean(m.isModerator || m.isLeadership)
+        );
+
+        if (recordCount) {
+          recordCount.textContent = `${rosterMembers.length} OPERATIVE${rosterMembers.length === 1 ? '' : 'S'}`;
+        }
 
         if (rosterMembers.length === 0) {
           itemsGrid.innerHTML = '';
@@ -3603,28 +3325,7 @@
 
         emptyState.classList.add('hidden');
 
-        const approvedModUsernames = new Set(
-          approvedAccounts
-            .filter((a) => Boolean(a && !a.isSecretModerator && (a.isModerator || a.isLeadership)))
-            .map((a) => String(a.username || '').trim().toUpperCase())
-        );
-
-        const approvedSecretModUsernames = new Set(
-          approvedAccounts
-            .filter((a) => Boolean(a && a.isSecretModerator))
-            .map((a) => String(a.username || '').trim().toUpperCase())
-        );
-
-        const isMemberLeadership = (member) => {
-          if (!member) return false;
-          const uname = String(member.username || member.name || '').trim().toUpperCase();
-          if (member.isSecretModerator || approvedSecretModUsernames.has(uname)) return false;
-          if (member.isModerator || member.isLeadership) return true;
-          return approvedModUsernames.has(uname);
-        };
-
-        const renderMemberCard = (member) => {
-          const isMod = isMemberLeadership(member);
+        const renderMemberCard = (member, showLeaderBadge) => {
           const isSelected = selectedId === member.id;
           return `
             <div
@@ -3637,8 +3338,8 @@
                     ${escapeHtml(member.name || member.username || 'OPERATIVE')}
                   </span>
                   ${
-                    isMod
-                      ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0e2e38]/90 text-[#7df9ff] uppercase">LEADERSHIP // MOD</span>'
+                    showLeaderBadge
+                      ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#48d1e8] bg-[#0e2e38]/90 text-[#7df9ff] uppercase">LEADERSHIP</span>'
                       : ''
                   }
                 </div>
@@ -3661,38 +3362,33 @@
           `;
         };
 
-        const leadershipMembers = rosterMembers.filter((m) => isMemberLeadership(m));
-        const standardMembers = rosterMembers.filter((m) => !isMemberLeadership(m));
-
-        let rosterHtml = '';
+        let html = '';
         if (leadershipMembers.length > 0) {
-          rosterHtml += `
-            <div class="col-span-full flex items-center justify-between border-b border-[#1c5461] pb-1.5 mb-0.5">
-              <span class="font-mono-tech text-[11px] tracking-[0.22em] text-[#7df9ff] uppercase">LEADERSHIP</span>
-              <span class="font-mono-tech text-[10px] tracking-widest text-[#48d1e8]">${leadershipMembers.length}</span>
+          html += `
+            <div class="col-span-1 md:col-span-2 font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8] border-b border-[#143d47] pb-1">
+              LEADERSHIP // ${leadershipMembers.length}
             </div>
-            ${leadershipMembers.map(renderMemberCard).join('')}
+            ${leadershipMembers.map((m) => renderMemberCard(m, true)).join('')}
+          `;
+        }
+        if (operativeMembers.length > 0) {
+          html += `
+            <div class="col-span-1 md:col-span-2 font-mono-tech text-[10px] tracking-[0.22em] text-[#48d1e8] border-b border-[#143d47] pb-1 mt-1">
+              OPERATIVES // ${operativeMembers.length}
+            </div>
+            ${operativeMembers.map((m) => renderMemberCard(m, false)).join('')}
           `;
         }
 
-        if (standardMembers.length > 0) {
-          rosterHtml += `
-            <div class="col-span-full flex items-center justify-between border-b border-[#1c5461] pb-1.5 ${leadershipMembers.length > 0 ? 'mt-3' : ''} mb-0.5">
-              <span class="font-mono-tech text-[11px] tracking-[0.22em] text-[#48d1e8] uppercase">OPERATIVES</span>
-              <span class="font-mono-tech text-[10px] tracking-widest text-[#397c8a]">${standardMembers.length}</span>
-            </div>
-            ${standardMembers.map(renderMemberCard).join('')}
-          `;
-        }
-
-        itemsGrid.innerHTML = rosterHtml;
+        itemsGrid.innerHTML = html;
         return;
       }
 
-      // Default: FILES tab
       if (searchBoxWrap) searchBoxWrap.classList.remove('hidden');
+      if (generateInformantLinkBtn) {
+        generateInformantLinkBtn.classList.toggle('hidden', !hasStaffPrivileges());
+      }
       if (newEntryBtn) newEntryBtn.classList.remove('hidden');
-      if (generateInformantLinkBtn) generateInformantLinkBtn.classList.remove('hidden');
 
       const visibleShards = records.filter((rec) => {
         if (rec.tab && rec.tab !== 'FILES') return false;
@@ -3702,7 +3398,9 @@
         return hay.includes(queryText);
       });
 
-      recordCount.textContent = `${visibleShards.length} SHARD${visibleShards.length === 1 ? '' : 'S'}`;
+      if (recordCount) {
+        recordCount.textContent = `${visibleShards.length} SHARD${visibleShards.length === 1 ? '' : 'S'}`;
+      }
 
       if (visibleShards.length === 0) {
         itemsGrid.innerHTML = '';
@@ -3752,75 +3450,94 @@
         .join('');
     }
 
-    itemsGrid.addEventListener('click', (e) => {
-      const manageBtn = e.target.closest('[data-manage-member]');
-      if (manageBtn) {
-        e.stopPropagation();
-        const member = rosterMembers.find((m) => m.id === manageBtn.dataset.manageMember);
-        if (member) {
-          selectedId = member.id;
-          renderWorkspace();
-          openManageMemberModal(member);
+    if (itemsGrid) {
+      itemsGrid.addEventListener('click', (e) => {
+        const manageBtn = e.target.closest('[data-manage-member]');
+        if (manageBtn) {
+          e.stopPropagation();
+          const member = rosterMembers.find((m) => m.id === manageBtn.dataset.manageMember);
+          if (member) {
+            selectedId = member.id;
+            renderWorkspace();
+            openManageMemberModal(member);
+          }
+          return;
         }
-        return;
-      }
 
-      const memberCard = e.target.closest('[data-member-id]');
-      if (memberCard) {
-        selectedId = memberCard.dataset.memberId;
-        renderWorkspace();
-        return;
-      }
-
-      const shardCard = e.target.closest('[data-shard-id]');
-      if (shardCard) {
-        const shard = records.find((r) => r.id === shardCard.dataset.shardId);
-        if (shard) {
-          selectedId = shard.id;
+        const memberCard = e.target.closest('[data-member-id]');
+        if (memberCard) {
+          selectedId = memberCard.dataset.memberId;
           renderWorkspace();
-          openReaderModal(shard);
+          return;
         }
-      }
-    });
 
-    /**
-     * 7C. SHARD READER & CREATE / EDIT MODAL HANDLERS
-     */
+        const shardCard = e.target.closest('[data-shard-id]');
+        if (shardCard) {
+          const shard = records.find((r) => r.id === shardCard.dataset.shardId);
+          if (shard) {
+            selectedId = shard.id;
+            renderWorkspace();
+            openReaderModal(shard);
+          }
+        }
+      });
+    }
+
     function openReaderModal(shard) {
-      if (!shard) return;
+      if (!shard || !readerModal) return;
       activeShardId = shard.id;
       const isSecret = Boolean(shard.secret);
 
       if (isSecret) {
-        readerModalBox.className =
-          'w-full max-w-2xl border border-[#ff4d5a] bg-[#120507] shadow-[0_0_45px_rgba(255,77,90,0.3)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
-        readerModalHeader.className =
-          'flex items-center justify-between px-5 py-3 border-b border-[#6e171e] bg-[#26080c]';
-        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#ff6b76]';
-        modalMetaTop.textContent = 'CLASSIFIED_SHARD // CRIMSON_CLEARANCE';
-        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#ff9aa2] mt-0.5';
+        readerModal.classList.add('secret-reader');
+        if (readerModalBox) {
+          readerModalBox.className =
+            'w-full max-w-2xl border border-[#ff4d5a] bg-[#120507] shadow-[0_0_45px_rgba(255,77,90,0.3)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        }
+        if (readerModalHeader) {
+          readerModalHeader.className =
+            'flex items-center justify-between px-5 py-3 border-b border-[#6e171e] bg-[#26080c]';
+        }
+        if (modalMetaTop) {
+          modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#ff6b76]';
+          modalMetaTop.textContent = 'CLASSIFIED_SHARD // CRIMSON_CLEARANCE';
+        }
+        if (modalTitle) {
+          modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#ff9aa2] mt-0.5';
+        }
       } else {
-        readerModalBox.className =
-          'w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
-        readerModalHeader.className =
-          'flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]';
-        modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]';
-        modalMetaTop.textContent = 'DATASHARD // DECRYPTED';
-        modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5';
+        readerModal.classList.remove('secret-reader');
+        if (readerModalBox) {
+          readerModalBox.className =
+            'w-full max-w-2xl border border-[#48d1e8] bg-[#061319] shadow-[0_0_40px_rgba(72,209,232,0.28)] chamfer-md flex flex-col max-h-[88vh] hud-enter';
+        }
+        if (readerModalHeader) {
+          readerModalHeader.className =
+            'flex items-center justify-between px-5 py-3 border-b border-[#1b525e] bg-[#0a212b]';
+        }
+        if (modalMetaTop) {
+          modalMetaTop.className = 'font-mono-tech text-[10px] tracking-[0.2em] text-[#48d1e8]';
+          modalMetaTop.textContent = 'DATASHARD // DECRYPTED';
+        }
+        if (modalTitle) {
+          modalTitle.className = 'font-hud font-bold text-xl sm:text-2xl tracking-wider text-[#7df9ff] mt-0.5';
+        }
       }
 
-      modalTitle.textContent = shard.title || 'UNTITLED_SHARD';
-      modalBody.textContent = shard.content || '';
+      if (modalTitle) modalTitle.textContent = shard.title || 'UNTITLED_SHARD';
+      if (modalBody) modalBody.textContent = shard.content || '';
 
-      modalMetaStrip.innerHTML = `
-        <div><span class="text-[#397c8a]">AUTHOR:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.author || 'UNKNOWN')}</span></div>
-        <div><span class="text-[#397c8a]">DATE:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.date || '2077.04.14')}</span></div>
-        <div><span class="text-[#397c8a]">SIZE:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.size || '1.0 KB')}</span></div>
-        <div><span class="text-[#397c8a]">HASH:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.hash || '0x0000')}</span></div>
-      `;
+      if (modalMetaStrip) {
+        modalMetaStrip.innerHTML = `
+          <div><span class="text-[#397c8a]">AUTHOR:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.author || 'UNKNOWN')}</span></div>
+          <div><span class="text-[#397c8a]">DATE:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.date || '2077.04.14')}</span></div>
+          <div><span class="text-[#397c8a]">SIZE:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.size || '1.0 KB')}</span></div>
+          <div><span class="text-[#397c8a]">HASH:</span> <span class="text-[#7df9ff]">${escapeHtml(shard.hash || '0x0000')}</span></div>
+        `;
+      }
 
       const imgs = getShardImages(shard);
-      if (imgs.length > 0) {
+      if (imgs.length > 0 && modalImageWrap && modalImagesList) {
         modalImageWrap.classList.remove('hidden');
         modalImagesList.innerHTML = imgs
           .map(
@@ -3846,51 +3563,62 @@
             openLightbox(btn.dataset.lightboxUrl, shard.title);
           });
         });
-      } else {
+      } else if (modalImageWrap && modalImagesList) {
         modalImageWrap.classList.add('hidden');
         modalImagesList.innerHTML = '';
       }
 
       const canModify = hasStaffPrivileges();
-      modalDeleteBtn.classList.toggle('hidden', !canModify);
-      modalEditBtn.classList.toggle('hidden', !canModify);
+      if (modalDeleteBtn) modalDeleteBtn.classList.toggle('hidden', !canModify);
+      if (modalEditBtn) modalEditBtn.classList.toggle('hidden', !canModify);
 
       readerModal.classList.remove('hidden');
     }
 
     function closeReaderModal() {
       activeShardId = null;
-      readerModal.classList.add('hidden');
+      if (readerModal) {
+        readerModal.classList.remove('secret-reader');
+        readerModal.classList.add('hidden');
+      }
     }
 
-    closeReaderBtn.addEventListener('click', closeReaderModal);
-    readerModal.addEventListener('click', (e) => {
-      if (e.target === readerModal) closeReaderModal();
-    });
+    if (closeReaderBtn) closeReaderBtn.addEventListener('click', closeReaderModal);
+    if (readerModal) {
+      readerModal.addEventListener('click', (e) => {
+        if (e.target === readerModal) closeReaderModal();
+      });
+    }
 
-    modalCopyBtn.addEventListener('click', () => {
-      const text = modalBody.textContent || '';
-      const tempArea = document.createElement('textarea');
-      tempArea.value = text;
-      document.body.appendChild(tempArea);
-      tempArea.select();
-      try {
-        document.execCommand('copy');
-      } catch (_) {}
-      document.body.removeChild(tempArea);
-      copyFeedback.classList.remove('opacity-0');
-      setTimeout(() => copyFeedback.classList.add('opacity-0'), 1400);
-    });
+    if (modalCopyBtn) {
+      modalCopyBtn.addEventListener('click', () => {
+        const text = modalBody ? modalBody.textContent || '' : '';
+        const tempArea = document.createElement('textarea');
+        tempArea.value = text;
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        try {
+          document.execCommand('copy');
+        } catch (_) {}
+        document.body.removeChild(tempArea);
+        if (copyFeedback) {
+          copyFeedback.classList.remove('opacity-0');
+          setTimeout(() => copyFeedback.classList.add('opacity-0'), 1400);
+        }
+      });
+    }
 
-    modalDeleteBtn.addEventListener('click', async () => {
-      if (!hasStaffPrivileges() || !activeShardId) return;
-      const targetId = activeShardId;
-      records = records.filter((r) => r.id !== targetId);
-      if (selectedId === targetId) selectedId = null;
-      closeReaderModal();
-      renderWorkspace();
-      await deleteShardFromCloud(targetId);
-    });
+    if (modalDeleteBtn) {
+      modalDeleteBtn.addEventListener('click', async () => {
+        if (!hasStaffPrivileges() || !activeShardId) return;
+        const targetId = activeShardId;
+        records = records.filter((r) => r.id !== targetId);
+        if (selectedId === targetId) selectedId = null;
+        closeReaderModal();
+        renderWorkspace();
+        await deleteShardFromCloud(targetId);
+      });
+    }
 
     const createTitleInput = document.getElementById('create-title');
     const createContentInput = document.getElementById('create-content');
@@ -3933,22 +3661,21 @@
     }
 
     function openCreateModal(existingShard = null) {
+      if (!createForm || !createModal) return;
       createForm.reset();
       pendingImages = [];
 
-      if (hasStaffPrivileges()) {
-        createClassificationWrap.classList.remove('hidden');
-      } else {
-        createClassificationWrap.classList.add('hidden');
+      if (createClassificationWrap) {
+        createClassificationWrap.classList.toggle('hidden', !hasStaffPrivileges());
       }
 
       if (existingShard) {
         editingShardId = existingShard.id;
-        createModalMeta.textContent = 'WRITE_PROTOCOL // MODIFY_RECORD';
-        createModalTitle.textContent = 'EDIT ARCHIVE SHARD';
-        createSubmitBtn.textContent = 'SAVE CHANGES';
-        createTitleInput.value = existingShard.title || '';
-        createContentInput.value = existingShard.content || '';
+        if (createModalMeta) createModalMeta.textContent = 'WRITE_PROTOCOL // MODIFY_RECORD';
+        if (createModalTitle) createModalTitle.textContent = 'EDIT ARCHIVE SHARD';
+        if (createSubmitBtn) createSubmitBtn.textContent = 'SAVE CHANGES';
+        if (createTitleInput) createTitleInput.value = existingShard.title || '';
+        if (createContentInput) createContentInput.value = existingShard.content || '';
         pendingImages = [...getShardImages(existingShard)];
         const radio = createForm.querySelector(
           `input[name="shard-classification"][value="${existingShard.secret ? 'SECRET' : 'STANDARD'}"]`
@@ -3956,204 +3683,110 @@
         if (radio) radio.checked = true;
       } else {
         editingShardId = null;
-        createModalMeta.textContent = 'WRITE_PROTOCOL // NEW_RECORD';
-        createModalTitle.textContent = 'ARCHIVE NEW SHARD';
-        createSubmitBtn.textContent = 'COMMIT TO ARCHIVE';
+        if (createModalMeta) createModalMeta.textContent = 'WRITE_PROTOCOL // NEW_RECORD';
+        if (createModalTitle) createModalTitle.textContent = 'ARCHIVE NEW SHARD';
+        if (createSubmitBtn) createSubmitBtn.textContent = 'COMMIT TO ARCHIVE';
         const stdRadio = createForm.querySelector('input[name="shard-classification"][value="STANDARD"]');
         if (stdRadio) stdRadio.checked = true;
       }
 
       renderPendingImagesPreview();
       createModal.classList.remove('hidden');
-      createTitleInput.focus();
+      if (createTitleInput) createTitleInput.focus();
     }
 
     function closeCreateModal() {
       editingShardId = null;
       pendingImages = [];
-      createModal.classList.add('hidden');
+      if (createModal) createModal.classList.add('hidden');
     }
 
-    newEntryBtn.addEventListener('click', () => openCreateModal(null));
-    modalEditBtn.addEventListener('click', () => {
-      if (!hasStaffPrivileges() || !activeShardId) return;
-      const shard = records.find((r) => r.id === activeShardId);
-      closeReaderModal();
-      if (shard) openCreateModal(shard);
-    });
+    if (newEntryBtn) {
+      newEntryBtn.addEventListener('click', () => openCreateModal(null));
+    }
 
-    closeCreateBtn.addEventListener('click', closeCreateModal);
-    cancelCreateBtn.addEventListener('click', closeCreateModal);
-    createModal.addEventListener('click', (e) => {
-      if (e.target === createModal) closeCreateModal();
-    });
-
-    addImageUrlBtn.addEventListener('click', () => {
-      const rawUrl = createImageUrlInput.value.trim();
-      if (!rawUrl) return;
-      if (pendingImages.length >= MAX_IMAGES) {
-        uploadImageStatus.textContent = `MAX ${MAX_IMAGES} IMAGE URLS REACHED`;
-        return;
+    function buildInformantShareUrl() {
+      try {
+        const currentUrl = new URL(window.location.href);
+        const cleanPath = currentUrl.pathname.replace(/\/+$/, '');
+        currentUrl.pathname = `${cleanPath}/inform`;
+        return currentUrl.toString();
+      } catch (_) {
+        const base = String(window.location.href || '').split('#')[0].split('?')[0].replace(/\/+$/, '');
+        return base ? `${base}/inform` : '/inform';
       }
-      if (!/^https?:\/\//i.test(rawUrl)) {
-        uploadImageStatus.textContent = 'URL MUST START WITH HTTP:// OR HTTPS://';
-        return;
-      }
-      pendingImages.push(rawUrl);
-      createImageUrlInput.value = '';
-      renderPendingImagesPreview();
-    });
+    }
 
-    createForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const title = createTitleInput.value.trim().toUpperCase();
-      const content = createContentInput.value.trim();
-      if (!title || !content) return;
-
-      const selectedClass = createForm.querySelector('input[name="shard-classification"]:checked')?.value;
-      const isSecret = hasStaffPrivileges() && selectedClass === 'SECRET';
-
-      const now = new Date();
-      const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
-      const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
-      const byteSize = new Blob([content]).size;
-      const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
-
-      const existing = editingShardId ? records.find((r) => r.id === editingShardId) : null;
-      const shardObj = {
-        id: existing ? existing.id : `shard-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        tab: 'FILES',
-        secret: isSecret,
-        title,
-        subtitle: isSecret ? 'CLASSIFIED_SUBNET // RESTRICTED' : 'ARCHIVE_SHARD // VERIFIED',
-        date: existing ? existing.date : dateStr,
-        author: existing ? existing.author : currentUser.toUpperCase(),
-        size: sizeStr,
-        hash: existing ? existing.hash : `0x${randHex()}...${randHex()}`,
-        content,
-        images: [...pendingImages],
-        image: pendingImages[0] || null,
-        createdAt: existing ? existing.createdAt : Date.now(),
-        updatedAt: Date.now()
-      };
-
-      if (existing) {
-        records = records.map((r) => (r.id === existing.id ? shardObj : r));
-      } else {
-        records = [shardObj, ...records];
-      }
-      selectedId = shardObj.id;
-
-      closeCreateModal();
-      renderWorkspace();
-      await saveShardToCloud(shardObj);
-    });
-
-    /**
-     * 8. NAVIGATION TABS, ADMIN SETTINGS, REQUESTS & NOTIFICATIONS MODALS
-     */
-    navModules.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        if (btn.dataset.locked === 'true' || btn.disabled) return;
-        navModules.forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        activeTab = btn.dataset.tab;
-        activeSectorLabel.textContent = `SECTOR_01 // ${activeTab}`;
-        renderWorkspace();
+    if (generateInformantLinkBtn) {
+      generateInformantLinkBtn.addEventListener('click', () => {
+        if (!hasStaffPrivileges() || !informantLinkModal) return;
+        const shareUrl = buildInformantShareUrl();
+        if (generatedInformantUrl) generatedInformantUrl.value = shareUrl;
+        if (informantGenStatus) informantGenStatus.textContent = '';
+        informantLinkModal.classList.remove('hidden');
       });
-    });
+    }
+
+    function closeInformantLinkModal() {
+      if (informantLinkModal) informantLinkModal.classList.add('hidden');
+    }
+
+    if (closeInformantLinkBtn) closeInformantLinkBtn.addEventListener('click', closeInformantLinkModal);
+    if (doneInformantLinkBtn) doneInformantLinkBtn.addEventListener('click', closeInformantLinkModal);
+    if (informantLinkModal) {
+      informantLinkModal.addEventListener('click', (e) => {
+        if (e.target === informantLinkModal) closeInformantLinkModal();
+      });
+    }
+
+    if (copyInformantUrlBtn) {
+      copyInformantUrlBtn.addEventListener('click', () => {
+        const val = generatedInformantUrl ? generatedInformantUrl.value : '';
+        if (!val) return;
+        const tempArea = document.createElement('textarea');
+        tempArea.value = val;
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        try {
+          document.execCommand('copy');
+        } catch (_) {}
+        document.body.removeChild(tempArea);
+        if (informantGenStatus) {
+          informantGenStatus.textContent = 'LINK COPIED TO CLIPBOARD';
+        }
+      });
+    }
 
     if (adminSettingsBtn) {
       adminSettingsBtn.addEventListener('click', () => {
         if (!isAdminAccount()) return;
         navModules.forEach((b) => b.classList.remove('active'));
         activeTab = 'SETTINGS';
-        activeSectorLabel.textContent = 'SECTOR_01 // ADMIN_SETTINGS';
+        if (activeSectorLabel) activeSectorLabel.textContent = 'SECTOR_01 // ADMIN_SETTINGS';
+        if (adminSettingsStatus) adminSettingsStatus.textContent = '';
+        applyGlobalSiteSettings(globalSiteSettings);
         renderWorkspace();
       });
     }
 
-    async function persistBackgroundImageUrl(rawBg) {
-      if (!isAdminAccount()) return;
-      const trimmedBg = String(rawBg || '').trim();
-      if (trimmedBg && !/^https?:\/\//i.test(trimmedBg)) {
-        if (adminSettingsStatus) {
-          adminSettingsStatus.textContent = 'BACKGROUND URL MUST START WITH HTTP:// OR HTTPS://';
-        }
-        return;
-      }
-
-      const nextSettings = {
-        ...globalSiteSettings,
-        id: 'global',
-        backgroundUrl: trimmedBg,
-        updatedBy: currentUser.toUpperCase(),
-        updatedAt: Date.now()
-      };
-
-      globalSiteSettings = nextSettings;
-      applyGlobalSiteSettings(nextSettings);
-      if (adminSettingsStatus) {
-        adminSettingsStatus.textContent = trimmedBg
-          ? 'UPDATING BACKGROUND IMAGE...'
-          : 'REMOVING BACKGROUND IMAGE...';
-      }
-
-      const ok = await saveSiteSettingsToCloud(nextSettings);
-      if (adminSettingsStatus) {
-        adminSettingsStatus.textContent = ok
-          ? (trimmedBg ? 'BACKGROUND IMAGE APPLIED FOR ALL USERS' : 'ORIGINAL BACKGROUND RESTORED FOR ALL USERS')
-          : 'APPLIED LOCALLY // CLOUD SAVE FAILED';
-      }
-      setTimeout(() => {
-        if (adminSettingsStatus) adminSettingsStatus.textContent = '';
-      }, 2500);
-    }
-
     if (adminSubmitBgBtn) {
       adminSubmitBgBtn.addEventListener('click', async () => {
-        await persistBackgroundImageUrl(adminBgUrlInput ? adminBgUrlInput.value : '');
-      });
-    }
-
-    if (adminUiColorInput) {
-      adminUiColorInput.addEventListener('input', () => {
-        const hex = normalizeHexColor(adminUiColorInput.value);
-        if (adminUiColorHex) adminUiColorHex.textContent = hex.toUpperCase();
-        applyGlobalSiteSettings({
+        if (!isAdminAccount()) return;
+        const rawBg = adminBgUrlInput ? adminBgUrlInput.value.trim() : '';
+        if (rawBg && !/^https?:\/\//i.test(rawBg)) {
+          if (adminSettingsStatus) adminSettingsStatus.textContent = 'BACKGROUND URL MUST START WITH HTTP:// OR HTTPS://';
+          return;
+        }
+        const nextSettings = {
           ...globalSiteSettings,
-          uiAccentColor: hex,
-          uiFillOpacity: clampPercent(adminFillOpacityInput ? adminFillOpacityInput.value : globalSiteSettings.uiFillOpacity, 75),
-          uiOutlineOpacity: clampPercent(adminOutlineOpacityInput ? adminOutlineOpacityInput.value : globalSiteSettings.uiOutlineOpacity, 100)
-        });
+          backgroundUrl: rawBg,
+          updatedAt: Date.now()
+        };
+        globalSiteSettings = nextSettings;
+        applyGlobalSiteSettings(nextSettings);
+        if (adminSettingsStatus) adminSettingsStatus.textContent = 'BACKGROUND IMAGE UPDATED FOR ALL USERS';
+        await saveSiteSettingsToCloud(nextSettings);
       });
-    }
-
-    function syncLiveOpacityPreview() {
-      const fillPct = clampPercent(
-        adminFillOpacityInput ? adminFillOpacityInput.value : globalSiteSettings.uiFillOpacity,
-        75
-      );
-      const outlinePct = clampPercent(
-        adminOutlineOpacityInput ? adminOutlineOpacityInput.value : globalSiteSettings.uiOutlineOpacity,
-        100
-      );
-      if (adminFillOpacityVal) adminFillOpacityVal.textContent = `${fillPct}%`;
-      if (adminOutlineOpacityVal) adminOutlineOpacityVal.textContent = `${outlinePct}%`;
-      applyGlobalSiteSettings({
-        ...globalSiteSettings,
-        uiAccentColor: normalizeHexColor(adminUiColorInput ? adminUiColorInput.value : globalSiteSettings.uiAccentColor),
-        uiFillOpacity: fillPct,
-        uiOutlineOpacity: outlinePct
-      });
-    }
-
-    if (adminFillOpacityInput) {
-      adminFillOpacityInput.addEventListener('input', syncLiveOpacityPreview);
-    }
-
-    if (adminOutlineOpacityInput) {
-      adminOutlineOpacityInput.addEventListener('input', syncLiveOpacityPreview);
     }
 
     if (adminRemoveBgBtn) {
@@ -4162,101 +3795,130 @@
         if (adminBgUrlInput) adminBgUrlInput.value = '';
         const nextSettings = {
           ...globalSiteSettings,
-          id: 'global',
           backgroundUrl: '',
-          updatedBy: currentUser.toUpperCase(),
           updatedAt: Date.now()
         };
         globalSiteSettings = nextSettings;
         applyGlobalSiteSettings(nextSettings);
-        if (adminSettingsStatus) adminSettingsStatus.textContent = 'REMOVING BACKGROUND IMAGE...';
-        const ok = await saveSiteSettingsToCloud(nextSettings);
-        if (adminSettingsStatus) {
-          adminSettingsStatus.textContent = ok
-            ? 'ORIGINAL BACKGROUND RESTORED FOR ALL USERS'
-            : 'RESTORED LOCALLY // CLOUD SAVE FAILED';
-        }
-        setTimeout(() => {
-          if (adminSettingsStatus) adminSettingsStatus.textContent = '';
-        }, 2500);
+        if (adminSettingsStatus) adminSettingsStatus.textContent = 'ORIGINAL BACKGROUND RESTORED FOR ALL USERS';
+        await saveSiteSettingsToCloud(nextSettings);
+      });
+    }
+
+    if (adminUiColorInput) {
+      adminUiColorInput.addEventListener('input', () => {
+        const pickedHex = normalizeHexColor(adminUiColorInput.value);
+        if (adminUiColorHex) adminUiColorHex.textContent = pickedHex.toUpperCase();
+        applyGlobalSiteSettings({
+          ...globalSiteSettings,
+          uiAccentColor: pickedHex
+        });
       });
     }
 
     if (adminResetColorBtn) {
       adminResetColorBtn.addEventListener('click', () => {
-        const defHex = '#48d1e8';
-        if (adminUiColorInput) adminUiColorInput.value = defHex;
-        if (adminUiColorHex) adminUiColorHex.textContent = defHex.toUpperCase();
+        const defaultHex = '#48d1e8';
+        if (adminUiColorInput) adminUiColorInput.value = defaultHex;
+        if (adminUiColorHex) adminUiColorHex.textContent = defaultHex.toUpperCase();
         applyGlobalSiteSettings({
           ...globalSiteSettings,
-          uiAccentColor: defHex
+          uiAccentColor: defaultHex
         });
       });
+    }
+
+    function previewSlidersLive() {
+      const fillPct = clampPercent(adminFillOpacityInput ? adminFillOpacityInput.value : globalSiteSettings.uiFillOpacity, 75);
+      const outlinePct = clampPercent(adminOutlineOpacityInput ? adminOutlineOpacityInput.value : globalSiteSettings.uiOutlineOpacity, 100);
+      if (adminFillOpacityVal) adminFillOpacityVal.textContent = `${fillPct}%`;
+      if (adminOutlineOpacityVal) adminOutlineOpacityVal.textContent = `${outlinePct}%`;
+      const currentColor = normalizeHexColor(adminUiColorInput ? adminUiColorInput.value : globalSiteSettings.uiAccentColor);
+      applyGlobalSiteSettings({
+        ...globalSiteSettings,
+        uiAccentColor: currentColor,
+        uiFillOpacity: fillPct,
+        uiOutlineOpacity: outlinePct
+      });
+    }
+
+    if (adminFillOpacityInput) {
+      adminFillOpacityInput.addEventListener('input', previewSlidersLive);
+    }
+
+    if (adminOutlineOpacityInput) {
+      adminOutlineOpacityInput.addEventListener('input', previewSlidersLive);
     }
 
     if (adminSettingsForm) {
       adminSettingsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!isAdminAccount()) return;
-
-        const rawBg = (adminBgUrlInput ? adminBgUrlInput.value : '').trim();
+        const rawBg = adminBgUrlInput ? adminBgUrlInput.value.trim() : '';
         if (rawBg && !/^https?:\/\//i.test(rawBg)) {
-          if (adminSettingsStatus) {
-            adminSettingsStatus.textContent = 'BACKGROUND URL MUST START WITH HTTP:// OR HTTPS://';
-          }
+          if (adminSettingsStatus) adminSettingsStatus.textContent = 'BACKGROUND URL MUST START WITH HTTP:// OR HTTPS://';
           return;
         }
+        const pickedColor = normalizeHexColor(adminUiColorInput ? adminUiColorInput.value : '#48d1e8');
+        const fillPct = clampPercent(adminFillOpacityInput ? adminFillOpacityInput.value : 75, 75);
+        const outlinePct = clampPercent(adminOutlineOpacityInput ? adminOutlineOpacityInput.value : 100, 100);
 
-        const chosenColor = normalizeHexColor(adminUiColorInput ? adminUiColorInput.value : '#48d1e8');
-        const chosenFillOpacity = clampPercent(adminFillOpacityInput ? adminFillOpacityInput.value : 75, 75);
-        const chosenOutlineOpacity = clampPercent(adminOutlineOpacityInput ? adminOutlineOpacityInput.value : 100, 100);
         const nextSettings = {
-          id: 'global',
           backgroundUrl: rawBg,
-          uiAccentColor: chosenColor,
-          uiFillOpacity: chosenFillOpacity,
-          uiOutlineOpacity: chosenOutlineOpacity,
-          updatedBy: currentUser.toUpperCase(),
+          uiAccentColor: pickedColor,
+          uiFillOpacity: fillPct,
+          uiOutlineOpacity: outlinePct,
           updatedAt: Date.now()
         };
 
         globalSiteSettings = nextSettings;
         applyGlobalSiteSettings(nextSettings);
-        if (adminSettingsStatus) adminSettingsStatus.textContent = 'SAVING GLOBAL SETTINGS...';
-
-        const ok = await saveSiteSettingsToCloud(nextSettings);
-        if (adminSettingsStatus) {
-          adminSettingsStatus.textContent = ok
-            ? 'SETTINGS APPLIED FOR ALL USERS'
-            : 'APPLIED LOCALLY // CLOUD SAVE FAILED';
-        }
-        setTimeout(() => {
-          if (adminSettingsStatus) adminSettingsStatus.textContent = '';
-        }, 2500);
+        if (adminSettingsStatus) adminSettingsStatus.textContent = 'SETTINGS SAVED // SYNCED GLOBALLY';
+        await saveSiteSettingsToCloud(nextSettings);
       });
     }
 
-    searchInput.addEventListener('input', () => {
-      if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
-      searchDebounceTimer = setTimeout(() => {
+    navModules.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.locked === 'true' || btn.disabled) return;
+        navModules.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTab = btn.dataset.tab;
+        if (activeSectorLabel) activeSectorLabel.textContent = `SECTOR_01 // ${activeTab}`;
         renderWorkspace();
-      }, 90);
+      });
     });
 
-    notificationsBtn.addEventListener('click', () => {
-      renderNotificationsModal();
-      notificationsModal.classList.remove('hidden');
-    });
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+          renderWorkspace();
+        }, 90);
+      });
+    }
 
-    closeNotificationsBtn.addEventListener('click', () => {
-      notificationsModal.classList.add('hidden');
-    });
+    if (notificationsBtn) {
+      notificationsBtn.addEventListener('click', () => {
+        renderNotificationsModal();
+        if (notificationsModal) notificationsModal.classList.remove('hidden');
+      });
+    }
 
-    notificationsModal.addEventListener('click', (e) => {
-      if (e.target === notificationsModal) notificationsModal.classList.add('hidden');
-    });
+    if (closeNotificationsBtn) {
+      closeNotificationsBtn.addEventListener('click', () => {
+        if (notificationsModal) notificationsModal.classList.add('hidden');
+      });
+    }
+
+    if (notificationsModal) {
+      notificationsModal.addEventListener('click', (e) => {
+        if (e.target === notificationsModal) notificationsModal.classList.add('hidden');
+      });
+    }
 
     function renderRequestsModal() {
+      if (!requestsList) return;
       if (!hasStaffPrivileges()) {
         requestsList.innerHTML = '';
         return;
@@ -4277,7 +3939,6 @@
         .map((req) => {
           const isAccepted = String(req.status || '').toUpperCase() === 'ACCEPTED';
           const isIntel = Boolean(req.isIntel || String(req.requestType || '').toUpperCase() === 'INTEL');
-          const imgsCount = Array.isArray(req.images) ? req.images.filter(Boolean).length : 0;
           return `
             <div
               data-open-user-req="${escapeHtml(req.id)}"
@@ -4290,12 +3951,7 @@
                   </span>
                   ${
                     isIntel
-                      ? '<span style="border-color:#22c55e;background:rgba(20,83,45,0.75);color:#86efac;" class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border uppercase">INTEL</span>'
-                      : ''
-                  }
-                  ${
-                    imgsCount > 0
-                      ? `<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#236978] text-[#48d1e8]">${imgsCount} IMG</span>`
+                      ? '<span class="shrink-0 font-mono-tech text-[9px] tracking-widest px-1.5 py-0.5 border border-[#2ecc71] bg-[#092917]/90 text-[#58f59a] uppercase">Intel</span>'
                       : ''
                   }
                   ${
@@ -4406,6 +4062,7 @@
             password: reqObj.password,
             isModerator: false,
             isLeadership: false,
+            isSecretModerator: false,
             approvedAt: Date.now()
           };
 
@@ -4417,6 +4074,7 @@
             role: approvedAcc.role,
             isModerator: false,
             isLeadership: false,
+            isSecretModerator: false,
             createdAt: approvedAcc.approvedAt
           };
 
@@ -4454,21 +4112,17 @@
     }
 
     function openRequestsModal() {
-      if (!hasStaffPrivileges()) return;
+      if (!hasStaffPrivileges() || !requestsModal) return;
       renderRequestsModal();
       requestsModal.classList.remove('hidden');
     }
 
     function closeRequestsModal() {
-      requestsModal.classList.add('hidden');
+      if (requestsModal) requestsModal.classList.add('hidden');
     }
 
-    if (requestsBtn) {
-      requestsBtn.addEventListener('click', openRequestsModal);
-    }
-    if (closeRequestsBtn) {
-      closeRequestsBtn.addEventListener('click', closeRequestsModal);
-    }
+    if (requestsBtn) requestsBtn.addEventListener('click', openRequestsModal);
+    if (closeRequestsBtn) closeRequestsBtn.addEventListener('click', closeRequestsModal);
     if (requestsModal) {
       requestsModal.addEventListener('click', (e) => {
         if (e.target === requestsModal) closeRequestsModal();
@@ -4476,51 +4130,54 @@
     }
 
     function openMakeRequestModal() {
-      if (hasStaffPrivileges()) return;
-      makeRequestForm.reset();
+      if (hasStaffPrivileges() || !makeRequestModal) return;
+      if (makeRequestForm) makeRequestForm.reset();
       makeRequestModal.classList.remove('hidden');
-      userRequestTitleInput.focus();
+      if (userRequestTitleInput) userRequestTitleInput.focus();
     }
 
     function closeMakeRequestModal() {
-      makeRequestModal.classList.add('hidden');
+      if (makeRequestModal) makeRequestModal.classList.add('hidden');
     }
 
-    if (makeRequestBtn) {
-      makeRequestBtn.addEventListener('click', openMakeRequestModal);
+    if (makeRequestBtn) makeRequestBtn.addEventListener('click', openMakeRequestModal);
+    if (closeMakeRequestBtn) closeMakeRequestBtn.addEventListener('click', closeMakeRequestModal);
+    if (cancelMakeRequestBtn) cancelMakeRequestBtn.addEventListener('click', closeMakeRequestModal);
+    if (makeRequestModal) {
+      makeRequestModal.addEventListener('click', (e) => {
+        if (e.target === makeRequestModal) closeMakeRequestModal();
+      });
     }
-    closeMakeRequestBtn.addEventListener('click', closeMakeRequestModal);
-    cancelMakeRequestBtn.addEventListener('click', closeMakeRequestModal);
-    makeRequestModal.addEventListener('click', (e) => {
-      if (e.target === makeRequestModal) closeMakeRequestModal();
-    });
 
-    makeRequestForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (hasStaffPrivileges()) return;
-      const title = userRequestTitleInput.value.trim();
-      const body = userRequestBodyInput.value.trim();
-      if (!title || !body) return;
+    if (makeRequestForm) {
+      makeRequestForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (hasStaffPrivileges()) return;
+        const title = userRequestTitleInput ? userRequestTitleInput.value.trim() : '';
+        const body = userRequestBodyInput ? userRequestBodyInput.value.trim() : '';
+        if (!title || !body) return;
 
-      const reqObj = {
-        id: `ureq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        sender: currentUser.toUpperCase(),
-        title,
-        body,
-        status: 'OPEN',
-        archived: false,
-        createdAt: Date.now()
-      };
+        const reqObj = {
+          id: `ureq-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          sender: currentUser.toUpperCase(),
+          title,
+          body,
+          status: 'OPEN',
+          archived: false,
+          createdAt: Date.now()
+        };
 
-      userRequests = [reqObj, ...userRequests];
-      makeRequestForm.reset();
-      closeMakeRequestModal();
-      updateRequestsBadge();
-      await saveUserRequestToCloud(reqObj);
-    });
+        userRequests = [reqObj, ...userRequests];
+        makeRequestForm.reset();
+        closeMakeRequestModal();
+        updateRequestsBadge();
+        await saveUserRequestToCloud(reqObj);
+      });
+    }
 
     function setRequestReaderMaxed(maxed) {
       isRequestReaderMaxed = Boolean(maxed);
+      if (!requestReaderModal || !requestReaderBox || !requestReaderExpandBtn) return;
       if (isRequestReaderMaxed) {
         requestReaderModal.className = 'fixed inset-0 z-40 bg-black/90 backdrop-blur-xs flex items-center justify-center p-0';
         requestReaderBox.className = 'w-full h-full max-w-none max-h-none border border-[#48d1e8] bg-[#061319] flex flex-col';
@@ -4535,16 +4192,17 @@
     function renderRequestReaderModal(reqObj) {
       if (!reqObj) return;
       const isAccepted = String(reqObj.status || '').toUpperCase() === 'ACCEPTED';
-      const isIntel = Boolean(reqObj.isIntel || String(reqObj.requestType || '').toUpperCase() === 'INTEL');
-      requestReaderMeta.textContent = `${isIntel ? 'INTEL_SUBMISSION' : 'REQUEST_INSPECTION'} // ${reqObj.id.slice(-6).toUpperCase()}`;
-      requestReaderTitle.textContent = reqObj.title || 'UNTITLED REQUEST';
-      requestReaderSender.textContent = reqObj.sender || 'OPERATIVE';
-      requestReaderBody.textContent = reqObj.body || '';
+      if (requestReaderMeta) {
+        requestReaderMeta.textContent = `REQUEST_INSPECTION // ${reqObj.id.slice(-6).toUpperCase()}`;
+      }
+      if (requestReaderTitle) requestReaderTitle.textContent = reqObj.title || 'UNTITLED REQUEST';
+      if (requestReaderSender) requestReaderSender.textContent = reqObj.sender || 'OPERATIVE';
+      if (requestReaderBody) requestReaderBody.textContent = reqObj.body || '';
 
-      const reqImages = Array.isArray(reqObj.images) ? reqObj.images.filter(Boolean) : [];
-      if (reqImages.length > 0 && requestReaderImagesWrap && requestReaderImagesList) {
+      const imgs = Array.isArray(reqObj.images) ? reqObj.images.filter(Boolean) : [];
+      if (imgs.length > 0 && requestReaderImagesWrap && requestReaderImagesList) {
         requestReaderImagesWrap.classList.remove('hidden');
-        requestReaderImagesList.innerHTML = reqImages
+        requestReaderImagesList.innerHTML = imgs
           .map(
             (url, idx) => `
               <button
@@ -4562,9 +4220,10 @@
             `
           )
           .join('');
+
         requestReaderImagesList.querySelectorAll('[data-req-lightbox-url]').forEach((btn) => {
           btn.addEventListener('click', () => {
-            openLightbox(btn.dataset.reqLightboxUrl, reqObj.title || 'INTEL_CAPTURE');
+            openLightbox(btn.dataset.reqLightboxUrl, reqObj.title);
           });
         });
       } else if (requestReaderImagesWrap && requestReaderImagesList) {
@@ -4573,35 +4232,33 @@
       }
 
       if (isAccepted) {
-        requestReaderStatusBadge.textContent = isIntel ? 'INTEL // ACCEPTED' : 'Accepted';
-        requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff] text-[10px] tracking-widest uppercase';
-        requestReaderAcceptBtn.classList.add('hidden');
-        requestReaderDenyBtn.classList.add('hidden');
+        if (requestReaderStatusBadge) {
+          requestReaderStatusBadge.textContent = 'Accepted';
+          requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#48d1e8] bg-[#0d3340]/85 text-[#7df9ff] text-[10px] tracking-widest uppercase';
+        }
+        if (requestReaderAcceptBtn) requestReaderAcceptBtn.classList.add('hidden');
+        if (requestReaderDenyBtn) requestReaderDenyBtn.classList.add('hidden');
         if (requestReaderSecretWrap) {
           requestReaderSecretWrap.classList.toggle('hidden', !hasStaffPrivileges());
         }
-        requestReaderArchiveBtn.classList.remove('hidden');
+        if (requestReaderSecretCheckbox) requestReaderSecretCheckbox.checked = false;
+        if (requestReaderArchiveBtn) requestReaderArchiveBtn.classList.remove('hidden');
       } else {
-        requestReaderStatusBadge.textContent = isIntel ? 'INTEL // OPEN' : 'OPEN';
-        requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#236978] bg-[#071820] text-[#48d1e8] text-[10px] tracking-widest uppercase';
-        requestReaderAcceptBtn.classList.remove('hidden');
-        requestReaderDenyBtn.classList.remove('hidden');
-        if (requestReaderSecretWrap) {
-          requestReaderSecretWrap.classList.add('hidden');
+        if (requestReaderStatusBadge) {
+          requestReaderStatusBadge.textContent = 'OPEN';
+          requestReaderStatusBadge.className = 'px-2 py-0.5 border border-[#236978] bg-[#071820] text-[#48d1e8] text-[10px] tracking-widest uppercase';
         }
-        if (requestReaderSecretCheckbox) {
-          requestReaderSecretCheckbox.checked = false;
-        }
-        requestReaderArchiveBtn.classList.add('hidden');
+        if (requestReaderAcceptBtn) requestReaderAcceptBtn.classList.remove('hidden');
+        if (requestReaderDenyBtn) requestReaderDenyBtn.classList.remove('hidden');
+        if (requestReaderSecretWrap) requestReaderSecretWrap.classList.add('hidden');
+        if (requestReaderSecretCheckbox) requestReaderSecretCheckbox.checked = false;
+        if (requestReaderArchiveBtn) requestReaderArchiveBtn.classList.add('hidden');
       }
     }
 
     function openRequestReaderModal(reqObj) {
-      if (!hasStaffPrivileges() || !reqObj) return;
+      if (!hasStaffPrivileges() || !reqObj || !requestReaderModal) return;
       activeStaffRequestId = reqObj.id;
-      if (requestReaderSecretCheckbox) {
-        requestReaderSecretCheckbox.checked = false;
-      }
       setRequestReaderMaxed(false);
       renderRequestReaderModal(reqObj);
       requestReaderModal.classList.remove('hidden');
@@ -4609,24 +4266,24 @@
 
     function closeRequestReaderModal() {
       activeStaffRequestId = null;
-      if (requestReaderSecretCheckbox) {
-        requestReaderSecretCheckbox.checked = false;
-      }
       setRequestReaderMaxed(false);
-      requestReaderModal.classList.add('hidden');
+      if (requestReaderModal) requestReaderModal.classList.add('hidden');
     }
 
-    requestReaderExpandBtn.addEventListener('click', () => {
-      setRequestReaderMaxed(!isRequestReaderMaxed);
-    });
-
-    closeRequestReaderBtn.addEventListener('click', closeRequestReaderModal);
-    requestReaderModal.addEventListener('click', (e) => {
-      if (e.target === requestReaderModal) closeRequestReaderModal();
-    });
+    if (requestReaderExpandBtn) {
+      requestReaderExpandBtn.addEventListener('click', () => {
+        setRequestReaderMaxed(!isRequestReaderMaxed);
+      });
+    }
+    if (closeRequestReaderBtn) closeRequestReaderBtn.addEventListener('click', closeRequestReaderModal);
+    if (requestReaderModal) {
+      requestReaderModal.addEventListener('click', (e) => {
+        if (e.target === requestReaderModal) closeRequestReaderModal();
+      });
+    }
 
     async function sendRequestDecisionNotification(reqObj, decisionStatus) {
-      if (!reqObj || !reqObj.sender) return;
+      if (!reqObj || !reqObj.sender || reqObj.isIntel) return;
       const notifObj = {
         id: `unotif-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         recipient: String(reqObj.sender).toUpperCase(),
@@ -4681,284 +4338,277 @@
       await sendRequestDecisionNotification(target, 'DENIED');
     }
 
-    requestReaderAcceptBtn.addEventListener('click', async () => {
-      if (!activeStaffRequestId) return;
-      await acceptUserRequestById(activeStaffRequestId);
-    });
+    if (requestReaderAcceptBtn) {
+      requestReaderAcceptBtn.addEventListener('click', async () => {
+        if (!activeStaffRequestId) return;
+        await acceptUserRequestById(activeStaffRequestId);
+      });
+    }
 
-    requestReaderDenyBtn.addEventListener('click', async () => {
-      if (!activeStaffRequestId) return;
-      await denyUserRequestById(activeStaffRequestId);
-    });
+    if (requestReaderDenyBtn) {
+      requestReaderDenyBtn.addEventListener('click', async () => {
+        if (!activeStaffRequestId) return;
+        await denyUserRequestById(activeStaffRequestId);
+      });
+    }
 
-    requestReaderArchiveBtn.addEventListener('click', async () => {
-      if (!hasStaffPrivileges() || !activeStaffRequestId) return;
-      const target = userRequests.find((r) => r.id === activeStaffRequestId);
-      if (!target || String(target.status || '').toUpperCase() !== 'ACCEPTED') return;
+    if (requestReaderArchiveBtn) {
+      requestReaderArchiveBtn.addEventListener('click', async () => {
+        if (!hasStaffPrivileges() || !activeStaffRequestId) return;
+        const target = userRequests.find((r) => r.id === activeStaffRequestId);
+        if (!target || String(target.status || '').toUpperCase() !== 'ACCEPTED') return;
 
-      const archiveAsSecret = Boolean(
-        hasStaffPrivileges() && requestReaderSecretCheckbox && requestReaderSecretCheckbox.checked
-      );
-      const isIntel = Boolean(target.isIntel || String(target.requestType || '').toUpperCase() === 'INTEL');
-      const reqImages = Array.isArray(target.images) ? target.images.filter(Boolean) : [];
+        const archiveAsSecret = Boolean(requestReaderSecretCheckbox && requestReaderSecretCheckbox.checked);
+        const now = new Date();
+        const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+        const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
+        const rawContent = target.body || '';
+        const byteSize = new Blob([rawContent]).size;
+        const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
+        const formattedTitle = String(target.title || 'ARCHIVED_REQUEST').trim().toUpperCase().replace(/\s+/g, '_');
+        const imgs = Array.isArray(target.images) ? target.images.filter(Boolean).slice(0, MAX_IMAGES) : [];
 
-      const now = new Date();
-      const dateStr = `2077.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
-      const randHex = () => Math.floor(Math.random() * 0xffff).toString(16).toUpperCase().padStart(4, '0');
-      const rawContent = target.body || '';
-      const byteSize = new Blob([rawContent]).size;
-      const sizeStr = byteSize >= 1024 ? `${(byteSize / 1024).toFixed(1)} KB` : `${byteSize} B`;
-      const formattedTitle = String(target.title || 'ARCHIVED_REQUEST').trim().toUpperCase().replace(/\s+/g, '_');
+        const newShard = {
+          id: `reqshard-${Date.now()}`,
+          tab: 'FILES',
+          secret: archiveAsSecret,
+          title: formattedTitle,
+          subtitle: archiveAsSecret
+            ? `CLASSIFIED_INTEL // FROM_${String(target.sender || 'OPERATIVE').toUpperCase()}`
+            : `REQ_ARCHIVE // FROM_${String(target.sender || 'OPERATIVE').toUpperCase()}`,
+          date: dateStr,
+          author: String(target.sender || currentUser).toUpperCase(),
+          size: sizeStr,
+          hash: `0x${randHex()}...${randHex()}`,
+          content: rawContent,
+          images: imgs,
+          image: imgs[0] || null,
+          createdAt: Date.now()
+        };
 
-      const newShard = {
-        id: `reqshard-${Date.now()}`,
-        tab: 'FILES',
-        secret: archiveAsSecret,
-        title: formattedTitle,
-        subtitle: archiveAsSecret
-          ? 'CLASSIFIED_SUBNET // RESTRICTED'
-          : `${isIntel ? 'INTEL_ARCHIVE' : 'REQ_ARCHIVE'} // FROM_${String(target.sender || 'OPERATIVE').toUpperCase()}`,
-        date: dateStr,
-        author: String(target.sender || currentUser).toUpperCase(),
-        size: sizeStr,
-        hash: `0x${randHex()}...${randHex()}`,
-        content: rawContent,
-        images: reqImages,
-        image: reqImages[0] || null,
-        createdAt: Date.now()
-      };
+        userRequests = userRequests.filter((r) => r.id !== target.id);
+        records = [newShard, ...records];
+        selectedId = newShard.id;
 
-      userRequests = userRequests.filter((r) => r.id !== target.id);
-      records = [newShard, ...records];
-      selectedId = newShard.id;
+        closeRequestReaderModal();
+        updateRequestsBadge();
+        renderRequestsModal();
+        if (activeTab === 'FILES') {
+          renderWorkspace();
+        }
 
-      closeRequestReaderModal();
-      updateRequestsBadge();
-      renderRequestsModal();
-      if (activeTab === 'FILES') {
-        renderWorkspace();
-      }
+        await deleteUserRequestFromCloud(target.id);
+        await saveShardToCloud(newShard);
+      });
+    }
 
-      await deleteUserRequestFromCloud(target.id);
-      await saveShardToCloud(newShard);
-    });
-
-    /**
-     * 10C. MANAGE MEMBER MODAL (ADMIN & MODERATOR)
-     */
     function openManageMemberModal(member) {
-      if (!hasStaffPrivileges() || !member) return;
+      if (!hasStaffPrivileges() || !member || !manageMemberModal) return;
       managingMemberId = member.id;
-      const isTargetSecretMod = Boolean(member.isSecretModerator);
-      const isTargetMod = !isTargetSecretMod && Boolean(member.isModerator || member.isLeadership);
-      const isAnyMod = isTargetMod || isTargetSecretMod;
+      const isSecretMod = Boolean(member.isSecretModerator);
+      const isLeaderMod = !isSecretMod && Boolean(member.isModerator || member.isLeadership);
 
-      manageMemberName.textContent = member.name || 'OPERATIVE';
-      if (isTargetSecretMod && isAdminAccount()) {
-        manageMemberTier.textContent = 'SECRET MODERATION';
-      } else if (isTargetMod) {
-        manageMemberTier.textContent = 'MODERATOR // LEADERSHIP';
-      } else {
-        manageMemberTier.textContent = 'MEMBER // STANDARD';
+      if (manageMemberName) manageMemberName.textContent = member.name || 'OPERATIVE';
+      if (manageMemberTier) {
+        manageMemberTier.textContent = isLeaderMod
+          ? 'MODERATOR // LEADERSHIP'
+          : isSecretMod
+          ? 'MODERATOR // SECRET'
+          : 'MEMBER // STANDARD';
       }
-      if (manageMemberRoleInput) {
-        manageMemberRoleInput.value = member.role || '';
-      }
-      manageMemberStatus.textContent = '';
+      if (manageMemberRoleInput) manageMemberRoleInput.value = member.role || '';
+      if (manageMemberStatus) manageMemberStatus.textContent = '';
 
-      if (isAdminAccount()) {
-        manageModeratorWrap.classList.remove('hidden');
-        manageModeratorInput.checked = isTargetMod;
-        if (manageSecretModeratorInput) {
-          manageSecretModeratorInput.checked = isTargetSecretMod;
-        }
-      } else {
-        manageModeratorWrap.classList.add('hidden');
-        manageModeratorInput.checked = isTargetMod;
-        if (manageSecretModeratorInput) {
-          manageSecretModeratorInput.checked = isTargetSecretMod;
+      if (manageModeratorWrap) {
+        if (isAdminAccount()) {
+          manageModeratorWrap.classList.remove('hidden');
+          if (manageModeratorInput) manageModeratorInput.checked = isLeaderMod;
+          if (manageSecretModeratorInput) manageSecretModeratorInput.checked = isSecretMod;
+        } else {
+          manageModeratorWrap.classList.add('hidden');
+          if (manageModeratorInput) manageModeratorInput.checked = isLeaderMod;
+          if (manageSecretModeratorInput) manageSecretModeratorInput.checked = isSecretMod;
         }
       }
 
-      if (isAnyMod && !isAdminAccount()) {
-        manageDeleteUserBtn.classList.add('hidden');
-      } else {
-        manageDeleteUserBtn.classList.remove('hidden');
+      if (manageDeleteUserBtn) {
+        if ((isLeaderMod || isSecretMod) && !isAdminAccount()) {
+          manageDeleteUserBtn.classList.add('hidden');
+        } else {
+          manageDeleteUserBtn.classList.remove('hidden');
+        }
       }
 
       manageMemberModal.classList.remove('hidden');
-      if (manageMemberRoleInput) {
-        manageMemberRoleInput.focus();
-      }
-    }
-
-    if (manageModeratorInput && manageSecretModeratorInput) {
-      manageModeratorInput.addEventListener('change', () => {
-        if (manageModeratorInput.checked) {
-          manageSecretModeratorInput.checked = false;
-        }
-      });
-      manageSecretModeratorInput.addEventListener('change', () => {
-        if (manageSecretModeratorInput.checked) {
-          manageModeratorInput.checked = false;
-        }
-      });
     }
 
     function closeManageMemberModal() {
       managingMemberId = null;
-      manageMemberModal.classList.add('hidden');
-      manageMemberStatus.textContent = '';
+      if (manageMemberModal) manageMemberModal.classList.add('hidden');
+      if (manageMemberStatus) manageMemberStatus.textContent = '';
     }
 
-    closeManageMemberBtn.addEventListener('click', closeManageMemberModal);
-    cancelManageMemberBtn.addEventListener('click', closeManageMemberModal);
-    manageMemberModal.addEventListener('click', (e) => {
-      if (e.target === manageMemberModal) closeManageMemberModal();
-    });
+    if (closeManageMemberBtn) closeManageMemberBtn.addEventListener('click', closeManageMemberModal);
+    if (cancelManageMemberBtn) cancelManageMemberBtn.addEventListener('click', closeManageMemberModal);
+    if (manageMemberModal) {
+      manageMemberModal.addEventListener('click', (e) => {
+        if (e.target === manageMemberModal) closeManageMemberModal();
+      });
+    }
 
-    manageMemberForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!hasStaffPrivileges() || !managingMemberId) return;
+    if (manageModeratorInput && manageSecretModeratorInput) {
+      manageModeratorInput.addEventListener('change', () => {
+        if (manageModeratorInput.checked) manageSecretModeratorInput.checked = false;
+      });
+      manageSecretModeratorInput.addEventListener('change', () => {
+        if (manageSecretModeratorInput.checked) manageModeratorInput.checked = false;
+      });
+    }
 
-      const member = rosterMembers.find((m) => m.id === managingMemberId);
-      if (!member) return;
+    if (manageMemberForm) {
+      manageMemberForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!hasStaffPrivileges() || !managingMemberId) return;
 
-      const nextRole = manageMemberRoleInput
-        ? manageMemberRoleInput.value.trim().toUpperCase() || 'ACTIVE_OPERATIVE'
-        : member.role || 'ACTIVE_OPERATIVE';
-      const nextSecretMod = isAdminAccount()
-        ? Boolean(manageSecretModeratorInput && manageSecretModeratorInput.checked)
-        : Boolean(member.isSecretModerator);
-      const nextMod = isAdminAccount()
-        ? !nextSecretMod && Boolean(manageModeratorInput && manageModeratorInput.checked)
-        : !nextSecretMod && Boolean(member.isModerator || member.isLeadership);
+        const member = rosterMembers.find((m) => m.id === managingMemberId);
+        if (!member) return;
 
-      const updatedMember = {
-        ...member,
-        role: nextRole,
-        isModerator: nextMod,
-        isLeadership: nextMod,
-        isSecretModerator: nextSecretMod,
-        updatedAt: Date.now()
-      };
+        const existingSecretMod = Boolean(member.isSecretModerator);
+        const existingLeaderMod = !existingSecretMod && Boolean(member.isModerator || member.isLeadership);
 
-      rosterMembers = rosterMembers.map((m) => (m.id === member.id ? updatedMember : m));
+        let nextSecretMod = existingSecretMod;
+        let nextLeaderMod = existingLeaderMod;
 
-      const linkedAccId = member.id.startsWith('mbr-')
-        ? member.id.slice(4)
-        : `acc-${(member.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
-      const matchedAcc = approvedAccounts.find(
-        (a) => a.id === linkedAccId || (a.username || '').toUpperCase() === (member.name || '').toUpperCase()
-      );
-      if (matchedAcc) {
-        const updatedAcc = {
-          ...matchedAcc,
+        if (isAdminAccount()) {
+          nextSecretMod = Boolean(manageSecretModeratorInput && manageSecretModeratorInput.checked);
+          nextLeaderMod = !nextSecretMod && Boolean(manageModeratorInput && manageModeratorInput.checked);
+        }
+
+        const anyMod = nextLeaderMod || nextSecretMod;
+        const nextRole =
+          (manageMemberRoleInput ? manageMemberRoleInput.value.trim().toUpperCase() : '') ||
+          (anyMod ? 'MODERATOR' : 'ACTIVE_OPERATIVE');
+
+        const updatedMember = {
+          ...member,
           role: nextRole,
-          isModerator: nextMod,
-          isLeadership: nextMod,
+          isModerator: nextLeaderMod,
+          isLeadership: nextLeaderMod,
           isSecretModerator: nextSecretMod,
           updatedAt: Date.now()
         };
-        approvedAccounts = approvedAccounts.map((a) => (a.id === matchedAcc.id ? updatedAcc : a));
-        await saveApprovedAccountToCloud(updatedAcc);
-      }
 
-      closeManageMemberModal();
-      renderWorkspace();
-      await saveMemberToCloud(updatedMember);
-    });
+        rosterMembers = rosterMembers.map((m) => (m.id === member.id ? updatedMember : m));
 
-    manageDeleteUserBtn.addEventListener('click', async () => {
-      if (!hasStaffPrivileges() || !managingMemberId) return;
-      const member = rosterMembers.find((m) => m.id === managingMemberId);
-      if (!member) return;
+        const linkedAccId = member.id.startsWith('mbr-')
+          ? member.id.slice(4)
+          : `acc-${(member.name || '').toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+        const matchedAcc = approvedAccounts.find(
+          (a) => a.id === linkedAccId || (a.username || '').toUpperCase() === (member.name || '').toUpperCase()
+        );
+        if (matchedAcc) {
+          const updatedAcc = {
+            ...matchedAcc,
+            role: nextRole,
+            isModerator: nextLeaderMod,
+            isLeadership: nextLeaderMod,
+            isSecretModerator: nextSecretMod,
+            updatedAt: Date.now()
+          };
+          approvedAccounts = approvedAccounts.map((a) => (a.id === matchedAcc.id ? updatedAcc : a));
+          await saveApprovedAccountToCloud(updatedAcc);
+        }
 
-      const isTargetAnyMod = Boolean(member.isModerator || member.isLeadership || member.isSecretModerator);
-      if (isTargetAnyMod && !isAdminAccount()) {
-        manageMemberStatus.textContent = 'ONLY ADMIN CAN REMOVE MODERATOR ACCOUNTS';
-        return;
-      }
+        closeManageMemberModal();
+        renderWorkspace();
+        await saveMemberToCloud(updatedMember);
+      });
+    }
 
-      const targetMemberId = member.id;
-      const targetNameUpper = (member.name || '').toUpperCase();
-      const linkedAccId = targetMemberId.startsWith('mbr-')
-        ? targetMemberId.slice(4)
-        : `acc-${targetNameUpper.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
+    if (manageDeleteUserBtn) {
+      manageDeleteUserBtn.addEventListener('click', async () => {
+        if (!hasStaffPrivileges() || !managingMemberId) return;
+        const member = rosterMembers.find((m) => m.id === managingMemberId);
+        if (!member) return;
 
-      rosterMembers = rosterMembers.filter((m) => m.id !== targetMemberId);
-      if (selectedId === targetMemberId) selectedId = null;
+        const isTargetMod = Boolean(member.isModerator || member.isLeadership || member.isSecretModerator);
+        if (isTargetMod && !isAdminAccount()) {
+          if (manageMemberStatus) manageMemberStatus.textContent = 'ONLY ADMIN CAN REMOVE MODERATOR ACCOUNTS';
+          return;
+        }
 
-      const matchedAcc = approvedAccounts.find(
-        (a) => a.id === linkedAccId || (a.username || '').toUpperCase() === targetNameUpper
-      );
-      if (matchedAcc) {
-        approvedAccounts = approvedAccounts.filter((a) => a.id !== matchedAcc.id);
-        await deleteApprovedAccountFromCloud(matchedAcc.id);
-      }
+        const targetMemberId = member.id;
+        const targetNameUpper = (member.name || '').toUpperCase();
+        const linkedAccId = targetMemberId.startsWith('mbr-')
+          ? targetMemberId.slice(4)
+          : `acc-${targetNameUpper.toLowerCase().replace(/[^a-z0-9_-]/g, '_')}`;
 
-      closeManageMemberModal();
-      renderWorkspace();
-      await deleteMemberFromCloud(targetMemberId);
-    });
+        rosterMembers = rosterMembers.filter((m) => m.id !== targetMemberId);
+        if (selectedId === targetMemberId) selectedId = null;
 
-    /**
-     * 11. FULL-SIZE IMAGE LIGHTBOX
-     */
+        const matchedAcc = approvedAccounts.find(
+          (a) => a.id === linkedAccId || (a.username || '').toUpperCase() === targetNameUpper
+        );
+        if (matchedAcc) {
+          approvedAccounts = approvedAccounts.filter((a) => a.id !== matchedAcc.id);
+          await deleteApprovedAccountFromCloud(matchedAcc.id);
+        }
+
+        closeManageMemberModal();
+        renderWorkspace();
+        await deleteMemberFromCloud(targetMemberId);
+      });
+    }
+
     function openLightbox(src, title) {
+      if (!lightboxModal || !lightboxImg) return;
       lightboxImg.src = src;
-      lightboxTitle.textContent = `${title || 'OPTIC_CAPTURE'} // FULL_RESOLUTION`;
+      if (lightboxTitle) lightboxTitle.textContent = `${title || 'OPTIC_CAPTURE'} // FULL_RESOLUTION`;
       lightboxModal.classList.remove('hidden');
     }
 
     function closeLightbox() {
-      lightboxModal.classList.add('hidden');
-      lightboxImg.src = '';
+      if (lightboxModal) lightboxModal.classList.add('hidden');
+      if (lightboxImg) lightboxImg.src = '';
     }
 
-    closeLightboxBtn.addEventListener('click', closeLightbox);
-    lightboxModal.addEventListener('click', (e) => {
-      if (e.target === lightboxModal) closeLightbox();
-    });
+    if (closeLightboxBtn) closeLightboxBtn.addEventListener('click', closeLightbox);
+    if (lightboxModal) {
+      lightboxModal.addEventListener('click', (e) => {
+        if (e.target === lightboxModal) closeLightbox();
+      });
+    }
 
-    /**
-     * 12. GLOBAL ESCAPE KEY HANDLER
-     */
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        if (!lightboxModal.classList.contains('hidden')) {
+        if (lightboxModal && !lightboxModal.classList.contains('hidden')) {
           closeLightbox();
-        } else if (!informantLinkModal.classList.contains('hidden')) {
-          closeInformantLinkModal();
-        } else if (!pmReaderModal.classList.contains('hidden')) {
+        } else if (pmReaderModal && !pmReaderModal.classList.contains('hidden')) {
           closePmReaderModal();
-        } else if (!sendPmModal.classList.contains('hidden')) {
+        } else if (sendPmModal && !sendPmModal.classList.contains('hidden')) {
           closeSendPmModal();
-        } else if (!notificationsModal.classList.contains('hidden')) {
+        } else if (notificationsModal && !notificationsModal.classList.contains('hidden')) {
           notificationsModal.classList.add('hidden');
-        } else if (!requestReaderModal.classList.contains('hidden')) {
+        } else if (requestReaderModal && !requestReaderModal.classList.contains('hidden')) {
           closeRequestReaderModal();
-        } else if (!makeRequestModal.classList.contains('hidden')) {
+        } else if (makeRequestModal && !makeRequestModal.classList.contains('hidden')) {
           closeMakeRequestModal();
-        } else if (!requestsModal.classList.contains('hidden')) {
+        } else if (requestsModal && !requestsModal.classList.contains('hidden')) {
           requestsModal.classList.add('hidden');
-        } else if (!manageMemberModal.classList.contains('hidden')) {
+        } else if (manageMemberModal && !manageMemberModal.classList.contains('hidden')) {
           closeManageMemberModal();
-        } else if (!createModal.classList.contains('hidden')) {
+        } else if (informantLinkModal && !informantLinkModal.classList.contains('hidden')) {
+          closeInformantLinkModal();
+        } else if (createModal && !createModal.classList.contains('hidden')) {
           closeCreateModal();
-        } else if (!readerModal.classList.contains('hidden')) {
+        } else if (readerModal && !readerModal.classList.contains('hidden')) {
           closeReaderModal();
         }
       }
     });
 
-    // Apply initial defaults and start global site settings sync before login
     applyGlobalSiteSettings(globalSiteSettings);
-    if (activeInformantToken) {
-      startGlobalSettingsListener();
-    } else {
-      startGlobalSettingsListener();
-    }
+    startGlobalSettingsListener();
   </script>
 </body>
 </html>
